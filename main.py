@@ -5,9 +5,6 @@ import time
 import argparse
 import settings
 
-import keras_segmentation.models as models
-import keras_segmentation.pretrained as pretrained
-
 from dl.model import utils
 from dl.model import unet
 from keras.callbacks import ModelCheckpoint
@@ -33,6 +30,7 @@ def get_dl_model(network_type, load_param):
     """
     Source: https://github.com/divamgupta/image-segmentation-keras
     :param network_type:
+    :param load_param:
     :return:
     """
     model_obj = None
@@ -43,20 +41,7 @@ def get_dl_model(network_type, load_param):
         input_size = (load_param['input_size_w'], load_param['input_size_h'], 1)
         model_obj = unet.UNet().model(input_size)
 
-    elif network_type == 'pspnet':
-        logging.info(">> PSPNET model selected...")
-        # model_obj = models.pspnet.pspnet(n_classes=n_classes,
-        #                              input_height=input_height,
-        #                              input_width=input_width)
-        pass
-
-    elif network_type == 'segnet':
-        logging.info(">> SEGNET model selected...")
-        # model_obj = models.segnet.segnet(n_classes=n_classes,
-        #                              input_height=input_height,
-        #                              input_width=input_width)
-        pass
-
+    # TODO: include deeplabv3 as alternative to the set of dl models
     elif network_type == 'deeplabv3':
         logging.info(">> DEEPLABv3 model selected...")
         pass
@@ -82,17 +67,16 @@ def main(network_type, is_training, is_predicting):
 
     if eval(is_training):
         generator_obj = utils.DL().training_generator(network_type)
-
         filepath = os.path.join(settings.DL_PARAM[network_type]['output_checkpoints'],
-                                "weights-improvement-{epoch:02d}-{val_accuracy:.2f}.hdf5")
-        checkpoint = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
+                                "weights-improvement-{epoch:02d}-{loss:.2f}.hdf5")
+        checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='max')
+        dl_obj.fit(generator_obj,
+                   steps_per_epoch=50,
+                   epochs=settings.DL_PARAM[network_type]['epochs'],
+                   callbacks=[checkpoint])
 
-        dl_obj.fit_generator(generator_obj, steps_per_epoch=10, epochs=1, callbacks=[checkpoint])
-
+    # TODO: include inference procedures
     if eval(is_predicting):
-        # testGene = testGenerator("data/membrane/test")
-        # results = model.predict_generator(testGene, 30, verbose=1)
-        # saveResult("data/membrane/test", results)
         pass
 
     end_time = time.time()
@@ -100,10 +84,16 @@ def main(network_type, is_training, is_predicting):
 
 
 if __name__ == '__main__':
+    """
+    usage:
+        python main.py -model unet -train True -predict False -verbose True
+        python main.py -model unet -train False -predict True -verbose True
+        python main.py -model unet -train True -predict True -verbose True
+    """
     parser = argparse.ArgumentParser(
         description='Make a stack composition from Sentinel-1 polarization bands, which enhances '
                     'land-changes under the canopies')
-    parser.add_argument('-model', action="store", dest='model', help='Deep Learning model name: unet, pspnet, segnet')
+    parser.add_argument('-model', action="store", dest='model', help='Deep Learning model name: unet, deeplabv3')
     parser.add_argument('-train', action="store", dest='train', help='Perform neural network training?')
     parser.add_argument('-predict', action="store", dest='predict', help='Perform neural network prediction?')
     parser.add_argument('-verbose', action="store", dest='verbose', help='Print log of processing')

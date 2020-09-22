@@ -1,13 +1,9 @@
-import os
-import skimage.io as io
-import skimage.transform as trans
 import logging
 import settings
 
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
-from keras.preprocessing.image import ImageDataGenerator
 
 
 class UNet:
@@ -68,7 +64,7 @@ class UNet:
             conv9 = Conv2D(2, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)
             conv10 = Conv2D(1, 1, activation='sigmoid')(conv9)
 
-            model_obj = Model(input=inputs, output=conv10)
+            model_obj = Model(inputs, conv10)
             model_obj.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy', metrics=['accuracy'])
 
             if load_unet_parameters['pretrained_weights'] != '':

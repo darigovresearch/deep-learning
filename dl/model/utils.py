@@ -1,8 +1,9 @@
 import os
+import numpy as np
 import skimage.io as io
+
 import settings
 
-from keras.optimizers import *
 from keras.preprocessing.image import ImageDataGenerator
 
 
@@ -10,7 +11,7 @@ class DL:
     def __init__(self):
         pass
 
-    def training_generator(self, network_type, image_folder, mask_folder):
+    def training_generator(self, network_type):
         """
         can generate image and mask at the same time
         use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
@@ -25,7 +26,7 @@ class DL:
         image_generator = image_datagen.flow_from_directory(
             settings.DL_DATASET,
             class_mode=None,
-            classes=[image_folder],
+            classes=['image'],
             save_prefix='image',
             save_to_dir=None,
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
@@ -37,47 +38,7 @@ class DL:
         mask_generator = mask_datagen.flow_from_directory(
             settings.DL_DATASET,
             class_mode=None,
-            classes=[mask_folder],
-            save_prefix='ann',
-            save_to_dir=None,
-            target_size=(settings.DL_PARAM[network_type]['input_size_w'],
-                         settings.DL_PARAM[network_type]['input_size_h']),
-            seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode=settings.DL_PARAM[network_type]['color_mode'],
-            batch_size=settings.DL_PARAM[network_type]['batch_size'],
-            shuffle=True)
-
-        train_generator = zip(image_generator, mask_generator)
-
-        return train_generator
-
-    def training_generator(self, network_type):
-        """
-        can generate image and mask at the same time
-        use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
-        if you want to visualize the results of generator, set save_to_dir = "your path"
-        """
-        data_gen_args = dict(rescale=1./255, rotation_range=90, width_shift_range=0.1, height_shift_range=0.1,
-                             shear_range=0.05, zoom_range=0.2, horizontal_flip=True, featurewise_center=True,
-                             featurewise_std_normalization=True, fill_mode='nearest')
-
-        image_datagen = ImageDataGenerator(**data_gen_args)
-        mask_datagen = ImageDataGenerator(**data_gen_args)
-
-        image_generator = image_datagen.flow_from_directory(
-            settings.DL_DATASET,
-            class_mode=None,
-            save_prefix='image',
-            save_to_dir=None,
-            target_size=(settings.DL_PARAM[network_type]['input_size_w'],
-                         settings.DL_PARAM[network_type]['input_size_h']),
-            seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode=settings.DL_PARAM[network_type]['color_mode'],
-            batch_size=settings.DL_PARAM[network_type]['batch_size'],
-            shuffle=True)
-        mask_generator = mask_datagen.flow_from_directory(
-            settings.DL_DATASET,
-            class_mode=None,
+            classes=['label'],
             save_prefix='ann',
             save_to_dir=None,
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
