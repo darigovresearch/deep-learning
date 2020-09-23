@@ -182,10 +182,10 @@ then, reboot the system.
 
 As mentioned before, TensorFlow will seek for some of the CUDA libraries during training. As reported by many users, is possible that some of them is installed in different location in your filesystem. To guarantee your `LD_LIBRARY_PATH` is pointing out to the right folder, add the 
 
-If you followed all steps and have it installed properly, then, the final steps is  So, add the following lines to your `~\.bashrc` file using `nano` or any other editor:
+If you followed all steps and have it installed properly, then, the final steps is  So, add the following lines to your `~\.bashrc` file using `nano` or any other editor (check the version to replace on `XXX`):
 ```
-export PATH=$PATH:/
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/cuda-11.0/lib64
+export PATH=/usr/local/cuda-XXX/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda-XXX/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 ```
 right after, updated it:
 ```
@@ -194,7 +194,7 @@ source ~/.bashrc
 
 If you followed all steps and have it installed properly, you are ready to train your model!
 
-**For more details, follow the issue reported [here](https://stackoverflow.com/questions/60208936/cannot-dlopen-some-gpu-libraries-skipping-registering-gpu-devices).**
+**For more details, follow the issue reported [here](https://stackoverflow.com/questions/60208936/cannot-dlopen-some-gpu-libraries-skipping-registering-gpu-devices) and [here](https://askubuntu.com/questions/1145946/tensorflow-wont-import-with-sudo-python3).**
 
 # Examples 
 ## Training the model:
