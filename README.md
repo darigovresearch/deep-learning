@@ -16,7 +16,7 @@ Beyond the routines, three main methods have been developed: image tiling, vecto
 This command-line solution was mainly use for image processing analysis, for specific applications and specific purposes. Most of the methods and libraries to solve these particular events might have alternatives 
 
 ## Python version and OS
-The `image-processing` was developed using Python version 3.7+, and **Linux 19.10 eoan** operational system. 
+The `deep-learning` was developed using Python version 3.7+, and **Linux 20.4 LTS focal fossa** operational system. 
 
 # Prepare your virtual environment
 First of all, check if you have installed the libraries needed:
@@ -34,102 +34,176 @@ source .venv/bin/activate
 as soon you have it done, you are ready to install the requirements.
 
 ## Preparing your `.env` file
-
-This library uses decoupling, which demands you to set up variables that is only presented locally, for instance, the path you want to save something, or the resources of your project. In summary, your environment variables. So, copy a paste the file `.env-example` and rename it to `.env`. Afterwards, just fill out each of the variables content 
-within the file:
+This library uses decoupling, which demands you to set up variables that is only presented locally, for instance, the path you want to save something, or the resources of your project. In summary, your environment variables. So, copy a paste the file `.env-example` and rename it to `.env`. Afterwards, just fill out each of the variables content within the file:
 ```
 DL_DATASET=PATH_TO_TRAINING_FOLDER
 ```
 
 ## Installing `requirements.txt`
+If you do not intent to use GPU, there is no need to install support to it. So, in requirements file, make sure to set `tensorflow-gpu` to only `tensorflow`. If everything is correct, and you **virtualenv** is activated, execute: 
 ```
 pip install -r requirements.txt
 ```
 
 ## The `settings.py` file:
-This file centralized all constants variable used in the code. Until now, only the constants below were required. The shapefiles usually has with it a attribute table, where the geographic geometry and metadata are stored:
-<img src="pics/attribute-table.png">
+This file centralized all constants variable used in the code, in particular, the constants that handle all the DL model. As we first introduce the [UNet](https://lmb.informatik.uni-freiburg.de/Publications/2015/RFB15a/) DL architecture, 
 
-This shapefile should have at least one column for the class name. The class name to be read is indicated by `CLASS_NAME` variable. This shapefile could also have multiple classes, for each one, a color should be specified. The values specified in `CLASSES` gives either the exact name of the class as its respective RGB color.  
+Thus, the Python dictionary `DL_PARAM` splits all the values and parameters by model type. In this case, only the UNet architecture was implemented:
 ```
-VALID_RASTER_EXTENSION = (".tif", ".tiff", ".TIF", ".TIFF")
-VALID_VECTOR_EXTENSION = ".shp"
+import os
 
-CLASS_NAME = 'class' # <---- column name in attribut table
-CLASSES = {
-    "nut": [102, 153, 0],
-    "palm": [153, 255, 153]
+from decouple import config
+
+DL_DATASET = config('DL_DATASET')
+
+DL_PARAM = {
+    'unet': {
+        'image_training_folder': os.path.join(DL_DATASET, 'image'),
+        'annotation_training_folder': os.path.join(DL_DATASET, 'label'),
+        'output_prediction': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'inference'),
+        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'weight'),
+        'pretrained_weights': '',
+        'input_size_w': 128,
+        'input_size_h': 128,
+        'input_size_c': 3,
+        'batch_size': 16,
+        'filters': 64,
+        'color_mode': 'grayscale',
+        'seed': 1,
+        'epochs': 500,
+        'classes': {
+                "nut": [102, 153, 0],
+                "palm": [153, 255, 153],
+                'other': [0, 0, 0]
+        }
+    },    
+    ...
 }
 ```
-annotation image after processing (with RGB color (102,153,0) for `nut` class):
-<img src="pics/annotation.png">
+in this way, if a new model is introduced to the code, a new key is add to this dictionary with its respective name, then, it will automatically load all the parameters according to the type of mode the user choose in the `-model` command-line option. For instance, if a [PSPNet](https://arxiv.org/abs/1612.01105v2) is included:
+```
+DL_PARAM = {
+    'unet': {
+        'image_training_folder': os.path.join(DL_DATASET, 'image'),
+        'annotation_training_folder': os.path.join(DL_DATASET, 'label'),
+        'output_prediction': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'inference'),
+        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'weight'),
+        'pretrained_weights': '',
+        'input_size_w': 128,
+        'input_size_h': 128,
+        'input_size_c': 3,
+        'batch_size': 16,
+        'filters': 64,
+        'color_mode': 'grayscale',
+        'seed': 1,
+        'epochs': 500,
+        'classes': {
+                "nut": [102, 153, 0],
+                "palm": [153, 255, 153],
+                'other': [0, 0, 0]
+        }
+    },    
+    'pspnet': {
+        'image_training_folder': os.path.join(DL_DATASET, 'image'),
+        'annotation_training_folder': os.path.join(DL_DATASET, 'label'),
+        'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'nut', 'inference'),
+        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'nut', 'weight'),
+        'pretrained_weights': '',
+        'input_size_w': 256,
+        'input_size_h': 256,
+        'input_size_c': 3,
+        'batch_size': 2,
+        'filters': 128,
+        'color_mode': 'grayscale',
+        'seed': 2,
+        'epochs': 1500,
+        'classes': {
+                "nut": [102, 153, 0],                
+                'other': [0, 0, 0]
+        }
+    }
+}
+```
+
+## The hierarchy of folders:
+It is very recommended to prepare the hierarchy of folders as described in this section. When the training samples are build, as described in [bioverse image-processing](https://github.com/Bioverse-Labs/image-processing), four main folders are created: one for raster, one for the annotation (i.e. ground-truth, label, reference images), one to save the predictions (i.e. inferences), and finally one to store the validation samples. Besides, in order to conduct multiple test, such as different dimensions and classes of training samples, subfolders are also created under each folder, such as:
+```
+training/
+├── image/
+│   ├── :: imagens in PNG extension
+├── label/
+│   ├── :: annotation imagens in PNG extension
+├── predictions/
+│   ├── 128/
+│   │   ├── class-1/
+│   │   │   ├── inference/
+│   │   │   └── weight/
+│   │   └── class-2/
+│   │   │   ├── inference/
+│   │   │   └── weight/
+│   └── 256/
+│       ...
+└── validation/
+    ├── 128/
+    │   ├── class-1/
+    │   └── class-2/
+    └── 256/
+    │   ├── class-1/
+    │   └── class-2/
+```
+
+This suggestion of folder hierarchy is not mandatory, just make sure the paths is correctly pointed in `settings.py` file.
+
+## NVIDIA's driver and CUDA for Ubuntu 20.4
+For most of the processing and research approaching Deep Learning (DL) methodologies, a certain computational power is needed. Recently, the use of GPUs has expanded the horizon of heavy machine learning processing such as the DL demands. 
+
+TensorFlow GPU support requires an assortment of drivers and libraries. To simplify installation and avoid library conflicts, the TensorFlow recommends the use of a [TensorFlow Docker Image](https://www.tensorflow.org/install/docker), which incorporates all the setups needed to this kind of procedure. For more details, please, access the [TensorFlow official page](https://www.tensorflow.org/install/gpu).
+
+Considering not using a Docker image, there are many tutorials in how to install your NVIDIA's driver and CUDA toolkit, such as described in [Google Cloud](https://cloud.google.com/compute/docs/gpus/install-drivers-gpu#ubuntu-driver-steps), [NVIDIA Dev](https://developer.nvidia.com/cuda-downloads), or even a particular pages. The way presented here, could vary in your need. So, if you want to prepare your environment based in a complete different OS or architecture, just follow the right steps in the provider website, and make sure to have all the cuda libraries listed in `LD_LIBRARY_PATH`.
+
+So, for Linux OS, x86_64 arch, Tensorflow 2.1+, and Ubuntu LTS 20.04, first, it is necessary to install all software requirements, which includes: 
+- NVIDIA® GPU drivers — CUDA® 10.1 requires 418.x or higher.
+- CUDA® Toolkit — TensorFlow supports CUDA® 10.1 (TensorFlow >= 2.1.0)
+- CUPTI ships with the CUDA® Toolkit.
+- cuDNN SDK 7.6
+- (Optional) TensorRT 6.0 to improve latency and throughput for inference on some models.
+
+to install CUDA® 10 (TensorFlow >= 1.13.0) on Ubuntu 16.04 and 18.04. These instructions may work for other Debian-based distros.
+```
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+wget https://developer.download.nvidia.com/compute/cuda/11.0.3/local_installers/cuda-repo-ubuntu2004-11-0-local_11.0.3-450.51.06-1_amd64.deb
+sudo dpkg -i cuda-repo-ubuntu2004-11-0-local_11.0.3-450.51.06-1_amd64.deb
+sudo apt-key add /var/cuda-repo-ubuntu2004-11-0-local/7fa2af80.pub
+sudo apt-get update
+sudo apt-get -y install cuda
+```
+then, reboot the system.
+
+As mentioned before, TensorFlow will seek for some of the CUDA libraries during training. As reported by many users, is possible that some of them is installed in different location in your filesystem. To guarantee your `LD_LIBRARY_PATH` is pointing out to the right folder, add the 
+
+If you followed all steps and have it installed properly, then, the final steps is  So, add the following lines to your `~\.bashrc` file using `nano` or any other editor:
+```
+export PATH=$PATH:/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/cuda-11.0/lib64
+```
+right after, updated it:
+```
+source ~/.bashrc
+```
+
+If you followed all steps and have it installed properly, you are ready to train your model!
+
+**For more details, follow the issue reported [here](https://stackoverflow.com/questions/60208936/cannot-dlopen-some-gpu-libraries-skipping-registering-gpu-devices).**
 
 # Examples 
-## Running the raster tilling:
-The raster tiling consists in crop the full image in small peaces in order to get a required dimension for most of the supervised classifiers. 
-
-Here, the procedure demands 6 arguments, which are the procedure to be executed (`-procedure`), the full image path (TIFF format - `-image`), the output to the tiles (`-output`), the width dimension of the tiles (`-tile_width`), the height dimension of the tiles (`-tile_height`), and a boolean verbose outcomes (`-verbose`). 
+## Training the model:
 ```
-python main.py -procedure tiling_raster 
-               -image PATH_TO_FULL_IMAGE_IN_TIFF_FORMAT  
-               -output PATH_TO_OUTPUT_RASTER_TILES
-               -tile_width DIMESION_OF_TILES 
-               -tile_height DIMESION_OF_TILES 
-               -verbose BOOLEAN
+python main.py -model unet -train True -predict False -verbose True
 ```
-**In Linux, it should be run in main folder**
+## Predicting with an existent weight:
 
-## Running the vector tilling:
-The vector tiling consists in crop the full shapefile in small peaces according to the raster tiles extends processed before. The procedure saves a tiled shapefile if the full shapefile intersect a raster tile. If it does not intersect, the raster tile is then deleted (in order to save space). 
-
-Here, the procedure demands 6 arguments, which are the procedure to be executed (`-procedure`), the full shapefile path (SHP format - `-image_tiles`), the output to the tiles (`-output`), the shapefile reference (`-shapefile_reference`), and a boolean verbose outcomes (`-verbose`). 
-```
-python main.py -procedure tiling_vector
-               -image_tiles PATH_TO_OUTPUT_RASTER_TILES  
-               -output PATH_TO_OUTPUT_VECTOR_TILES
-               -shapefile_reference PATH_TO_REFERENCE_SHAPEFILES               
-               -verbose BOOLEAN
-```
-**In Linux, it should be run in main folder**
-
-## Running the SHP to PNG convertion:
-The vector tiling consists in crop the full shapefile in small peaces according to the raster tiles extends processed before. The procedure saves a tiled shapefile if the full shapefile intersect a raster tile. If it does not intersect, the raster tile is then deleted (in order to save space). 
-
-Here, the procedure demands 6 arguments, which are the procedure to be executed (`-procedure`), the shapefile tiles path (`-shapefile_folder`), the output to the final annotation images (`-output`), the width dimension of the tiles (`-tile_width`), the height dimension of the tiles (`-tile_height`), and a boolean verbose outcomes (`-verbose`). 
-```
-python main.py -procedure shp2png
-               -shapefile_folder PATH_TO_VECTOR_TILES
-               -output PATH_TO_SAVE_ANNOTATION_IMAGES
-               -tile_width DIMESION_OF_TILES 
-               -tile_height DIMESION_OF_TILES 
-               -verbose BOOLEAN
-```
-**In Linux, it should be run in main folder**
-
-## Bash for sequencial processing `run.sh`
-Compiling the three procedures in one, the shellscript `run.sh`, in the main folder, can be then apply for multiple images and shapefiles, generating a consistent amount of samples. So, this file simply summary all processing until the final pair of training samples, which is the pair of image and its correspondent reference (annotation image). So, the only thing needed are the full images (preference in `.tiff` format), and its full correspondent shapefiles (ESRI Shapefile format - `.shp` extension).
-```
-RASTER_PATH=$1
-RASTER_TILE_OUTPUT=$2
-SQUARED_DIMENSION=$3
-VECTOR_PATH=$4
-VECTOR_TILE_OUTPUT=$5
-OUTPUT_ANNOTATION=$6
-
-for entry in "$RASTER_PATH"*
-do
-  if [ -f "$entry" ];then
-    filename=$(basename $entry)
-
-    python main.py -procedure tiling_raster -image "$entry" -output "$RASTER_TILE_OUTPUT" -tile_width "$SQUARED_DIMENSION" -tile_height "$SQUARED_DIMENSION" -verbose True &&
-    python main.py -procedure tiling_vector -image_tiles "$RASTER_TILE_OUTPUT" -output "$VECTOR_TILE_OUTPUT" -shapefile_reference "$VECTOR_PATH" -verbose True
-  fi
-done
-
-python main.py -procedure shp2png -image "$RASTER_TILE_OUTPUT" -shapefile_folder "$VECTOR_TILE_OUTPUT" -output "$OUTPUT_ANNOTATION" -tile_width "$SQUARED_DIMENSION" -tile_height "$SQUARED_DIMENSION" -verbose True
-```
 
 # TODO-list
-
 This source-code is being released for specific applications, and for those who probably has similar needs. For this reason, we still have a lot to do in terms of unit tests, python conventions, optimization issues, refactoring, so on! So, Feel free to use and any recommendation or PRs will be totally welcome!
 
