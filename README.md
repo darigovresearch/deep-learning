@@ -16,9 +16,10 @@
 # Bioverse Labs (deep-learning module)
 The deep-learning module incorporate essential procedures to prepare remote sensing images mostly for automatic classification methods, in this case specifically, deep-learning approaches. 
 
-Beyond the routines, three main methods have been developed: image tiling, vector tiling, annotation images preparation, among other independent preprocessing procedures (available in `/scripts`).
+Beyond the routines, this code was prepared to have a personal use or even ready for adaptation to be run in server-side. The ain is to incorporate some of the main Deep Learning models for remote sensing image analysis and mapping. In this version, the following DL architectures were tested:
+- [UNet](https://lmb.informatik.uni-freiburg.de/Publications/2015/RFB15a/)
 
-**All modules available here are under construction. Therefore, many errors and malfunctions can occur.**
+**All modules available here are under construction. Therefore, many errors and malfunctions can occur for your specific needs.**
 
 1. [Setting up your environment](#1-Setting-up-your-environment)
 2. [Prepare your virtual environment](#2-Prepare-your-virtual-environment)
@@ -26,7 +27,7 @@ Beyond the routines, three main methods have been developed: image tiling, vecto
 4. [TODO-list](#4-TODO-list)
 
 # Setting up your Python environment
-This command-line solution was mainly use for image processing analysis, for specific applications and specific purposes. Most of the methods and libraries to solve these particular events might have alternatives 
+This command-line solution was mainly used for training and prediction of remote sensing images, which have a more dynamic use of image bands and wider radiometric values (normally, 16 bits), and was created to be permissive and easily extended on very similar purposes (remote sensing). Most of the methods and libraries presented, were used to solve these particular events, and certainly have a lot of other alternatives out there. Please, feel free to share and contribute. 
 
 ## Python version and OS
 The `deep-learning` was developed using Python version 3.7+, and **Linux 20.4 LTS focal fossa** operational system. 
@@ -250,10 +251,22 @@ Epoch 1/500
 ...
 ```
 
-
 ## Predicting with an existent weight:
 
 
 # TODO-list
 This source-code is being released for specific applications, and for those who probably has similar needs. For this reason, we still have a lot to do in terms of unit tests, python conventions, optimization issues, refactoring, so on! So, Feel free to use and any recommendation or PRs will be totally welcome!
+
+```
+-- refactor docstring
+-- include alternative to the set of dl models:
+    --- pspnet
+    --- deeplabv3+
+    --- segnet
+-- finish inferece procedure: single 
+    --- image
+    --- multiple images
+    --- dynamic resolution
+-- unittest over basic methods: filesystem/IO, organization, params
+```
 
