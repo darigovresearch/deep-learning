@@ -27,7 +27,7 @@ Beyond the routines, this code was prepared to have a personal use or even ready
 4. [TODO-list](#4-TODO-list)
 
 # Setting up your Python environment
-This command-line solution was mainly used for training and prediction of remote sensing images, which have a more dynamic use of image bands and wider radiometric values (normally, 16 bits), and was created to be permissive and easily extended on very similar purposes (remote sensing). Most of the methods and libraries presented, were used to solve these particular events, and certainly have a lot of other alternatives out there. Please, feel free to share and contribute. 
+This command-line solution was mainly used for training and prediction of remote sensing images, which have a more dynamic use of image bandsLICENSE and wider radiometric values (normally, 16 bits), and was created to be permissive and easily extended on very similar purposes (remote sensing). Most of the methods and libraries presented, were used to solve these particular events, and certainly have a lot of other alternatives out there. Please, feel free to share and contribute. 
 
 ## Python version and OS
 The `deep-learning` was developed using Python version 3.7+, and **Linux 20.4 LTS focal fossa** operational system. 
@@ -263,8 +263,8 @@ This source-code is being released for specific applications, and for those who 
     --- pspnet
     --- deeplabv3+
     --- segnet
--- finish inferece procedure: single 
-    --- image
+-- finish inferece procedure:
+    --- single image
     --- multiple images
     --- dynamic resolution
 -- unittest over basic methods: filesystem/IO, organization, params
