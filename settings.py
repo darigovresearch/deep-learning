@@ -6,8 +6,10 @@ DL_DATASET = config('DL_DATASET')
 
 DL_PARAM = {
     'unet': {
-        'image_training_folder': os.path.join(DL_DATASET, 'image'),
-        'annotation_training_folder': os.path.join(DL_DATASET, 'label'),
+        'image_training_folder': os.path.join(DL_DATASET, 'training', 'image'),
+        'annotation_training_folder': os.path.join(DL_DATASET, 'training', 'label'),
+        'image_validation_folder': os.path.join(DL_DATASET, 'validation', 'image'),
+        'annotation_validation_folder': os.path.join(DL_DATASET, 'validation', 'label'),
         'output_prediction': os.path.join(DL_DATASET, 'predictions', '128', 'inference'),
         'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '128', 'weight'),
         'pretrained_weights': '',
@@ -18,7 +20,7 @@ DL_PARAM = {
         'filters': 64,
         'color_mode': 'grayscale',
         'seed': 1,
-        'epochs': 500,
+        'epochs': 3000,
         'classes': {
                 "nut": [102, 153, 0],
                 "palm": [153, 255, 153],
@@ -26,8 +28,10 @@ DL_PARAM = {
         }
     },
     'deeplabv3': {
-        'image_training_folder': os.path.join(DL_DATASET, 'image'),
-        'annotation_training_folder': os.path.join(DL_DATASET, 'label'),
+        'image_training_folder': os.path.join(DL_DATASET, 'training', 'image'),
+        'annotation_training_folder': os.path.join(DL_DATASET, 'training', 'label'),
+        'image_validation_folder': os.path.join(DL_DATASET, 'validation', 'image'),
+        'annotation_validation_folder': os.path.join(DL_DATASET, 'validation', 'label'),
         'output_prediction': os.path.join(DL_DATASET, 'predictions', '128', 'inference'),
         'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '128', 'weight'),
         'pretrained_weights': '',
@@ -38,7 +42,7 @@ DL_PARAM = {
         'filters': 64,
         'color_mode': 'grayscale',
         'seed': 1,
-        'epochs': 500,
+        'epochs': 3000,
         'classes': {
                 "nut": [102, 153, 0],
                 "palm": [153, 255, 153],
