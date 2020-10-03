@@ -20,27 +20,19 @@ class DL:
         data_gen_args = dict(rescale=1. / 255, rotation_range=90, width_shift_range=0.1, height_shift_range=0.1,
                              shear_range=0.05, zoom_range=0.2, horizontal_flip=True, fill_mode='nearest')
 
-        image_datagen = ImageDataGenerator(**data_gen_args)
-        mask_datagen = ImageDataGenerator(**data_gen_args)
+        train_datagen = ImageDataGenerator(**data_gen_args)
+        val_datagen = ImageDataGenerator(**data_gen_args)
 
-        image_generator = image_datagen.flow_from_directory(
-            settings.DL_DATASET,
-            class_mode=None,
-            classes=['image'],
-            save_prefix='image',
-            save_to_dir=None,
+        image_generator = train_datagen.flow_from_directory(
+            os.path.join(settings.DL_DATASET, 'training'),
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
             seed=settings.DL_PARAM[network_type]['seed'],
             color_mode=settings.DL_PARAM[network_type]['color_mode'],
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
             shuffle=True)
-        mask_generator = mask_datagen.flow_from_directory(
-            settings.DL_DATASET,
-            class_mode=None,
-            classes=['label'],
-            save_prefix='ann',
-            save_to_dir=None,
+        mask_generator = val_datagen.flow_from_directory(
+            os.path.join(settings.DL_DATASET, 'validation'),
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
             seed=settings.DL_PARAM[network_type]['seed'],
