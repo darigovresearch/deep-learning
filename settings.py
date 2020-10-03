@@ -8,8 +8,8 @@ DL_PARAM = {
     'unet': {
         'image_training_folder': os.path.join(DL_DATASET, 'image'),
         'annotation_training_folder': os.path.join(DL_DATASET, 'label'),
-        'output_prediction': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'inference'),
-        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'weight'),
+        'output_prediction': os.path.join(DL_DATASET, 'predictions', '128', 'inference'),
+        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '128', 'weight'),
         'pretrained_weights': '',
         'input_size_w': 128,
         'input_size_h': 128,
@@ -28,8 +28,8 @@ DL_PARAM = {
     'deeplabv3': {
         'image_training_folder': os.path.join(DL_DATASET, 'image'),
         'annotation_training_folder': os.path.join(DL_DATASET, 'label'),
-        'output_prediction': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'inference'),
-        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'weight'),
+        'output_prediction': os.path.join(DL_DATASET, 'predictions', '128', 'inference'),
+        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '128', 'weight'),
         'pretrained_weights': '',
         'input_size_w': 128,
         'input_size_h': 128,
