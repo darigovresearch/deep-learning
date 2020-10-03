@@ -4,10 +4,10 @@ import logging
 import time
 import argparse
 import settings
+import tensorflow as tf
 
 from dl.model import utils
 from dl.model import unet
-from keras.callbacks import ModelCheckpoint
 from coloredlogs import ColoredFormatter
 
 
@@ -68,12 +68,20 @@ def main(network_type, is_training, is_predicting):
     if eval(is_training):
         generator_obj = utils.DL().training_generator(network_type)
         filepath = os.path.join(settings.DL_PARAM[network_type]['output_checkpoints'],
-                                "weights-improvement-{epoch:02d}-{loss:.2f}.hdf5")
-        checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='max')
+                                "model-{epoch:02d}-{val_accuracy:.2f}.hdf5")
+        callbacks = [
+            tf.keras.callbacks.EarlyStopping(patience=2),
+            tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='val_accuracy',
+                                               verbose=1, save_best_only=False, mode='auto'),
+            tf.keras.callbacks.TensorBoard(log_dir=settings.DL_PARAM[network_type]['tensorboard_log_dir']),
+        ]
+
         dl_obj.fit(generator_obj,
                    steps_per_epoch=50,
                    epochs=settings.DL_PARAM[network_type]['epochs'],
-                   callbacks=[checkpoint])
+                   # validation_data=(os.listdir(settings.DL_PARAM[network_type]['image_validation_folder']),
+                   #                  os.listdir(settings.DL_PARAM[network_type]['annotation_validation_folder'])),
+                   callbacks=callbacks)
 
     # TODO: include inference procedures
     if eval(is_predicting):
