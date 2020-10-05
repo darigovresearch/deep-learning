@@ -18,7 +18,7 @@ class UNet:
         if input_size is not None:
             logging.info(">>>> Settings up UNET model...")
 
-            inputs = Input(input_size)
+            inputs = Input(shape=input_size)
 
             conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
             conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv1)
@@ -65,6 +65,69 @@ class UNet:
             conv10 = Conv2D(1, 1, activation='sigmoid')(conv9)
 
             model_obj = Model(inputs, conv10)
+            model_obj.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy', metrics=['accuracy'])
+
+            if load_unet_parameters['pretrained_weights'] != '':
+                logging.info(">> Loading pretrained weights: {}...".format(load_unet_parameters['pretrained_weights']))
+                model_obj.load_weights(load_unet_parameters['pretrained_weights'])
+
+            logging.info(">>>> Done!")
+        else:
+            logging.warning(">>>> Input size is None. Model could not be retrieved")
+
+        return model_obj
+
+    def conv_block(self, tensor, nfilters, size=3, padding='same', initializer="he_normal"):
+        x = Conv2D(filters=nfilters, kernel_size=(size, size), padding=padding, kernel_initializer=initializer)(tensor)
+        x = BatchNormalization()(x)
+        x = Activation("relu")(x)
+        x = Conv2D(filters=nfilters, kernel_size=(size, size), padding=padding, kernel_initializer=initializer)(x)
+        x = BatchNormalization()(x)
+        x = Activation("relu")(x)
+        return x
+
+    def deconv_block(self, tensor, residual, nfilters, size=3, padding='same', strides=(2, 2)):
+        y = Conv2DTranspose(nfilters, kernel_size=(size, size), strides=strides, padding=padding)(tensor)
+        y = concatenate([y, residual], axis=3)
+        y = self.conv_block(y, nfilters)
+        return y
+
+    def model_2(self, input_size):
+        """
+        """
+        load_unet_parameters = settings.DL_PARAM['unet']
+
+        if input_size is not None:
+            logging.info(">>>> Settings up UNET model...")
+
+            filters = 64
+            nclasses = len(load_unet_parameters['classes'])
+
+            input_layer = Input(shape=input_size, name='image_input')
+            conv1 = self.conv_block(input_layer, nfilters=filters)
+            conv1_out = MaxPooling2D(pool_size=(2, 2))(conv1)
+            conv2 = self.conv_block(conv1_out, nfilters=filters * 2)
+            conv2_out = MaxPooling2D(pool_size=(2, 2))(conv2)
+            conv3 = self.conv_block(conv2_out, nfilters=filters * 4)
+            conv3_out = MaxPooling2D(pool_size=(2, 2))(conv3)
+            conv4 = self.conv_block(conv3_out, nfilters=filters * 8)
+            conv4_out = MaxPooling2D(pool_size=(2, 2))(conv4)
+            conv4_out = Dropout(0.5)(conv4_out)
+            conv5 = self.conv_block(conv4_out, nfilters=filters * 16)
+            conv5 = Dropout(0.5)(conv5)
+
+            deconv6 = self.deconv_block(conv5, residual=conv4, nfilters=filters * 8)
+            deconv6 = Dropout(0.5)(deconv6)
+            deconv7 = self.deconv_block(deconv6, residual=conv3, nfilters=filters * 4)
+            deconv7 = Dropout(0.5)(deconv7)
+            deconv8 = self.deconv_block(deconv7, residual=conv2, nfilters=filters * 2)
+            deconv9 = self.deconv_block(deconv8, residual=conv1, nfilters=filters)
+
+            output_layer = Conv2D(filters=nclasses, kernel_size=(1, 1))(deconv9)
+            output_layer = BatchNormalization()(output_layer)
+            output_layer = Activation('softmax')(output_layer)
+
+            model_obj = Model(inputs=input_layer, outputs=output_layer, name='unet')
             model_obj.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy', metrics=['accuracy'])
 
             if load_unet_parameters['pretrained_weights'] != '':
