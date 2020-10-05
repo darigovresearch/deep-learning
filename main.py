@@ -82,12 +82,12 @@ def main(network_type, is_training, is_predicting):
             tf.keras.callbacks.TensorBoard(log_dir=settings.DL_PARAM[network_type]['tensorboard_log_dir']),
         ]
 
-        dl_obj.fit_generator(train_generator_obj,
-                             steps_per_epoch=numpy.ceil(num_train_samples / settings.DL_PARAM[network_type]['batch_size']),
-                             epochs=settings.DL_PARAM[network_type]['epochs'],
-                             validation_data=val_generator_obj,
-                             validation_steps=int(num_val_samples / settings.DL_PARAM[network_type]['batch_size']),
-                             callbacks=callbacks)
+        dl_obj.fit(train_generator_obj,
+                   steps_per_epoch=numpy.ceil(num_train_samples / settings.DL_PARAM[network_type]['batch_size']),
+                   epochs=settings.DL_PARAM[network_type]['epochs'],
+                   validation_data=val_generator_obj,
+                   validation_steps=int(num_val_samples / settings.DL_PARAM[network_type]['batch_size']),
+                   callbacks=callbacks)
 
     # TODO: include inference procedures
     if eval(is_predicting):
