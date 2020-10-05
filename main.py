@@ -38,8 +38,8 @@ def get_dl_model(network_type, load_param):
     if network_type == 'unet':
         logging.info(">> UNET model selected...")
 
-        input_size = (load_param['input_size_w'], load_param['input_size_h'], 1)
-        model_obj = unet.UNet().model(input_size)
+        input_size = (load_param['input_size_w'], load_param['input_size_h'], load_param['input_size_c'])
+        model_obj = unet.UNet().model_2(input_size)
 
     # TODO: include deeplabv3 as alternative to the set of dl models
     elif network_type == 'deeplabv3':
@@ -66,7 +66,7 @@ def main(network_type, is_training, is_predicting):
     dl_obj = get_dl_model(network_type, load_param)
 
     if eval(is_training):
-        generator_obj = utils.DL().training_generator(network_type)
+        train_generator_obj, val_generator_obj = utils.DL().training_generator(network_type)
         filepath = os.path.join(settings.DL_PARAM[network_type]['output_checkpoints'],
                                 "model-{epoch:02d}-{val_accuracy:.2f}.hdf5")
         callbacks = [
@@ -76,11 +76,10 @@ def main(network_type, is_training, is_predicting):
             tf.keras.callbacks.TensorBoard(log_dir=settings.DL_PARAM[network_type]['tensorboard_log_dir']),
         ]
 
-        dl_obj.fit(generator_obj,
-                   steps_per_epoch=50,
+        dl_obj.fit(train_generator_obj,
+                   steps_per_epoch=settings.DL_PARAM[network_type]['steps_per_epoch'],
                    epochs=settings.DL_PARAM[network_type]['epochs'],
-                   # validation_data=(os.listdir(settings.DL_PARAM[network_type]['image_validation_folder']),
-                   #                  os.listdir(settings.DL_PARAM[network_type]['annotation_validation_folder'])),
+                   validation_data=val_generator_obj,
                    callbacks=callbacks)
 
     # TODO: include inference procedures
