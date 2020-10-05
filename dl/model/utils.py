@@ -26,6 +26,7 @@ class DL:
 
         train_image_generator = train_datagen.flow_from_directory(
             settings.DL_PARAM[network_type]['image_training_folder'],
+            classes=['image'],
             class_mode=settings.DL_PARAM[network_type]['class_mode'],
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
@@ -35,6 +36,7 @@ class DL:
             shuffle=False)
         train_label_generator = train_datagen.flow_from_directory(
             settings.DL_PARAM[network_type]['annotation_training_folder'],
+            classes=['label'],
             class_mode=settings.DL_PARAM[network_type]['class_mode'],
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
@@ -45,6 +47,7 @@ class DL:
 
         val_image_generator = val_datagen.flow_from_directory(
             settings.DL_PARAM[network_type]['image_validation_folder'],
+            classes=['image'],
             class_mode=settings.DL_PARAM[network_type]['class_mode'],
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
@@ -54,6 +57,7 @@ class DL:
             shuffle=False)
         val_label_generator = val_datagen.flow_from_directory(
             settings.DL_PARAM[network_type]['annotation_validation_folder'],
+            classes=['label'],
             class_mode=settings.DL_PARAM[network_type]['class_mode'],
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),

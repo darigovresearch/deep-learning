@@ -12,6 +12,7 @@ class UNet:
 
     def model(self, input_size):
         """
+        Source: https://github.com/zhixuhao/unet
         """
         load_unet_parameters = settings.DL_PARAM['unet']
 
@@ -94,6 +95,7 @@ class UNet:
 
     def model_2(self, input_size):
         """
+        Source: https://stackoverflow.com/questions/53322488/implementing-u-net-for-multi-class-road-segmentation
         """
         load_unet_parameters = settings.DL_PARAM['unet']
 
