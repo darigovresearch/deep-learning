@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 import time
+import numpy
 import argparse
 import settings
 import tensorflow as tf
@@ -66,6 +67,11 @@ def main(network_type, is_training, is_predicting):
     dl_obj = get_dl_model(network_type, load_param)
 
     if eval(is_training):
+        path_train_samples = os.path.join(settings.DL_PARAM[network_type]['image_training_folder'], 'image')
+        path_val_samples = os.path.join(settings.DL_PARAM[network_type]['image_validation_folder'], 'image')
+        num_train_samples = len(os.listdir(path_train_samples))
+        num_val_samples = len(os.listdir(path_val_samples))
+
         train_generator_obj, val_generator_obj = utils.DL().training_generator(network_type)
         filepath = os.path.join(settings.DL_PARAM[network_type]['output_checkpoints'],
                                 "model-{epoch:02d}-{val_accuracy:.2f}.hdf5")
@@ -76,11 +82,12 @@ def main(network_type, is_training, is_predicting):
             tf.keras.callbacks.TensorBoard(log_dir=settings.DL_PARAM[network_type]['tensorboard_log_dir']),
         ]
 
-        dl_obj.fit(train_generator_obj,
-                   steps_per_epoch=settings.DL_PARAM[network_type]['steps_per_epoch'],
-                   epochs=settings.DL_PARAM[network_type]['epochs'],
-                   validation_data=val_generator_obj,
-                   callbacks=callbacks)
+        dl_obj.fit_generator(train_generator_obj,
+                             steps_per_epoch=numpy.ceil(num_train_samples / settings.DL_PARAM[network_type]['batch_size']),
+                             epochs=settings.DL_PARAM[network_type]['epochs'],
+                             validation_data=val_generator_obj,
+                             validation_steps=int(num_val_samples / settings.DL_PARAM[network_type]['batch_size']),
+                             callbacks=callbacks)
 
     # TODO: include inference procedures
     if eval(is_predicting):

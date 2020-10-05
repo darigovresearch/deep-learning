@@ -33,7 +33,7 @@ class DL:
             seed=settings.DL_PARAM[network_type]['seed'],
             color_mode=settings.DL_PARAM[network_type]['color_mode'],
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
-            shuffle=False)
+            shuffle=True)
         train_label_generator = train_datagen.flow_from_directory(
             settings.DL_PARAM[network_type]['annotation_training_folder'],
             classes=['label'],
@@ -43,7 +43,7 @@ class DL:
             seed=settings.DL_PARAM[network_type]['seed'],
             color_mode=settings.DL_PARAM[network_type]['color_mode'],
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
-            shuffle=False)
+            shuffle=True)
 
         val_image_generator = val_datagen.flow_from_directory(
             settings.DL_PARAM[network_type]['image_validation_folder'],
@@ -54,7 +54,7 @@ class DL:
             seed=settings.DL_PARAM[network_type]['seed'],
             color_mode=settings.DL_PARAM[network_type]['color_mode'],
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
-            shuffle=False)
+            shuffle=True)
         val_label_generator = val_datagen.flow_from_directory(
             settings.DL_PARAM[network_type]['annotation_validation_folder'],
             classes=['label'],
@@ -64,7 +64,7 @@ class DL:
             seed=settings.DL_PARAM[network_type]['seed'],
             color_mode=settings.DL_PARAM[network_type]['color_mode'],
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
-            shuffle=False)
+            shuffle=True)
 
         train_generator = zip(train_image_generator, train_label_generator)
         val_generator = zip(val_image_generator, val_label_generator)

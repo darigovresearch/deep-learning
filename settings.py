@@ -23,7 +23,6 @@ DL_PARAM = {
         'class_mode': None,
         'seed': 1,
         'epochs': 1000,
-        'steps_per_epoch': 50,
         'classes': {
                 "nut": [102, 153, 0],
                 "palm": [153, 255, 153],
@@ -47,7 +46,6 @@ DL_PARAM = {
         'color_mode': 'rgb',
         'seed': 1,
         'epochs': 1000,
-        'steps_per_epoch': 50,
         'classes': {
                 "nut": [102, 153, 0],
                 "palm": [153, 255, 153],
