@@ -19,7 +19,7 @@ DL_PARAM = {
         'input_size_c': 3,
         'batch_size': 16,
         'filters': 64,
-        'color_mode': 'rgb',
+        'color_mode': 'grayscale',
         'class_mode': None,
         'seed': 1,
 	'epochs': 3000,
@@ -43,7 +43,7 @@ DL_PARAM = {
         'input_size_c': 3,
         'batch_size': 16,
         'filters': 64,
-        'color_mode': 'rgb',
+        'color_mode': 'grayscale',
         'seed': 1,
         'epochs': 1000,
         'classes': {
