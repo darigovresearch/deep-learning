@@ -59,6 +59,9 @@ def main(network_type, is_training, is_predicting):
     :param network_type:
     :param is_training:
     :param is_predicting:
+
+    validation_steps and steps_per_epoch: https://stackoverflow.com/questions/51885739/
+                                          how-to-properly-set-steps-per-epoch-and-validation-steps-in-keras
     """
     start_time = time.time()
     logging.info("Starting process...")
@@ -76,7 +79,7 @@ def main(network_type, is_training, is_predicting):
         filepath = os.path.join(settings.DL_PARAM[network_type]['output_checkpoints'],
                                 "model-{epoch:02d}-{val_accuracy:.2f}.hdf5")
         callbacks = [
-            tf.keras.callbacks.EarlyStopping(patience=2),
+            # tf.keras.callbacks.EarlyStopping(patience=2),
             tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='val_accuracy',
                                                verbose=1, save_best_only=False, mode='auto'),
             tf.keras.callbacks.TensorBoard(log_dir=settings.DL_PARAM[network_type]['tensorboard_log_dir']),

@@ -66,7 +66,7 @@ class UNet:
             conv10 = Conv2D(1, 1, activation='sigmoid')(conv9)
 
             model_obj = Model(inputs, conv10)
-            model_obj.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy', metrics=['accuracy'])
+            model_obj.compile(optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
 
             if load_unet_parameters['pretrained_weights'] != '':
                 logging.info(">> Loading pretrained weights: {}...".format(load_unet_parameters['pretrained_weights']))
@@ -130,7 +130,7 @@ class UNet:
             output_layer = Activation('softmax')(output_layer)
 
             model_obj = Model(inputs=input_layer, outputs=output_layer, name='unet')
-            model_obj.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy', metrics=['accuracy'])
+            model_obj.compile(optimizer=SGD(lr=0.01), loss='categorical_crossentropy', metrics=['accuracy'])
 
             if load_unet_parameters['pretrained_weights'] != '':
                 logging.info(">> Loading pretrained weights: {}...".format(load_unet_parameters['pretrained_weights']))
@@ -141,6 +141,7 @@ class UNet:
             logging.warning(">>>> Input size is None. Model could not be retrieved")
 
         return model_obj
+
 
 
 

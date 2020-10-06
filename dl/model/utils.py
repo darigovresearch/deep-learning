@@ -14,8 +14,7 @@ class DL:
     def training_generator(self, network_type):
         """
         can generate image and mask at the same time
-        use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
-        if you want to visualize the results of generator, set save_to_dir = "your path"
+        hierarchy of folders: https://stackoverflow.com/questions/58050113/imagedatagenerator-for-semantic-segmentation
         """
         data_gen_args = dict(rescale=1./255, rotation_range=90, width_shift_range=0.2, height_shift_range=0.2,
                              shear_range=0.2, zoom_range=0.2, horizontal_flip=True, validation_split=0.2,

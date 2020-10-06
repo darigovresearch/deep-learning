@@ -22,7 +22,7 @@ DL_PARAM = {
         'color_mode': 'rgb',
         'class_mode': None,
         'seed': 1,
-        'epochs': 1000,
+        'epochs': 2000,
         'classes': {
                 "nut": [102, 153, 0],
                 "palm": [153, 255, 153],
