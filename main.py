@@ -79,7 +79,6 @@ def main(network_type, is_training, is_predicting):
         filepath = os.path.join(settings.DL_PARAM[network_type]['output_checkpoints'],
                                 "model-{epoch:02d}-{val_accuracy:.2f}.hdf5")
         callbacks = [
-           # tf.keras.callbacks.EarlyStopping(patience=2),
             tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='val_accuracy',
                                                verbose=1, save_best_only=False, mode='auto'),
             tf.keras.callbacks.TensorBoard(log_dir=settings.DL_PARAM[network_type]['tensorboard_log_dir']),
