@@ -89,6 +89,7 @@ def main(network_type, is_training, is_predicting):
                    epochs=settings.DL_PARAM[network_type]['epochs'],
                    validation_data=val_generator_obj,
                    validation_steps=int(num_val_samples / settings.DL_PARAM[network_type]['batch_size']),
+                   use_multiprocessing=True,
                    callbacks=callbacks)
 
     # TODO: include inference procedures

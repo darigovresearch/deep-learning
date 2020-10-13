@@ -40,7 +40,7 @@ class DL:
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
             seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode=settings.DL_PARAM[network_type]['color_mode'],
+            color_mode='grayscale',
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
             shuffle=True)
 
@@ -61,7 +61,7 @@ class DL:
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
             seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode=settings.DL_PARAM[network_type]['color_mode'],
+            color_mode='grayscale',
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
             shuffle=True)
 
