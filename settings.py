@@ -19,7 +19,7 @@ DL_PARAM = {
         'input_size_c': 3,
         'batch_size': 16,
         'filters': 64,
-        'color_mode': 'rgb',
+        'color_mode': 'grayscale',
         'class_mode': None,
         'seed': 1,
         'epochs': 3000,
@@ -27,7 +27,8 @@ DL_PARAM = {
                 "nut": [102, 153, 0],
                 "palm": [153, 255, 153],
                 'other': [0, 0, 0]
-        }
+        },
+        'color_classes': {'nut': 1, 'palm': 2, 'other': 0}
     },
     'deeplabv3': {
         'image_training_folder': os.path.join(DL_DATASET, 'training', 'all'),
@@ -43,13 +44,14 @@ DL_PARAM = {
         'input_size_c': 3,
         'batch_size': 16,
         'filters': 64,
-        'color_mode': 'rgb',
+        'color_mode': 'grayscale',
         'seed': 1,
         'epochs': 1000,
         'classes': {
                 "nut": [102, 153, 0],
                 "palm": [153, 255, 153],
                 'other': [0, 0, 0]
-        }
+        },
+        'color_classes': {'nut': 1, 'palm': 2, 'other': 0},
     },
 }

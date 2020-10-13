@@ -40,7 +40,7 @@ def get_dl_model(network_type, load_param):
         logging.info(">> UNET model selected...")
 
         input_size = (load_param['input_size_w'], load_param['input_size_h'], load_param['input_size_c'])
-        model_obj = unet.UNet().model_2(input_size)
+        model_obj = unet.UNet().model_3(input_size)
 
     # TODO: include deeplabv3 as alternative to the set of dl models
     elif network_type == 'deeplabv3':
