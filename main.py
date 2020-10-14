@@ -75,7 +75,7 @@ def main(network_type, is_training, is_predicting):
 
         train_generator_obj = utils.DL().training_generator(network_type, True)
         filepath = os.path.join(settings.DL_PARAM[network_type]['output_checkpoints'],
-                                "model-{epoch:02d}-{val_accuracy:.2f}.hdf5")
+                                "model-{epoch:02d}.hdf5")
         callbacks = [
             tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='val_accuracy',
                                                verbose=1, save_best_only=False, mode='auto'),
