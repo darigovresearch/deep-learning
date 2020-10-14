@@ -71,11 +71,9 @@ def main(network_type, is_training, is_predicting):
 
     if eval(is_training):
         path_train_samples = os.path.join(settings.DL_PARAM[network_type]['image_training_folder'], 'image')
-        path_val_samples = os.path.join(settings.DL_PARAM[network_type]['image_validation_folder'], 'image')
         num_train_samples = len(os.listdir(path_train_samples))
-        num_val_samples = len(os.listdir(path_val_samples))
 
-        train_generator_obj, val_generator_obj = utils.DL().training_generator(network_type)
+        train_generator_obj = utils.DL().training_generator(network_type, True)
         filepath = os.path.join(settings.DL_PARAM[network_type]['output_checkpoints'],
                                 "model-{epoch:02d}-{val_accuracy:.2f}.hdf5")
         callbacks = [
@@ -87,9 +85,6 @@ def main(network_type, is_training, is_predicting):
         dl_obj.fit(train_generator_obj,
                    steps_per_epoch=numpy.ceil(num_train_samples / settings.DL_PARAM[network_type]['batch_size']),
                    epochs=settings.DL_PARAM[network_type]['epochs'],
-                   validation_data=val_generator_obj,
-                   validation_steps=int(num_val_samples / settings.DL_PARAM[network_type]['batch_size']),
-                   use_multiprocessing=True,
                    callbacks=callbacks)
 
     # TODO: include inference procedures

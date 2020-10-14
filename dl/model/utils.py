@@ -11,17 +11,22 @@ class DL:
     def __init__(self):
         pass
 
-    def training_generator(self, network_type):
+    def training_generator(self, network_type, is_augment):
         """
         can generate image and mask at the same time
         hierarchy of folders: https://stackoverflow.com/questions/58050113/imagedatagenerator-for-semantic-segmentation
+        :param network_type:
+        :param is_augment:
+        :return train_generator:
         """
-        data_gen_args = dict(rescale=1./255, rotation_range=90, width_shift_range=0.2, height_shift_range=0.2,
-                             shear_range=0.2, zoom_range=0.2, horizontal_flip=True, validation_split=0.2,
-                             fill_mode='nearest')
+        if is_augment is True:
+            data_gen_args = dict(rescale=1./255, rotation_range=90, width_shift_range=0.2, height_shift_range=0.2,
+                                 shear_range=0.2, zoom_range=0.2, horizontal_flip=True, validation_split=0.15,
+                                 fill_mode='nearest')
+        else:
+            data_gen_args = dict(rescale=1. / 255, validation_split=0.15)
 
         train_datagen = ImageDataGenerator(**data_gen_args)
-        val_datagen = ImageDataGenerator(**data_gen_args)
 
         train_image_generator = train_datagen.flow_from_directory(
             settings.DL_PARAM[network_type]['image_training_folder'],
@@ -44,31 +49,9 @@ class DL:
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
             shuffle=True)
 
-        val_image_generator = val_datagen.flow_from_directory(
-            settings.DL_PARAM[network_type]['image_validation_folder'],
-            classes=['image'],
-            class_mode=settings.DL_PARAM[network_type]['class_mode'],
-            target_size=(settings.DL_PARAM[network_type]['input_size_w'],
-                         settings.DL_PARAM[network_type]['input_size_h']),
-            seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode=settings.DL_PARAM[network_type]['color_mode'],
-            batch_size=settings.DL_PARAM[network_type]['batch_size'],
-            shuffle=True)
-        val_label_generator = val_datagen.flow_from_directory(
-            settings.DL_PARAM[network_type]['annotation_validation_folder'],
-            classes=['label'],
-            class_mode=settings.DL_PARAM[network_type]['class_mode'],
-            target_size=(settings.DL_PARAM[network_type]['input_size_w'],
-                         settings.DL_PARAM[network_type]['input_size_h']),
-            seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode='grayscale',
-            batch_size=settings.DL_PARAM[network_type]['batch_size'],
-            shuffle=True)
-
         train_generator = zip(train_image_generator, train_label_generator)
-        val_generator = zip(val_image_generator, val_label_generator)
 
-        return train_generator, val_generator
+        return train_generator
 
     def save_result(self, save_path, load_param, npyfile, flag_multi_class=False):
         """
