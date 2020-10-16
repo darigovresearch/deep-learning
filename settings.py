@@ -2,6 +2,7 @@ import os
 
 from decouple import config
 
+VALID_PREDICTION_EXTENSION = (".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".tiff", ".TIF", ".TIFF")
 DL_DATASET = config('DL_DATASET')
 
 DL_PARAM = {
@@ -10,8 +11,10 @@ DL_PARAM = {
         'annotation_training_folder': os.path.join(DL_DATASET, 'training', 'all'),
         'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'inference'),
         'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'weight'),
+        'save_model_dir': os.path.join(DL_DATASET, 'training', 'all', 'model'),
         'tensorboard_log_dir': os.path.join(DL_DATASET, 'training', 'all', 'log'),
-        'pretrained_weights': '',
+        'pretrained_weights': 'model-08.hdf5',
+        'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,
@@ -26,7 +29,9 @@ DL_PARAM = {
                 "palm": [153, 255, 153],
                 'other': [0, 0, 0]
         },
-        'color_classes': {'nut': 1, 'palm': 2, 'other': 0}
+        'color_classes': {'nut': 1, 'palm': 2, 'other': 0},
+        'width_slice': 1000,
+        'height_slice': 1000,
     },
     'deeplabv3': {
         'image_training_folder': os.path.join(DL_DATASET, 'training', 'all'),

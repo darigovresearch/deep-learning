@@ -1,10 +1,12 @@
+import os
 import logging
 import settings
+import tensorflow as tf
 
+from datetime import date
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
-
 
 class UNet:
     def __init__(self):
@@ -66,11 +68,17 @@ class UNet:
             conv10 = Conv2D(1, 1, activation='sigmoid')(conv9)
 
             model_obj = Model(inputs, conv10)
-            model_obj.compile(optimizer=Adam(lr=1e-4), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+            model_obj.compile(optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
+
+            logging.info(">>>>>> Model built. Saving model in {}...".format(load_unet_parameters['']))
+            model_obj.save(os.path.join(load_unet_parameters['save_model_dir'],
+                                        "unet-" + str(date.today) + ".h5"))
 
             if load_unet_parameters['pretrained_weights'] != '':
                 logging.info(">> Loading pretrained weights: {}...".format(load_unet_parameters['pretrained_weights']))
-                model_obj.load_weights(load_unet_parameters['pretrained_weights'])
+                pretrained_weights = os.path.join(load_unet_parameters['output_checkpoints'],
+                                                  load_unet_parameters['pretrained_weights'])
+                model_obj.load_weights(pretrained_weights)
 
             logging.info(">>>> Done!")
         else:
@@ -130,11 +138,20 @@ class UNet:
             output_layer = Activation('softmax')(output_layer)
 
             model_obj = Model(inputs=input_layer, outputs=output_layer, name='unet')
-            model_obj.compile(optimizer=Adam(lr=1e-4), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+            model_obj.compile(optimizer=Adam(lr=1e-4),
+                              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                              metrics=['accuracy'])
 
             if load_unet_parameters['pretrained_weights'] != '':
                 logging.info(">> Loading pretrained weights: {}...".format(load_unet_parameters['pretrained_weights']))
-                model_obj.load_weights(load_unet_parameters['pretrained_weights'])
+                pretrained_weights = os.path.join(load_unet_parameters['output_checkpoints'],
+                                                  load_unet_parameters['pretrained_weights'])
+                model_obj.load_weights(pretrained_weights)
+            else:
+                pass
+                # logging.info(">>>>>> Model built. Saving model in {}...".format(load_unet_parameters['save_model_dir']))
+                # model_obj.save(os.path.join(load_unet_parameters['save_model_dir'],
+                #                             "unet-" + str(date.today) + ".h5"))
 
             logging.info(">>>> Done!")
         else:
@@ -204,7 +221,14 @@ class UNet:
 
             if load_unet_parameters['pretrained_weights'] != '':
                 logging.info(">> Loading pretrained weights: {}...".format(load_unet_parameters['pretrained_weights']))
-                model_obj.load_weights(load_unet_parameters['pretrained_weights'])
+                pretrained_weights = os.path.join(load_unet_parameters['output_checkpoints'],
+                                                  load_unet_parameters['pretrained_weights'])
+                model_obj.load_weights(pretrained_weights)
+            else:
+                pass
+                # logging.info(">>>>>> Model built. Saving model in {}...".format(load_unet_parameters['save_model_dir']))
+                # model_obj.save(os.path.join(load_unet_parameters['save_model_dir'],
+                #                             "unet-" + str(date.today) + ".h5"))
 
             logging.info(">>>> Done!")
         else:

@@ -2,10 +2,12 @@ import os
 import sys
 import logging
 import time
-import numpy
 import argparse
 import settings
+import imageio
+import numpy as np
 import tensorflow as tf
+import tifffile as tiff
 
 from dl.model import utils
 from dl.model import unet
@@ -40,7 +42,7 @@ def get_dl_model(network_type, load_param):
         logging.info(">> UNET model selected...")
 
         input_size = (load_param['input_size_w'], load_param['input_size_h'], load_param['input_size_c'])
-        model_obj = unet.UNet().model_3(input_size)
+        model_obj = unet.UNet().model_2(input_size)
 
     # TODO: include deeplabv3 as alternative to the set of dl models
     elif network_type == 'deeplabv3':
@@ -83,13 +85,45 @@ def main(network_type, is_training, is_predicting):
         ]
 
         dl_obj.fit(train_generator_obj,
-                   steps_per_epoch=numpy.ceil(num_train_samples / settings.DL_PARAM[network_type]['batch_size']),
+                   steps_per_epoch=np.ceil(num_train_samples / settings.DL_PARAM[network_type]['batch_size']),
                    epochs=settings.DL_PARAM[network_type]['epochs'],
                    callbacks=callbacks)
 
     # TODO: include inference procedures
     if eval(is_predicting):
-        pass
+        list_images_to_predict = os.listdir(settings.DL_PARAM[network_type]['image_prediction_folder'])
+        list_images_to_predict = [file for file in list_images_to_predict if file.endswith(settings.VALID_PREDICTION_EXTENSION)]
+
+        for item in list_images_to_predict:
+            complete_path = os.path.join(settings.DL_PARAM[network_type]['image_prediction_folder'], item)
+
+            # TODO: do all tests if entry is ok after open: dimension, type, encoding, so on
+            # img = image.load_img(complete_path, target_size=(256, 256))
+            # x = image.img_to_array(img)
+            #
+            # pr = dl_obj.predict(np.array([x]))[0]
+
+            # pil_img = Image.fromarray((pr * 255).astype(np.uint8))
+            # pil_img.save(os.path.join(settings.DL_PARAM[network_type]['output_prediction'], 'test-inference.png'))
+
+            extension = os.path.splitext(item)[1]
+
+            if extension.lower() == ".tif" or extension.lower() == ".tiff":
+                image_full = tiff.imread(complete_path)
+                # img = image.load_img(complete_path, target_size=(image_full.shape[0], image_full.shape[1]))
+                # x = image.img_to_array(img)
+            # else:
+                # image_full = scipy.misc.imread(complete_path)
+
+            pr = dl_obj.predict(np.array([image_full]))[0]
+            pred_mask = tf.argmax(pr, axis=-1)
+            pred_mask = pred_mask[..., tf.newaxis]
+            imageio.imwrite(os.path.join(settings.DL_PARAM[network_type]['output_prediction'], 'test-inference.png'), pred_mask)
+
+            # TODO:
+            #  1. save prediction in png
+            #  2. merge the prediction if it was sliced
+            #  3. poligonize the merged prediction image
 
     end_time = time.time()
     logging.info("Whole process completed! [Time: {0:.5f} seconds]!".format(end_time-start_time))
