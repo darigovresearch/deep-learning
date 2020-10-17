@@ -76,9 +76,6 @@ def main(network_type, is_training, is_predicting):
 
         train_generator_obj = utils.DL().training_generator(network_type, True)
 
-        gpu_options = tf.GPUOptions(allow_growth=True)
-        session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
-
         dl_obj.get_model().fit(train_generator_obj,
                                steps_per_epoch=np.ceil(num_train_samples / settings.DL_PARAM[network_type]['batch_size']),
                                epochs=settings.DL_PARAM[network_type]['epochs'],
