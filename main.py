@@ -1,32 +1,28 @@
 import os
-import sys
 import logging
 import time
 import argparse
 import settings
 import imageio
 import numpy as np
-import tensorflow as tf
 import tifffile as tiff
 
 from dl.model import utils
 from dl.model import unet
 from coloredlogs import ColoredFormatter
 
+import sys
+if sys.version_info[0] < 3:
+    raise RuntimeError('Python3 required')
 
-def predict_deep_network(model, path_in, path_out, path_chp):
-    """
-    """
-    logging.info(">> Perform prediction...")
-    file_list = []
+import tensorflow as tf
+tf_version = tf.__version__.split('.')
+if int(tf_version[0]) != 2:
+    raise RuntimeError('Tensorflow 2.x.x required')
 
-    for path in os.listdir(path_in):
-        full_path = os.path.join(path_in, path)
 
-        if os.path.isfile(full_path):
-            file_list.append(full_path)
-
-    model.predict_multiple(checkpoints_path=path_chp, inps=file_list,  out_dir=path_out)
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def get_dl_model(network_type, load_param):
@@ -42,7 +38,10 @@ def get_dl_model(network_type, load_param):
         logging.info(">> UNET model selected...")
 
         input_size = (load_param['input_size_w'], load_param['input_size_h'], load_param['input_size_c'])
-        model_obj = unet.UNet().model_2(input_size)
+        num_classes = len(load_param['classes'])
+        num_channels = load_param['input_size_c']
+
+        model_obj = unet.UNet(input_size, num_classes, num_channels, False, False)
 
     # TODO: include deeplabv3 as alternative to the set of dl models
     elif network_type == 'deeplabv3':
@@ -76,20 +75,12 @@ def main(network_type, is_training, is_predicting):
         num_train_samples = len(os.listdir(path_train_samples))
 
         train_generator_obj = utils.DL().training_generator(network_type, True)
-        filepath = os.path.join(settings.DL_PARAM[network_type]['output_checkpoints'],
-                                "model-{epoch:02d}.hdf5")
-        callbacks = [
-            tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='val_accuracy',
-                                               verbose=1, save_best_only=False, mode='auto'),
-            tf.keras.callbacks.TensorBoard(log_dir=settings.DL_PARAM[network_type]['tensorboard_log_dir']),
-        ]
 
-        dl_obj.fit(train_generator_obj,
-                   steps_per_epoch=np.ceil(num_train_samples / settings.DL_PARAM[network_type]['batch_size']),
-                   epochs=settings.DL_PARAM[network_type]['epochs'],
-                   callbacks=callbacks)
+        dl_obj.get_model().fit(train_generator_obj,
+                               steps_per_epoch=np.ceil(num_train_samples / settings.DL_PARAM[network_type]['batch_size']),
+                               epochs=settings.DL_PARAM[network_type]['epochs'],
+                               callbacks=dl_obj.get_callbacks())
 
-    # TODO: include inference procedures
     if eval(is_predicting):
         list_images_to_predict = os.listdir(settings.DL_PARAM[network_type]['image_prediction_folder'])
         list_images_to_predict = [file for file in list_images_to_predict if file.endswith(settings.VALID_PREDICTION_EXTENSION)]
@@ -118,7 +109,8 @@ def main(network_type, is_training, is_predicting):
             pr = dl_obj.predict(np.array([image_full]))[0]
             pred_mask = tf.argmax(pr, axis=-1)
             pred_mask = pred_mask[..., tf.newaxis]
-            imageio.imwrite(os.path.join(settings.DL_PARAM[network_type]['output_prediction'], 'test-inference.png'), pred_mask)
+            imageio.imwrite(os.path.join(settings.DL_PARAM[network_type]['output_prediction'], 'test-inference.png'),
+                            pred_mask)
 
             # TODO:
             #  1. save prediction in png
