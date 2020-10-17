@@ -21,8 +21,8 @@ if int(tf_version[0]) != 2:
     raise RuntimeError('Tensorflow 2.x.x required')
 
 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def get_dl_model(network_type, load_param):
