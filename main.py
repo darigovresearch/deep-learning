@@ -37,7 +37,7 @@ def get_dl_model(network_type, load_param):
     if network_type == 'unet':
         logging.info(">> UNET model selected...")
 
-        input_size = (load_param['input_size_w'], load_param['input_size_h'], load_param['input_size_c'])
+        input_size = (load_param['input_size_c'], load_param['input_size_w'], load_param['input_size_h'])
         num_classes = len(load_param['classes'])
         num_channels = load_param['input_size_c']
 
@@ -75,11 +75,11 @@ def main(network_type, is_training, is_predicting):
         num_train_samples = len(os.listdir(path_train_samples))
 
         train_generator_obj = utils.DL().training_generator(network_type, True)
-
-        dl_obj.get_model().fit(train_generator_obj,
-                               steps_per_epoch=np.ceil(num_train_samples / settings.DL_PARAM[network_type]['batch_size']),
-                               epochs=settings.DL_PARAM[network_type]['epochs'],
-                               callbacks=dl_obj.get_callbacks())
+        dl_obj.get_model().fit_generator(train_generator_obj,
+                                         steps_per_epoch=np.ceil(num_train_samples /
+                                                                 settings.DL_PARAM[network_type]['batch_size']),
+                                         epochs=settings.DL_PARAM[network_type]['epochs'],
+                                         callbacks=dl_obj.get_callbacks())
 
     if eval(is_predicting):
         list_images_to_predict = os.listdir(settings.DL_PARAM[network_type]['image_prediction_folder'])

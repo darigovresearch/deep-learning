@@ -101,13 +101,9 @@ class UNet:
         deconv_1 = self._conv_block(deconv_1, self.num_filters, self.kernel_size)
         deconv_1 = self._conv_block(deconv_1, self.num_filters, self.kernel_size)
 
-        # convert NCHW to NHWC so that softmax axis is the last dimension
-        # logits is [NHWC]
         logits = self._conv_block(deconv_1, self.number_classes, 1)
-        # logits = tf.keras.layers.Permute((2, 3, 1))(logits)
+        logits = tf.keras.layers.Permute((2, 3, 1))(logits)
         softmax = tf.keras.layers.Softmax(axis=-1, name='softmax')(logits)
-
-        # softmax = Activation('softmax')(logits)
 
         model_obj = tf.keras.Model(self.inputs, softmax, name='unet')
         model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
@@ -119,18 +115,20 @@ class UNet:
     @staticmethod
     def _pool(tensor, nfilters):
         # , data_format = 'channels_first'
-        output = tf.keras.layers.MaxPooling2D(pool_size=nfilters)(tensor)
+        output = tf.keras.layers.MaxPool2D(pool_size=nfilters, data_format='channels_first')(tensor)
         return output
 
     @staticmethod
     def _conv_block(tensor, nfilters, size=3, padding='same'):
-        output = Conv2D(filters=nfilters, kernel_size=size, strides=1, padding=padding, activation=relu)(tensor)
+        output = Conv2D(filters=nfilters, kernel_size=size, strides=1, padding=padding,
+                        data_format='channels_first', activation=relu)(tensor)
         output = BatchNormalization(axis=1)(output)
         return output
 
     @staticmethod
     def _deconv_block(tensor, nfilters, size=3, padding='same', stride=1):
-        output = Conv2DTranspose(filters=nfilters, kernel_size=size, strides=stride, activation=None,
+        output = Conv2DTranspose(filters=nfilters, kernel_size=size, strides=stride,
+                                 data_format='channels_first', activation=None,
                                  padding=padding)(tensor)
         output = BatchNormalization(axis=1)(output)
         return output
@@ -190,9 +188,9 @@ class UNet:
     #         nclasses = len(load_unet_parameters['classes'])
     #
     #         input_layer = Input(shape=input_size, name='image_input')
+
     #         conv1 = self._conv_block(input_layer, nfilters=filters)
     #         conv1_out = MaxPooling2D(pool_size=(2, 2))(conv1)
-
     #         conv2 = self._conv_block(conv1_out, nfilters=filters * 2)
     #         conv2_out = MaxPooling2D(pool_size=(2, 2))(conv2)
     #         conv3 = self._conv_block(conv2_out, nfilters=filters * 4)
