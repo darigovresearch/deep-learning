@@ -15,10 +15,10 @@ import sys
 if sys.version_info[0] < 3:
     raise RuntimeError('Python3 required')
 
-# import tensorflow as tf
-# tf_version = tf.__version__.split('.')
-# if int(tf_version[0]) != 2:
-#     raise RuntimeError('Tensorflow 2.x.x required')
+import tensorflow as tf
+tf_version = tf.__version__.split('.')
+if int(tf_version[0]) != 2:
+    raise RuntimeError('Tensorflow 2.x.x required')
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -75,6 +75,9 @@ def main(network_type, is_training, is_predicting):
         num_train_samples = len(os.listdir(path_train_samples))
 
         train_generator_obj = utils.DL().training_generator(network_type, True)
+
+        gpu_options = tf.GPUOptions(allow_growth=True)
+        session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
 
         dl_obj.get_model().fit(train_generator_obj,
                                steps_per_epoch=np.ceil(num_train_samples / settings.DL_PARAM[network_type]['batch_size']),
