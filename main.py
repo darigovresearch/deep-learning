@@ -41,7 +41,7 @@ def get_dl_model(network_type, load_param):
         num_classes = len(load_param['classes'])
         num_channels = load_param['input_size_c']
 
-        model_obj = unet.UNet(input_size, num_classes, num_channels, False, False)
+        model_obj = unet.UNet(num_classes, num_channels, False, False)
 
     # TODO: include deeplabv3 as alternative to the set of dl models
     elif network_type == 'deeplabv3':

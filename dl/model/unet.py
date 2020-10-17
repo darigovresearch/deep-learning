@@ -15,7 +15,7 @@ class UNet:
     SIZE_FACTOR = 16
     RADIUS = 96
 
-    def __init__(self, input_size, number_classes, number_channels, is_pretrained, is_saved):
+    def __init__(self, number_classes, number_channels, is_pretrained, is_saved):
         load_unet_parameters = settings.DL_PARAM['unet']
 
         self.learning_rate = load_unet_parameters['learning_rate']
@@ -29,7 +29,8 @@ class UNet:
         self.number_channels = number_channels
         self.number_classes = number_classes
 
-        self.inputs = Input(shape=input_size, name='image_input')
+        # self.inputs = Input(shape=input_size, name='image_input')
+        self.inputs = Input(shape=(number_channels, None, None))
 
         self.loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
