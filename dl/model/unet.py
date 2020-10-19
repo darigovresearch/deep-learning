@@ -59,12 +59,15 @@ class UNet:
         conv_1 = self._conv_block(self.inputs, self.num_filters, self.kernel_size)
         conv_1 = self._conv_block(conv_1, self.num_filters, self.kernel_size)
         pool_1 = self._pool(conv_1, self.pooling_stride)
+
         conv_2 = self._conv_block(pool_1, 2 * self.num_filters, self.kernel_size)
         conv_2 = self._conv_block(conv_2, 2 * self.num_filters, self.kernel_size)
         pool_2 = self._pool(conv_2, self.pooling_stride)
+
         conv_3 = self._conv_block(pool_2, 4 * self.num_filters, self.kernel_size)
         conv_3 = self._conv_block(conv_3, 4 * self.num_filters, self.kernel_size)
         pool_3 = self._pool(conv_3, self.pooling_stride)
+
         conv_4 = self._conv_block(pool_3, 8 * self.num_filters, self.kernel_size)
         conv_4 = self._conv_block(conv_4, 8 * self.num_filters, self.kernel_size)
         conv_4 = tf.keras.layers.Dropout(rate=self.dropout_rate)(conv_4)
@@ -92,14 +95,13 @@ class UNet:
         deconv_2 = self._conv_block(deconv_2, 2 * self.num_filters, self.kernel_size)
         deconv_2 = self._conv_block(deconv_2, 2 * self.num_filters, self.kernel_size)
 
-        deconv_1 = self._deconv_block(deconv_2, self.num_filters, self.deconv_kernel_size,
-                                      stride=self.pooling_stride)
+        deconv_1 = self._deconv_block(deconv_2, self.num_filters, self.deconv_kernel_size, stride=self.pooling_stride)
         deconv_1 = tf.keras.layers.Concatenate(axis=1)([conv_1, deconv_1])
         deconv_1 = self._conv_block(deconv_1, self.num_filters, self.kernel_size)
         deconv_1 = self._conv_block(deconv_1, self.num_filters, self.kernel_size)
 
         logits = self._conv_block(deconv_1, self.number_classes, 1)
-        # logits = tf.keras.layers.Permute((2, 3, 1))(logits)
+
         softmax = tf.keras.layers.Softmax(axis=-1, name='softmax')(logits)
 
         model_obj = tf.keras.Model(self.inputs, softmax, name='unet')
@@ -147,13 +149,13 @@ class UNet:
 
     @staticmethod
     def _pool(tensor, nfilters):
-        # , data_format = 'channels_first'
         output = tf.keras.layers.MaxPooling2D(pool_size=nfilters)(tensor)
         return output
 
     @staticmethod
-    def _conv_block(tensor, nfilters, size=3, padding='same'):
-        output = Conv2D(filters=nfilters, kernel_size=size, strides=1, padding=padding, activation=relu)(tensor)
+    def _conv_block(tensor, nfilters, size=3, padding='same', initializer="he_normal"):
+        output = Conv2D(filters=nfilters, kernel_size=size, strides=1, padding=padding, activation=relu,
+                        kernel_initializer=initializer)(tensor)
         output = BatchNormalization(axis=1)(output)
         return output
 
@@ -213,83 +215,3 @@ class UNet:
 
     def get_callbacks(self):
         return self.callbacks
-
-    # def _conv_block(self, tensor, nfilters, size=3, padding='same', initializer="he_normal"):
-    #     x = Conv2D(filters=nfilters, kernel_size=(size, size), padding=padding, kernel_initializer=initializer)(tensor)
-    #     x = BatchNormalization()(x)
-    #     x = Activation("relu")(x)
-    #     x = Conv2D(filters=nfilters, kernel_size=(size, size), padding=padding, kernel_initializer=initializer)(x)
-    #     x = BatchNormalization()(x)
-    #     x = Activation("relu")(x)
-    #     return x
-    #
-    # def _deconv_block(self, tensor, residual, nfilters, size=3, padding='same', strides=(2, 2)):
-    #     y = Conv2DTranspose(nfilters, kernel_size=(size, size), strides=strides, padding=padding)(tensor)
-    #     y = concatenate([y, residual], axis=3)
-    #     y = self._conv_block(y, nfilters)
-    #     return y
-    #
-    # def model(self, input_size):
-    #     """
-    #     Source: https://stackoverflow.com/questions/53322488/implementing-u-net-for-multi-class-road-segmentation
-    #     """
-    #     load_unet_parameters = settings.DL_PARAM['unet']
-    #
-    #     if input_size is not None:
-    #         logging.info(">>>> Settings up UNET model...")
-    #
-    #         filters = 64
-    #         nclasses = len(load_unet_parameters['classes'])
-    #
-    #         input_layer = Input(shape=input_size, name='image_input')
-
-    #         conv1 = self._conv_block(input_layer, nfilters=filters)
-    #         conv1_out = MaxPooling2D(pool_size=(2, 2))(conv1)
-
-    #         conv2 = self._conv_block(conv1_out, nfilters=filters * 2)
-    #         conv2_out = MaxPooling2D(pool_size=(2, 2))(conv2)
-
-    #         conv3 = self._conv_block(conv2_out, nfilters=filters * 4)
-    #         conv3_out = MaxPooling2D(pool_size=(2, 2))(conv3)
-
-    #         conv4 = self._conv_block(conv3_out, nfilters=filters * 8)
-    #         conv4_out = MaxPooling2D(pool_size=(2, 2))(conv4)
-    #         conv4_out = Dropout(0.5)(conv4_out)
-
-    #         conv5 = self._conv_block(conv4_out, nfilters=filters * 16)
-    #         conv5 = Dropout(0.5)(conv5)
-    #
-    #         deconv6 = self._deconv_block(conv5, residual=conv4, nfilters=filters * 8)
-    #         deconv6 = Dropout(0.5)(deconv6)
-    #         deconv7 = self._deconv_block(deconv6, residual=conv3, nfilters=filters * 4)
-    #         deconv7 = Dropout(0.5)(deconv7)
-    #         deconv8 = self._deconv_block(deconv7, residual=conv2, nfilters=filters * 2)
-    #         deconv9 = self._deconv_block(deconv8, residual=conv1, nfilters=filters)
-    #
-    #         output_layer = Conv2D(filters=nclasses, kernel_size=(1, 1))(deconv9)
-    #         output_layer = BatchNormalization()(output_layer)
-    #         output_layer = Activation('softmax')(output_layer)
-    #
-    #         model_obj = Model(inputs=input_layer, outputs=output_layer, name='unet')
-    #         model_obj.compile(optimizer=Adam(lr=1e-4),
-    #                           loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    #                           metrics=['accuracy'])
-    #
-    #         if load_unet_parameters['pretrained_weights'] != '':
-    #             logging.info(">> Loading pretrained weights: {}...".format(load_unet_parameters['pretrained_weights']))
-    #             pretrained_weights = os.path.join(load_unet_parameters['output_checkpoints'],
-    #                                               load_unet_parameters['pretrained_weights'])
-    #             model_obj.load_weights(pretrained_weights)
-    #         else:
-    #             logging.info(">>>>>> Model built. Saving model in {}...".format(load_unet_parameters['save_model_dir']))
-    #             timestamp = datetime.now().strftime("%d-%b-%Y-%H-%M)")
-    #             model_obj.save(os.path.join(load_unet_parameters['save_model_dir'],
-    #                                         "unet-" + timestamp + ".h5"))
-    #
-    #         logging.info(">>>> Done!")
-    #     else:
-    #         logging.warning(">>>> Input size is None. Model could not be retrieved")
-    #
-    #     return model_obj
-
-

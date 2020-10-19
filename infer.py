@@ -2,7 +2,7 @@ import os
 import numpy as np
 import logging
 import skimage.io
-import tifffile as tiff
+import imagereader
 
 from dl.model import unet as model
 
@@ -183,23 +183,16 @@ class Infer:
 
         return pred
 
-    def inference(self, checkpoint_filepath, image_folder, output_folder, number_classes, number_channels, image_format):
-        print('Arguments:')
-        print('checkpoint_filepath = {}'.format(checkpoint_filepath))
-        print('image_folder = {}'.format(image_folder))
-        print('output_folder = {}'.format(output_folder))
-        print('image_format = {}'.format(image_format))
-        print('number_classes = {}'.format(number_classes))
-        print('number_channels = {}'.format(number_channels))
+    def inference(self, unet_model, image_folder, output_folder, image_format):
 
-        # create output filepath
         if not os.path.exists(output_folder):
             os.mkdir(output_folder)
 
         img_filepath_list = [os.path.join(image_folder, fn) for fn in os.listdir(image_folder) if fn.endswith('.{}'.format(image_format))]
 
-        unet_model = model.UNet(number_classes, 1, number_channels, 1e-4)
-        unet_model.load_checkpoint(checkpoint_filepath)
+        # unet_model = model.UNet(input_size, number_classes, number_channels, False, False)
+        # # unet_model = model.UNet(number_classes, 1, number_channels, 1e-4)
+        # unet_model.load_checkpoint(checkpoint_filepath)
 
         print('Starting inference of file list')
         for i in range(len(img_filepath_list)):
@@ -208,11 +201,11 @@ class Infer:
             print('{}/{} : {}'.format(i, len(img_filepath_list), slide_name))
 
             print('Loading image: {}'.format(img_filepath))
-            img = tiff.imread(img_filepath)
+            img = imagereader.imread(img_filepath)
             img = img.astype(np.float32)
 
             # normalize with whole image stats
-            # img = imagereader.zscore_normalize(img)
+            img = imagereader.zscore_normalize(img)
             print('  img.shape={}'.format(img.shape))
 
             if img.shape[0] > TILE_SIZE or img.shape[1] > TILE_SIZE:

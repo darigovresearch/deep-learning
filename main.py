@@ -6,6 +6,7 @@ import settings
 import imageio
 import numpy as np
 import tifffile as tiff
+import infer
 
 from dl.model import utils
 from dl.model import unet
@@ -25,11 +26,13 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
-def get_dl_model(network_type, load_param):
+def get_dl_model(network_type, load_param, is_pretrained, is_saved):
     """
     Source: https://github.com/divamgupta/image-segmentation-keras
     :param network_type:
     :param load_param:
+    :param is_pretrained:
+    :param is_saved:
     :return:
     """
     model_obj = None
@@ -41,7 +44,7 @@ def get_dl_model(network_type, load_param):
         num_classes = len(load_param['classes'])
         num_channels = load_param['input_size_c']
 
-        model_obj = unet.UNet(input_size, num_classes, num_channels, False, False)
+        model_obj = unet.UNet(input_size, num_classes, num_channels, is_pretrained, is_saved)
 
     # TODO: include deeplabv3 as alternative to the set of dl models
     elif network_type == 'deeplabv3':
@@ -68,49 +71,59 @@ def main(network_type, is_training, is_predicting):
     logging.info("Starting process...")
 
     load_param = settings.DL_PARAM[network_type]
-    dl_obj = get_dl_model(network_type, load_param)
 
     if eval(is_training):
+        dl_obj = get_dl_model(network_type, load_param, False, False)
         path_train_samples = os.path.join(settings.DL_PARAM[network_type]['image_training_folder'], 'image')
+        path_val_samples = os.path.join(settings.DL_PARAM[network_type]['image_validation_folder'], 'image')
         num_train_samples = len(os.listdir(path_train_samples))
+        num_val_samples = len(os.listdir(path_val_samples))
 
-        train_generator_obj = utils.DL().training_generator(network_type, True)
+        train_generator_obj, val_generator_obj = utils.DL().training_generator(network_type, True)
         dl_obj.get_model().fit(train_generator_obj,
                                steps_per_epoch=np.ceil(num_train_samples /
                                                        settings.DL_PARAM[network_type]['batch_size']),
+                               validation_data=val_generator_obj,
+                               validation_steps=int(num_val_samples / settings.DL_PARAM[network_type]['batch_size']),
                                epochs=settings.DL_PARAM[network_type]['epochs'],
                                callbacks=dl_obj.get_callbacks())
 
     if eval(is_predicting):
-        list_images_to_predict = os.listdir(settings.DL_PARAM[network_type]['image_prediction_folder'])
-        list_images_to_predict = [file for file in list_images_to_predict if file.endswith(settings.VALID_PREDICTION_EXTENSION)]
+        dl_obj = get_dl_model(network_type, load_param, True, False)
 
-        for item in list_images_to_predict:
-            complete_path = os.path.join(settings.DL_PARAM[network_type]['image_prediction_folder'], item)
-
-            # TODO: do all tests if entry is ok after open: dimension, type, encoding, so on
-            # img = image.load_img(complete_path, target_size=(256, 256))
-            # x = image.img_to_array(img)
-            #
-            # pr = dl_obj.predict(np.array([x]))[0]
-
-            # pil_img = Image.fromarray((pr * 255).astype(np.uint8))
-            # pil_img.save(os.path.join(settings.DL_PARAM[network_type]['output_prediction'], 'test-inference.png'))
-
-            extension = os.path.splitext(item)[1]
-
-            if extension.lower() == ".tif" or extension.lower() == ".tiff":
-                image_full = tiff.imread(complete_path)
-                # img = image.load_img(complete_path, target_size=(image_full.shape[0], image_full.shape[1]))
-                # x = image.img_to_array(img)
-            # else:
-                # image_full = scipy.misc.imread(complete_path)
-
-            pr = dl_obj.predict(np.array([image_full]))[0]
-            pred_mask = tf.argmax(pr, axis=-1)
-            pred_mask = pred_mask[..., tf.newaxis]
-            imageio.imwrite(os.path.join(settings.DL_PARAM[network_type]['output_prediction'], 'test-inference.png'),
-                            pred_mask)
+        infer.Infer().inference(dl_obj,
+                                settings.DL_PARAM[network_type]['image_prediction_folder'],
+                                settings.DL_PARAM[network_type]['output_prediction'],
+                                'TIF')
+        # list_images_to_predict = os.listdir(settings.DL_PARAM[network_type]['image_prediction_folder'])
+        # list_images_to_predict = [file for file in list_images_to_predict if file.endswith(settings.VALID_PREDICTION_EXTENSION)]
+        #
+        # for item in list_images_to_predict:
+        #     complete_path = os.path.join(settings.DL_PARAM[network_type]['image_prediction_folder'], item)
+        #
+        #     # TODO: do all tests if entry is ok after open: dimension, type, encoding, so on
+        #     # img = image.load_img(complete_path, target_size=(256, 256))
+        #     # x = image.img_to_array(img)
+        #     #
+        #     # pr = dl_obj.predict(np.array([x]))[0]
+        #
+        #     # pil_img = Image.fromarray((pr * 255).astype(np.uint8))
+        #     # pil_img.save(os.path.join(settings.DL_PARAM[network_type]['output_prediction'], 'test-inference.png'))
+        #
+        #     extension = os.path.splitext(item)[1]
+        #
+        #     if extension.lower() == ".tif" or extension.lower() == ".tiff":
+        #         image_full = tiff.imread(complete_path)
+        #         # img = image.load_img(complete_path, target_size=(image_full.shape[0], image_full.shape[1]))
+        #         # x = image.img_to_array(img)
+        #     # else:
+        #         # image_full = scipy.misc.imread(complete_path)
+        #
+        #     pr = dl_obj.get_model().predict(np.array([image_full]))[0]
+        #     pred_mask = tf.argmax(pr, axis=-1)
+        #     # pred_mask = pred_mask[..., tf.newaxis]
+        #     imageio.imwrite(os.path.join(settings.DL_PARAM[network_type]['output_prediction'], 'test-inference.png'),
+        #                     pred_mask)
 
             # TODO:
             #  1. save prediction in png
