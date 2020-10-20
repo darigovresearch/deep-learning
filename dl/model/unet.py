@@ -37,7 +37,7 @@ class UNet:
                                                verbose=1, save_best_only=False, mode='auto'),
             tf.keras.callbacks.TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir']),
         ]
-        self.model = self.build_model_2()
+        self.model = self.build_model_3()
 
         if is_pretrained is True:
             logging.info(">> Loading pretrained weights: {}...".format(load_unet_parameters['pretrained_weights']))
@@ -138,7 +138,69 @@ class UNet:
 
         output_layer = Conv2D(filters=self.number_classes, kernel_size=(1, 1))(deconv9)
         output_layer = BatchNormalization()(output_layer)
+
+        # reshape = Reshape((self.img_rows * self.img_cols, 12), input_shape=(self.img_rows, self.img_cols, 12))(conv9)
+
         softmax = Activation('softmax')(output_layer)
+
+        model_obj = tf.keras.Model(self.inputs, softmax, name='unet')
+        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
+
+        logging.info(">>>> Done!")
+
+        return model_obj
+
+    def build_model_3(self):
+        """
+        Source: https://github.com/usnistgov/semantic-segmentation-unet
+        """
+        logging.info(">>>> Settings up UNET model...")
+
+        conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(self.inputs)
+        conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv1)
+        pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
+        conv2 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool1)
+        conv2 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv2)
+        pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
+        conv3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool2)
+        conv3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv3)
+        pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
+        conv4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool3)
+        conv4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv4)
+        drop4 = Dropout(0.5)(conv4)
+        pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
+
+        conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool4)
+        conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv5)
+        drop5 = Dropout(0.5)(conv5)
+
+        up6 = Conv2D(512, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
+            UpSampling2D(size=(2, 2))(drop5))
+        merge6 = concatenate([drop4, up6], axis=3)
+        conv6 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge6)
+        conv6 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv6)
+
+        up7 = Conv2D(256, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
+            UpSampling2D(size=(2, 2))(conv6))
+        merge7 = concatenate([conv3, up7], axis=3)
+        conv7 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge7)
+        conv7 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv7)
+
+        up8 = Conv2D(128, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
+            UpSampling2D(size=(2, 2))(conv7))
+        merge8 = concatenate([conv2, up8], axis=3)
+        conv8 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge8)
+        conv8 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv8)
+
+        up9 = Conv2D(64, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
+            UpSampling2D(size=(2, 2))(conv8))
+        merge9 = concatenate([conv1, up9], axis=3)
+        conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge9)
+        conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)
+        conv9 = Conv2D(2, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)
+
+        conv10 = Conv2D(filters=self.number_classes, kernel_size=(1, 1))(conv9)
+        softmax = Activation('softmax')(conv10)
 
         model_obj = tf.keras.Model(self.inputs, softmax, name='unet')
         model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])

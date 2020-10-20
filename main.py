@@ -4,9 +4,9 @@ import time
 import argparse
 import settings
 import imageio
+import cv2
 import numpy as np
 import tifffile as tiff
-import infer
 
 from dl.model import utils
 from dl.model import unet
@@ -91,39 +91,41 @@ def main(network_type, is_training, is_predicting):
     if eval(is_predicting):
         dl_obj = get_dl_model(network_type, load_param, True, False)
 
-        infer.Infer().inference(dl_obj,
-                                settings.DL_PARAM[network_type]['image_prediction_folder'],
-                                settings.DL_PARAM[network_type]['output_prediction'],
-                                'TIF')
-        # list_images_to_predict = os.listdir(settings.DL_PARAM[network_type]['image_prediction_folder'])
-        # list_images_to_predict = [file for file in list_images_to_predict if file.endswith(settings.VALID_PREDICTION_EXTENSION)]
-        #
-        # for item in list_images_to_predict:
-        #     complete_path = os.path.join(settings.DL_PARAM[network_type]['image_prediction_folder'], item)
-        #
-        #     # TODO: do all tests if entry is ok after open: dimension, type, encoding, so on
-        #     # img = image.load_img(complete_path, target_size=(256, 256))
-        #     # x = image.img_to_array(img)
-        #     #
-        #     # pr = dl_obj.predict(np.array([x]))[0]
-        #
-        #     # pil_img = Image.fromarray((pr * 255).astype(np.uint8))
-        #     # pil_img.save(os.path.join(settings.DL_PARAM[network_type]['output_prediction'], 'test-inference.png'))
-        #
-        #     extension = os.path.splitext(item)[1]
-        #
-        #     if extension.lower() == ".tif" or extension.lower() == ".tiff":
-        #         image_full = tiff.imread(complete_path)
-        #         # img = image.load_img(complete_path, target_size=(image_full.shape[0], image_full.shape[1]))
-        #         # x = image.img_to_array(img)
-        #     # else:
-        #         # image_full = scipy.misc.imread(complete_path)
-        #
-        #     pr = dl_obj.get_model().predict(np.array([image_full]))[0]
-        #     pred_mask = tf.argmax(pr, axis=-1)
-        #     # pred_mask = pred_mask[..., tf.newaxis]
-        #     imageio.imwrite(os.path.join(settings.DL_PARAM[network_type]['output_prediction'], 'test-inference.png'),
-        #                     pred_mask)
+        list_images_to_predict = os.listdir(load_param['image_prediction_folder'])
+        list_images_to_predict = [file for file in list_images_to_predict if file.endswith(settings.VALID_PREDICTION_EXTENSION)]
+
+        classes = load_param['classes']
+        COLOR_DICT = np.array(['nut', 'palm', 'other'])
+
+        for item in list_images_to_predict:
+            complete_path = os.path.join(settings.DL_PARAM[network_type]['image_prediction_folder'], item)
+            filename, extension = os.path.splitext(item)
+
+            if extension.lower() == ".tif" or extension.lower() == ".tiff":
+                image_full = tiff.imread(complete_path)
+                dims = image_full.shape
+            else:
+                image_full = cv2.imread(complete_path)
+                dims = image_full.shape
+
+            # img = image_full / 255
+            # img = np.reshape(image_full, (1, 256, 256, 3))
+            # y_prob = dl_obj.get_model().predict(img)
+            # y_classes = y_prob.argmax(axis=-1)
+            # output = np.reshape(y_classes, (256, 256))
+
+            pr = dl_obj.get_model().predict(np.array([image_full]))[0]
+            pr = pr.reshape((256, 256, 3)).argmax(axis=2)
+            pred_mask = np.argmax(pr, axis=-1)
+            output = np.reshape(pred_mask, (256, 256))
+
+            img_color = np.zeros((256, 256, 3), dtype='uint8')
+            for j in range(dims[0]):
+                for i in range(dims[1]):
+                    img_color[j, i] = classes[COLOR_DICT[output[j, i]]]
+
+            prediction_path = os.path.join(settings.DL_PARAM[network_type]['output_prediction'], filename + '.png')
+            imageio.imwrite(prediction_path, img_color)
 
             # TODO:
             #  1. save prediction in png

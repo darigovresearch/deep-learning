@@ -15,7 +15,7 @@ DL_PARAM = {
         'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'weight'),
         'save_model_dir': os.path.join(DL_DATASET, 'training', 'all', 'model'),
         'tensorboard_log_dir': os.path.join(DL_DATASET, 'training', 'all', 'log'),
-        'pretrained_weights': 'model-21.hdf5',
+        'pretrained_weights': 'model-78.hdf5',
         'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
         'input_size_w': 256,
         'input_size_h': 256,
