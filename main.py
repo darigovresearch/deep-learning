@@ -86,7 +86,8 @@ def main(network_type, is_training, is_predicting):
                                validation_data=val_generator_obj,
                                validation_steps=int(num_val_samples / settings.DL_PARAM[network_type]['batch_size']),
                                epochs=settings.DL_PARAM[network_type]['epochs'],
-                               callbacks=dl_obj.get_callbacks())
+                               callbacks=dl_obj.get_callbacks(),
+                               workers=8)
 
     if eval(is_predicting):
         dl_obj = get_dl_model(network_type, load_param, True, False)

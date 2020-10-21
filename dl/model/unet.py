@@ -4,8 +4,8 @@ import settings
 import tensorflow as tf
 
 from datetime import datetime
+from keras.models import Model
 from keras.layers import *
-from keras.activations import *
 
 
 class UNet:
@@ -33,9 +33,10 @@ class UNet:
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
-            tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='val_accuracy',
-                                               verbose=1, save_best_only=False, mode='auto'),
-            tf.keras.callbacks.TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir']),
+            tf.keras.callbacks.EarlyStopping(mode='max', monitor='acc', patience=6, verbose=1),
+            tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='acc', verbose=1, save_best_only=True,
+                                               save_weights_only='True', mode='max'),
+            tf.keras.callbacks.TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
         ]
         self.model = self.build_model()
 
@@ -53,208 +54,65 @@ class UNet:
     def build_model(self):
         """
         Source: https://github.com/usnistgov/semantic-segmentation-unet
+                https://stackoverflow.com/questions/53322488/implementing-u-net-for-multi-class-road-segmentation
         """
         logging.info(">>>> Settings up UNET model...")
 
-        conv_1 = self._conv_block(self.inputs, self.num_filters, self.kernel_size)
-        conv_1 = self._conv_block(conv_1, self.num_filters, self.kernel_size)
-        pool_1 = self._pool(conv_1, self.pooling_stride)
-        pool_1 = tf.keras.layers.Dropout(rate=self.dropout_rate)(pool_1)
+        conv_1 = self.conv_block(self.inputs, n_filters=self.num_filters, size=self.kernel_size)
+        conv1_out = self.pool(conv_1, pool_size=self.pooling_stride)
+        conv_2 = self.conv_block(conv1_out, n_filters=(2 * self.num_filters), size=self.kernel_size)
+        conv2_out = self.pool(conv_2, pool_size=self.pooling_stride)
+        conv_3 = self.conv_block(conv2_out, n_filters=(4 * self.num_filters), size=self.kernel_size)
+        conv3_out = self.pool(conv_3, pool_size=self.pooling_stride)
+        conv_4 = self.conv_block(conv3_out, n_filters=(8 * self.num_filters), size=self.kernel_size)
+        conv4_out = self.pool(conv_4, pool_size=self.pooling_stride)
+        conv4_out = Dropout(rate=self.dropout_rate)(conv4_out)
 
-        conv_2 = self._conv_block(pool_1, 2 * self.num_filters, self.kernel_size)
-        conv_2 = self._conv_block(conv_2, 2 * self.num_filters, self.kernel_size)
-        pool_2 = self._pool(conv_2, self.pooling_stride)
-        pool_2 = tf.keras.layers.Dropout(rate=self.dropout_rate)(pool_2)
+        bottleneck = self.conv_block(conv4_out, n_filters=(16 * self.num_filters), size=self.kernel_size)
+        bottleneck = Dropout(rate=self.dropout_rate)(bottleneck)
 
-        conv_3 = self._conv_block(pool_2, 4 * self.num_filters, self.kernel_size)
-        conv_3 = self._conv_block(conv_3, 4 * self.num_filters, self.kernel_size)
-        pool_3 = self._pool(conv_3, self.pooling_stride)
-        pool_3 = tf.keras.layers.Dropout(rate=self.dropout_rate)(pool_3)
+        deconv_4 = self.deconv_block(bottleneck, residual=conv_4, n_filters=(8 * self.num_filters),
+                                     size=self.deconv_kernel_size, stride=self.pooling_stride)
+        deconv_4 = Dropout(rate=self.dropout_rate)(deconv_4)
+        deconv_5 = self.deconv_block(deconv_4, residual=conv_3, n_filters=(4 * self.num_filters),
+                                     size=self.deconv_kernel_size, stride=self.pooling_stride)
+        deconv_5 = Dropout(rate=self.dropout_rate)(deconv_5)
+        deconv_6 = self.deconv_block(deconv_5, residual=conv_2, n_filters=(2 * self.num_filters),
+                                     size=self.deconv_kernel_size, stride=self.pooling_stride)
+        deconv_7 = self.deconv_block(deconv_6, residual=conv_1, n_filters=self.num_filters,
+                                     size=self.deconv_kernel_size, stride=self.pooling_stride)
 
-        conv_4 = self._conv_block(pool_3, 8 * self.num_filters, self.kernel_size)
-        conv_4 = self._conv_block(conv_4, 8 * self.num_filters, self.kernel_size)
-        pool_4 = self._pool(conv_4, self.pooling_stride)
-        pool_4 = tf.keras.layers.Dropout(rate=self.dropout_rate)(pool_4)
-
-        bottleneck = self._conv_block(pool_4, 16 * self.num_filters, self.kernel_size)
-
-        deconv_4 = self._deconv_block(bottleneck, 8 * self.num_filters, self.deconv_kernel_size,
-                                      stride=self.pooling_stride)
-        deconv_4 = tf.keras.layers.Concatenate(axis=1)([deconv_4, conv_4])
-        deconv_4 = tf.keras.layers.Dropout(rate=self.dropout_rate)(deconv_4)
-        deconv_4 = self._conv_block(deconv_4, 8 * self.num_filters, self.kernel_size)
-        deconv_4 = self._conv_block(deconv_4, 8 * self.num_filters, self.kernel_size)
-
-        deconv_3 = self._deconv_block(deconv_4, 4 * self.num_filters, self.deconv_kernel_size,
-                                      stride=self.pooling_stride)
-        deconv_3 = tf.keras.layers.Concatenate(axis=1)([deconv_3, conv_3])
-        deconv_3 = tf.keras.layers.Dropout(rate=self.dropout_rate)(deconv_3)
-        deconv_3 = self._conv_block(deconv_3, 4 * self.num_filters, self.kernel_size)
-        deconv_3 = self._conv_block(deconv_3, 4 * self.num_filters, self.kernel_size)
-
-        deconv_2 = self._deconv_block(deconv_3, 2 * self.num_filters, self.deconv_kernel_size,
-                                      stride=self.pooling_stride)
-        deconv_2 = tf.keras.layers.Concatenate(axis=1)([deconv_2, conv_2])
-        deconv_2 = tf.keras.layers.Dropout(rate=self.dropout_rate)(deconv_2)
-        deconv_2 = self._conv_block(deconv_2, 2 * self.num_filters, self.kernel_size)
-        deconv_2 = self._conv_block(deconv_2, 2 * self.num_filters, self.kernel_size)
-
-        deconv_1 = self._deconv_block(deconv_2, self.num_filters, self.deconv_kernel_size,
-                                      stride=self.pooling_stride)
-        deconv_1 = tf.keras.layers.Concatenate(axis=1)([deconv_1, conv_1])
-        deconv_1 = tf.keras.layers.Dropout(rate=self.dropout_rate)(deconv_1)
-        deconv_1 = self._conv_block(deconv_1, self.num_filters, self.kernel_size)
-        deconv_1 = self._conv_block(deconv_1, self.num_filters, self.kernel_size)
-
-        outputs = Conv2D(self.number_classes, (1, 1), activation='softmax')(deconv_1)
-
-        model_obj = tf.keras.Model(self.inputs, outputs, name='unet')
-        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
-
-        logging.info(">>>> Done!")
-
-        return model_obj
-
-    def build_model_2(self):
-        """
-        Source: https://github.com/usnistgov/semantic-segmentation-unet
-        """
-        logging.info(">>>> Settings up UNET model...")
-
-        conv1 = self._conv_block_2(self.inputs, nfilters=self.num_filters)
-        conv1_out = MaxPooling2D(pool_size=(2, 2))(conv1)
-        conv2 = self._conv_block_2(conv1_out, nfilters=self.num_filters * 2)
-        conv2_out = MaxPooling2D(pool_size=(2, 2))(conv2)
-        conv3 = self._conv_block_2(conv2_out, nfilters=self.num_filters * 4)
-        conv3_out = MaxPooling2D(pool_size=(2, 2))(conv3)
-        conv4 = self._conv_block_2(conv3_out, nfilters=self.num_filters * 8)
-        conv4_out = MaxPooling2D(pool_size=(2, 2))(conv4)
-        conv4_out = Dropout(0.5)(conv4_out)
-        conv5 = self._conv_block_2(conv4_out, nfilters=self.num_filters * 16)
-        conv5 = Dropout(0.5)(conv5)
-
-        deconv6 = self._deconv_block_2(conv5, residual=conv4, nfilters=self.num_filters * 8)
-        deconv6 = Dropout(0.5)(deconv6)
-        deconv7 = self._deconv_block_2(deconv6, residual=conv3, nfilters=self.num_filters * 4)
-        deconv7 = Dropout(0.5)(deconv7)
-        deconv8 = self._deconv_block_2(deconv7, residual=conv2, nfilters=self.num_filters * 2)
-        deconv9 = self._deconv_block_2(deconv8, residual=conv1, nfilters=self.num_filters)
-
-        output_layer = Conv2D(filters=self.number_classes, kernel_size=(1, 1))(deconv9)
+        output_layer = Conv2D(filters=self.number_classes, kernel_size=(1, 1))(deconv_7)
         output_layer = BatchNormalization()(output_layer)
+        output_layer = Activation('softmax')(output_layer)
 
-        # reshape = Reshape((self.img_rows * self.img_cols, 12), input_shape=(self.img_rows, self.img_cols, 12))(conv9)
-
-        softmax = Activation('softmax')(output_layer)
-
-        model_obj = tf.keras.Model(self.inputs, softmax, name='unet')
+        model_obj = Model(self.inputs, output_layer, name='unet')
         model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
 
         logging.info(">>>> Done!")
 
         return model_obj
 
-    def build_model_3(self):
-        """
-        Source: https://github.com/usnistgov/semantic-segmentation-unet
-        """
-        logging.info(">>>> Settings up UNET model...")
-
-        conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(self.inputs)
-        conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv1)
-        pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
-        conv2 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool1)
-        conv2 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv2)
-        pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
-        conv3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool2)
-        conv3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv3)
-        pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
-        conv4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool3)
-        conv4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv4)
-        drop4 = Dropout(0.5)(conv4)
-        pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
-
-        conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool4)
-        conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv5)
-        drop5 = Dropout(0.5)(conv5)
-
-        up6 = Conv2D(512, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
-            UpSampling2D(size=(2, 2))(drop5))
-        merge6 = concatenate([drop4, up6], axis=3)
-        conv6 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge6)
-        conv6 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv6)
-
-        up7 = Conv2D(256, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
-            UpSampling2D(size=(2, 2))(conv6))
-        merge7 = concatenate([conv3, up7], axis=3)
-        conv7 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge7)
-        conv7 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv7)
-
-        up8 = Conv2D(128, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
-            UpSampling2D(size=(2, 2))(conv7))
-        merge8 = concatenate([conv2, up8], axis=3)
-        conv8 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge8)
-        conv8 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv8)
-
-        up9 = Conv2D(64, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
-            UpSampling2D(size=(2, 2))(conv8))
-        merge9 = concatenate([conv1, up9], axis=3)
-        conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge9)
-        conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)
-        conv9 = Conv2D(2, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)
-
-        conv10 = Conv2D(filters=self.number_classes, kernel_size=(1, 1))(conv9)
-        softmax = Activation('softmax')(conv10)
-
-        model_obj = tf.keras.Model(self.inputs, softmax, name='unet')
-        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
-
-        logging.info(">>>> Done!")
-
-        return model_obj
-
-    @staticmethod
-    def _pool(tensor, nfilters):
-        output = tf.keras.layers.MaxPooling2D(pool_size=nfilters)(tensor)
+    def pool(self, tensor, pool_size):
+        output = tf.keras.layers.MaxPooling2D(pool_size=pool_size)(tensor)
         return output
 
-    @staticmethod
-    def _conv_block(tensor, nfilters, size=3, padding='same', initializer="he_normal"):
-        output = Conv2D(filters=nfilters, kernel_size=size, strides=1, padding=padding, activation=relu,
-                        kernel_initializer=initializer)(tensor)
-        output = BatchNormalization(axis=1)(output)
-        output = Activation("relu")(output)
-        return output
+    def conv_block(self, tensor, n_filters, size=3, padding='same', initializer="he_normal"):
+        conv = Conv2D(filters=n_filters, kernel_size=(size, size), padding=padding,
+                      kernel_initializer=initializer)(tensor)
+        conv = BatchNormalization(axis=1)(conv)
+        conv = Activation("relu")(conv)
+        conv = Conv2D(filters=n_filters, kernel_size=(size, size), padding=padding,
+                      kernel_initializer=initializer)(conv)
+        conv = BatchNormalization(axis=1)(conv)
+        conv = Activation("relu")(conv)
+        return conv
 
-    @staticmethod
-    def _deconv_block(tensor, nfilters, size=3, padding='same', stride=1):
-        output = Conv2DTranspose(filters=nfilters, kernel_size=size, strides=stride, activation=None,
-                                 padding=padding)(tensor)
-        # output = BatchNormalization(axis=1)(output)
-        return output
-
-    @staticmethod
-    def _conv_block_2(tensor, nfilters, size=3, padding='same', initializer="he_normal"):
-        x = Conv2D(filters=nfilters, kernel_size=(size, size), padding=padding, kernel_initializer=initializer)(tensor)
-        x = BatchNormalization()(x)
-        x = Activation("relu")(x)
-        x = Conv2D(filters=nfilters, kernel_size=(size, size), padding=padding, kernel_initializer=initializer)(x)
-        x = BatchNormalization()(x)
-        x = Activation("relu")(x)
-        return x
-
-    @staticmethod
-    def _deconv_block_2(tensor, residual, nfilters, size=3, padding='same', strides=(2, 2), initializer="he_normal"):
-        y = Conv2DTranspose(nfilters, kernel_size=(size, size), strides=strides, padding=padding)(tensor)
-        y = concatenate([y, residual], axis=3)
-
-        y = Conv2D(filters=nfilters, kernel_size=(size, size), padding=padding, kernel_initializer=initializer)(y)
-        y = BatchNormalization()(y)
-        y = Activation("relu")(y)
-        y = Conv2D(filters=nfilters, kernel_size=(size, size), padding=padding, kernel_initializer=initializer)(y)
-        y = BatchNormalization()(y)
-        y = Activation("relu")(y)
-        return y
+    def deconv_block(self, tensor, n_filters, residual, size=3, stride=2, padding='same'):
+        deconv = Conv2DTranspose(n_filters, kernel_size=(size, size), strides=(stride, stride), padding=padding)(tensor)
+        deconv = concatenate([deconv, residual], axis=3)
+        deconv = self.conv_block(deconv, n_filters=n_filters)
+        return deconv
 
     def get_model(self):
         return self.model
