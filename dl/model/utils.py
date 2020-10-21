@@ -70,6 +70,7 @@ class DL:
         """
         can generate image and mask at the same time
         hierarchy of folders: https://stackoverflow.com/questions/58050113/imagedatagenerator-for-semantic-segmentation
+        color_mode: https://stackoverflow.com/questions/53248099/keras-image-segmentation-using-grayscale-masks-and-imagedatagenerator-class
         :param network_type:
         :param is_augment:
         :return train_generator:
@@ -90,7 +91,7 @@ class DL:
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
             seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode=settings.DL_PARAM[network_type]['color_mode'],
+            # color_mode=settings.DL_PARAM[network_type]['color_mode'],
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
             shuffle=True)
         train_label_generator = train_datagen.flow_from_directory(
@@ -111,7 +112,7 @@ class DL:
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
             seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode=settings.DL_PARAM[network_type]['color_mode'],
+            # color_mode=settings.DL_PARAM[network_type]['color_mode'],
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
             shuffle=True)
         val_label_generator = val_datagen.flow_from_directory(

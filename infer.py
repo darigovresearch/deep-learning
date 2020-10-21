@@ -2,7 +2,7 @@ import os
 import numpy as np
 import logging
 import skimage.io
-# import imagereader
+import imagereader
 
 from dl.model import unet as model
 
@@ -195,35 +195,35 @@ class Infer:
         # unet_model.load_checkpoint(checkpoint_filepath)
 
         print('Starting inference of file list')
-        # for i in range(len(img_filepath_list)):
-        #     img_filepath = img_filepath_list[i]
-        #     _, slide_name = os.path.split(img_filepath)
-        #     print('{}/{} : {}'.format(i, len(img_filepath_list), slide_name))
-        #
-        #     print('Loading image: {}'.format(img_filepath))
-        #     img = imagereader.imread(img_filepath)
-        #     img = img.astype(np.float32)
-        #
-        #     # normalize with whole image stats
-        #     img = imagereader.zscore_normalize(img)
-        #     print('  img.shape={}'.format(img.shape))
-        #
-        #     if img.shape[0] > TILE_SIZE or img.shape[1] > TILE_SIZE:
-        #         segmented_mask = self._inference_tiling(img, unet_model, TILE_SIZE)
-        #     else:
-        #         segmented_mask = self._inference(img, unet_model)
-        #
-        #     if 0 <= np.max(segmented_mask) <= 255:
-        #         segmented_mask = segmented_mask.astype(np.uint8)
-        #     if 255 < np.max(segmented_mask) < 65536:
-        #         segmented_mask = segmented_mask.astype(np.uint16)
-        #     if np.max(segmented_mask) > 65536:
-        #         segmented_mask = segmented_mask.astype(np.int32)
-        #     if 'tif' in image_format:
-        #         skimage.io.imsave(os.path.join(output_folder, slide_name), segmented_mask, compress=6, bigtiff=True,
-        #                           tile=(TILE_SIZE, TILE_SIZE))
-        #     else:
-        #         try:
-        #             skimage.io.imsave(os.path.join(output_folder, slide_name), segmented_mask, compress=6)
-        #         except TypeError:  # compress option not valid
-        #             skimage.io.imsave(os.path.join(output_folder, slide_name), segmented_mask)
+        for i in range(len(img_filepath_list)):
+            img_filepath = img_filepath_list[i]
+            _, slide_name = os.path.split(img_filepath)
+            print('{}/{} : {}'.format(i, len(img_filepath_list), slide_name))
+
+            print('Loading image: {}'.format(img_filepath))
+            img = imagereader.imread(img_filepath)
+            img = img.astype(np.float32)
+
+            # normalize with whole image stats
+            img = imagereader.zscore_normalize(img)
+            print('  img.shape={}'.format(img.shape))
+
+            if img.shape[0] > TILE_SIZE or img.shape[1] > TILE_SIZE:
+                segmented_mask = self._inference_tiling(img, unet_model, TILE_SIZE)
+            else:
+                segmented_mask = self._inference(img, unet_model)
+
+            if 0 <= np.max(segmented_mask) <= 255:
+                segmented_mask = segmented_mask.astype(np.uint8)
+            if 255 < np.max(segmented_mask) < 65536:
+                segmented_mask = segmented_mask.astype(np.uint16)
+            if np.max(segmented_mask) > 65536:
+                segmented_mask = segmented_mask.astype(np.int32)
+            if 'tif' in image_format:
+                skimage.io.imsave(os.path.join(output_folder, slide_name), segmented_mask, compress=6, bigtiff=True,
+                                  tile=(TILE_SIZE, TILE_SIZE))
+            else:
+                try:
+                    skimage.io.imsave(os.path.join(output_folder, slide_name), segmented_mask, compress=6)
+                except TypeError:  # compress option not valid
+                    skimage.io.imsave(os.path.join(output_folder, slide_name), segmented_mask)
