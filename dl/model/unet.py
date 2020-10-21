@@ -37,7 +37,7 @@ class UNet:
                                                verbose=1, save_best_only=False, mode='auto'),
             tf.keras.callbacks.TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir']),
         ]
-        self.model = self.build_model_3()
+        self.model = self.build_model()
 
         if is_pretrained is True:
             logging.info(">> Loading pretrained weights: {}...".format(load_unet_parameters['pretrained_weights']))
@@ -59,52 +59,56 @@ class UNet:
         conv_1 = self._conv_block(self.inputs, self.num_filters, self.kernel_size)
         conv_1 = self._conv_block(conv_1, self.num_filters, self.kernel_size)
         pool_1 = self._pool(conv_1, self.pooling_stride)
+        pool_1 = tf.keras.layers.Dropout(rate=self.dropout_rate)(pool_1)
 
         conv_2 = self._conv_block(pool_1, 2 * self.num_filters, self.kernel_size)
         conv_2 = self._conv_block(conv_2, 2 * self.num_filters, self.kernel_size)
         pool_2 = self._pool(conv_2, self.pooling_stride)
+        pool_2 = tf.keras.layers.Dropout(rate=self.dropout_rate)(pool_2)
 
         conv_3 = self._conv_block(pool_2, 4 * self.num_filters, self.kernel_size)
         conv_3 = self._conv_block(conv_3, 4 * self.num_filters, self.kernel_size)
         pool_3 = self._pool(conv_3, self.pooling_stride)
+        pool_3 = tf.keras.layers.Dropout(rate=self.dropout_rate)(pool_3)
 
         conv_4 = self._conv_block(pool_3, 8 * self.num_filters, self.kernel_size)
         conv_4 = self._conv_block(conv_4, 8 * self.num_filters, self.kernel_size)
-        conv_4 = tf.keras.layers.Dropout(rate=self.dropout_rate)(conv_4)
         pool_4 = self._pool(conv_4, self.pooling_stride)
+        pool_4 = tf.keras.layers.Dropout(rate=self.dropout_rate)(pool_4)
 
         bottleneck = self._conv_block(pool_4, 16 * self.num_filters, self.kernel_size)
-        bottleneck = self._conv_block(bottleneck, 16 * self.num_filters, self.kernel_size)
-        bottleneck = tf.keras.layers.Dropout(rate=self.dropout_rate)(bottleneck)
 
         deconv_4 = self._deconv_block(bottleneck, 8 * self.num_filters, self.deconv_kernel_size,
                                       stride=self.pooling_stride)
-        deconv_4 = tf.keras.layers.Concatenate(axis=1)([conv_4, deconv_4])
+        deconv_4 = tf.keras.layers.Concatenate(axis=1)([deconv_4, conv_4])
+        deconv_4 = tf.keras.layers.Dropout(rate=self.dropout_rate)(deconv_4)
         deconv_4 = self._conv_block(deconv_4, 8 * self.num_filters, self.kernel_size)
         deconv_4 = self._conv_block(deconv_4, 8 * self.num_filters, self.kernel_size)
 
         deconv_3 = self._deconv_block(deconv_4, 4 * self.num_filters, self.deconv_kernel_size,
                                       stride=self.pooling_stride)
-        deconv_3 = tf.keras.layers.Concatenate(axis=1)([conv_3, deconv_3])
+        deconv_3 = tf.keras.layers.Concatenate(axis=1)([deconv_3, conv_3])
+        deconv_3 = tf.keras.layers.Dropout(rate=self.dropout_rate)(deconv_3)
         deconv_3 = self._conv_block(deconv_3, 4 * self.num_filters, self.kernel_size)
         deconv_3 = self._conv_block(deconv_3, 4 * self.num_filters, self.kernel_size)
 
         deconv_2 = self._deconv_block(deconv_3, 2 * self.num_filters, self.deconv_kernel_size,
                                       stride=self.pooling_stride)
-        deconv_2 = tf.keras.layers.Concatenate(axis=1)([conv_2, deconv_2])
+        deconv_2 = tf.keras.layers.Concatenate(axis=1)([deconv_2, conv_2])
+        deconv_2 = tf.keras.layers.Dropout(rate=self.dropout_rate)(deconv_2)
         deconv_2 = self._conv_block(deconv_2, 2 * self.num_filters, self.kernel_size)
         deconv_2 = self._conv_block(deconv_2, 2 * self.num_filters, self.kernel_size)
 
-        deconv_1 = self._deconv_block(deconv_2, self.num_filters, self.deconv_kernel_size, stride=self.pooling_stride)
-        deconv_1 = tf.keras.layers.Concatenate(axis=1)([conv_1, deconv_1])
+        deconv_1 = self._deconv_block(deconv_2, self.num_filters, self.deconv_kernel_size,
+                                      stride=self.pooling_stride)
+        deconv_1 = tf.keras.layers.Concatenate(axis=1)([deconv_1, conv_1])
+        deconv_1 = tf.keras.layers.Dropout(rate=self.dropout_rate)(deconv_1)
         deconv_1 = self._conv_block(deconv_1, self.num_filters, self.kernel_size)
         deconv_1 = self._conv_block(deconv_1, self.num_filters, self.kernel_size)
 
-        logits = self._conv_block(deconv_1, self.number_classes, 1)
+        outputs = Conv2D(self.number_classes, (1, 1), activation='softmax')(deconv_1)
 
-        softmax = tf.keras.layers.Softmax(axis=-1, name='softmax')(logits)
-
-        model_obj = tf.keras.Model(self.inputs, softmax, name='unet')
+        model_obj = tf.keras.Model(self.inputs, outputs, name='unet')
         model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
 
         logging.info(">>>> Done!")
@@ -219,13 +223,14 @@ class UNet:
         output = Conv2D(filters=nfilters, kernel_size=size, strides=1, padding=padding, activation=relu,
                         kernel_initializer=initializer)(tensor)
         output = BatchNormalization(axis=1)(output)
+        output = Activation("relu")(output)
         return output
 
     @staticmethod
     def _deconv_block(tensor, nfilters, size=3, padding='same', stride=1):
         output = Conv2DTranspose(filters=nfilters, kernel_size=size, strides=stride, activation=None,
                                  padding=padding)(tensor)
-        output = BatchNormalization(axis=1)(output)
+        # output = BatchNormalization(axis=1)(output)
         return output
 
     @staticmethod
