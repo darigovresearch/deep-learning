@@ -80,14 +80,14 @@ def main(network_type, is_training, is_predicting):
         num_val_samples = len(os.listdir(path_val_samples))
 
         train_generator_obj, val_generator_obj = utils.DL().training_generator(network_type, True)
-        dl_obj.get_model().fit(train_generator_obj,
-                               steps_per_epoch=np.ceil(num_train_samples /
-                                                       settings.DL_PARAM[network_type]['batch_size']),
-                               validation_data=val_generator_obj,
-                               validation_steps=int(num_val_samples / settings.DL_PARAM[network_type]['batch_size']),
-                               epochs=settings.DL_PARAM[network_type]['epochs'],
-                               callbacks=dl_obj.get_callbacks(),
-                               workers=8)
+        dl_obj.get_model().fit_generator(train_generator_obj,
+                                         steps_per_epoch=np.ceil(num_train_samples //
+                                                                 settings.DL_PARAM[network_type]['batch_size']),
+                                         validation_data=val_generator_obj,
+                                         validation_steps=int(num_val_samples //
+                                                              settings.DL_PARAM[network_type]['batch_size']),
+                                         epochs=settings.DL_PARAM[network_type]['epochs'],
+                                         callbacks=dl_obj.get_callbacks())
 
     if eval(is_predicting):
         dl_obj = get_dl_model(network_type, load_param, True, False)
