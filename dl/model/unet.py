@@ -28,14 +28,15 @@ class UNet:
 
         self.inputs = Input(shape=input_size, name='image_input')
 
-        self.loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
+        # self.loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
+        self.loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=False)
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
-            tf.keras.callbacks.EarlyStopping(mode='max', monitor='acc', patience=6, verbose=1),
-            tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='acc', verbose=1, save_best_only=True,
-                                               save_weights_only='True', mode='max'),
+            tf.keras.callbacks.EarlyStopping(mode='max', monitor='val_accuracy', patience=6, verbose=1),
+            tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='val_accuracy', verbose=1,
+                                               save_best_only=True, save_weights_only='True', mode='max'),
             tf.keras.callbacks.TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
         ]
         self.model = self.build_model()
