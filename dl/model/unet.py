@@ -34,8 +34,8 @@ class UNet:
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
-            tf.keras.callbacks.EarlyStopping(mode='auto', monitor='val_loss', patience=6, verbose=1),
-            tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='accuracy', verbose=1,
+            tf.keras.callbacks.EarlyStopping(mode='auto', monitor='loss', patience=6),
+            tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='accuracy',
                                                save_best_only=True, save_weights_only='True', mode='auto'),
             tf.keras.callbacks.TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
         ]

@@ -26,7 +26,7 @@ DL_PARAM = {
         'kernel_size': 3,
         'deconv_kernel_size': 3,
         'pooling_stride': 2,
-        'dropout_rate': 0.25,
+        'dropout_rate': 0.5,
         'color_mode': 'rgb',
         'class_mode': None,
         'seed': 1,
