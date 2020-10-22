@@ -20,7 +20,7 @@ DL_PARAM = {
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,
-        'batch_size': 16,
+        'batch_size': 8,
         'learning_rate': 0.001,
         'filters': 64,
         'kernel_size': 3,

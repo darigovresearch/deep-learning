@@ -91,7 +91,7 @@ class DL:
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
             seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode=settings.DL_PARAM[network_type]['color_mode'],
+            # color_mode=settings.DL_PARAM[network_type]['color_mode'],
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
             shuffle=True)
         train_label_generator = train_datagen.flow_from_directory(
@@ -101,7 +101,7 @@ class DL:
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
             seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode='grayscale',
+            # color_mode='grayscale',
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
             shuffle=True)
 
@@ -112,7 +112,7 @@ class DL:
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
             seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode=settings.DL_PARAM[network_type]['color_mode'],
+            # color_mode=settings.DL_PARAM[network_type]['color_mode'],
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
             shuffle=True)
         val_label_generator = val_datagen.flow_from_directory(
@@ -122,7 +122,7 @@ class DL:
             target_size=(settings.DL_PARAM[network_type]['input_size_w'],
                          settings.DL_PARAM[network_type]['input_size_h']),
             seed=settings.DL_PARAM[network_type]['seed'],
-            color_mode='grayscale',
+            # color_mode='grayscale',
             batch_size=settings.DL_PARAM[network_type]['batch_size'],
             shuffle=True)
 
