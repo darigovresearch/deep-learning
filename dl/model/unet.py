@@ -5,6 +5,7 @@ import tensorflow as tf
 
 from datetime import datetime
 from keras.models import Model
+from keras import backend
 from keras.layers import *
 
 
@@ -30,14 +31,14 @@ class UNet:
 
         # self.loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
         # self.loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=False)
-        # self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
-        self.optimizer = tf.keras.optimizers.SGD(lr=self.learning_rate, decay=1e-6, momentum=0.9, nesterov=True)
+        self.loss_fn = 'categorical_crossentropy'
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
-            tf.keras.callbacks.EarlyStopping(mode='max', monitor='val_loss', patience=6, verbose=1),
+            tf.keras.callbacks.EarlyStopping(mode='auto', monitor='val_loss', patience=6, verbose=1),
             tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='accuracy', verbose=1,
-                                               save_best_only=True, save_weights_only='True', mode='max'),
+                                               save_best_only=True, save_weights_only='True', mode='auto'),
             tf.keras.callbacks.TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
         ]
         self.model = self.build_model()
@@ -89,15 +90,17 @@ class UNet:
         output_layer = Activation('softmax')(output_layer)
 
         model_obj = Model(self.inputs, output_layer, name='unet')
-        # model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
-        model_obj.compile(optimizer=self.optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
 
         logging.info(">>>> Done!")
 
         return model_obj
 
+    def dice_coef(self, y_true, y_pred):
+        return (2. * backend.sum(y_true * y_pred) + 1.) / (backend.sum(y_true) + backend.sum(y_pred) + 1.)
+
     def pool(self, tensor, pool_size):
-        output = tf.keras.layers.MaxPooling2D(pool_size=pool_size)(tensor)
+        output = MaxPooling2D(pool_size=pool_size)(tensor)
         return output
 
     def conv_block(self, tensor, n_filters, size=3, padding='same', initializer="he_normal"):
