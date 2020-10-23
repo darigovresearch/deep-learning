@@ -37,9 +37,9 @@ class UNet:
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
-            EarlyStopping(mode='auto', monitor='val_dice_coef', patience=6),
-            ModelCheckpoint(filepath=filepath, monitor='val_dice_coef', save_best_only=True,
-                            save_weights_only='True', mode='auto'),
+            EarlyStopping(mode='max', monitor='loss', patience=6),
+            ModelCheckpoint(filepath=filepath, monitor='accuracy', save_best_only=True,
+                            save_weights_only='True', mode='max'),
             TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
         ]
         self.model = self.build_model()
@@ -91,7 +91,7 @@ class UNet:
         output_layer = Activation('softmax')(output_layer)
 
         model_obj = Model(self.inputs, output_layer, name='unet')
-        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=[self.dice_coef])
+        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
 
         logging.info(">>>> Done!")
 
