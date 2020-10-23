@@ -29,13 +29,13 @@ class UNet:
 
         self.inputs = Input(shape=input_size, name='image_input')
 
-        self.loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        self.loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=False)
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
-            tf.keras.callbacks.EarlyStopping(mode='auto', monitor='loss', patience=6),
-            tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='accuracy',
+            tf.keras.callbacks.EarlyStopping(mode='auto', monitor='val_dice_coef', patience=6),
+            tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='val_dice_coef',
                                                save_best_only=True, save_weights_only='True', mode='auto'),
             tf.keras.callbacks.TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
         ]
@@ -88,7 +88,7 @@ class UNet:
         output_layer = Activation('softmax')(output_layer)
 
         model_obj = Model(self.inputs, output_layer, name='unet')
-        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
+        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=[self.dice_coef])
 
         logging.info(">>>> Done!")
 
