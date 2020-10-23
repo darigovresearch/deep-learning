@@ -1,12 +1,15 @@
 import os
 import logging
 import settings
-import tensorflow as tf
 
 from datetime import datetime
 from keras.models import Model
-from keras import backend
+from keras.optimizers import Adam
+from keras.losses import CategoricalCrossentropy
+from keras.callbacks import *
 from keras.layers import *
+
+from keras import backend
 
 
 class UNet:
@@ -29,15 +32,15 @@ class UNet:
 
         self.inputs = Input(shape=input_size, name='image_input')
 
-        self.loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=False)
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
+        self.loss_fn = CategoricalCrossentropy(from_logits=False)
+        self.optimizer = Adam(learning_rate=self.learning_rate)
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
-            tf.keras.callbacks.EarlyStopping(mode='auto', monitor='val_dice_coef', patience=6),
-            tf.keras.callbacks.ModelCheckpoint(filepath=filepath, monitor='val_dice_coef',
-                                               save_best_only=True, save_weights_only='True', mode='auto'),
-            tf.keras.callbacks.TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
+            EarlyStopping(mode='auto', monitor='val_dice_coef', patience=6),
+            ModelCheckpoint(filepath=filepath, monitor='val_dice_coef', save_best_only=True,
+                            save_weights_only='True', mode='auto'),
+            TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
         ]
         self.model = self.build_model()
 

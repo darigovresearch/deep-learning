@@ -16,12 +16,6 @@ import sys
 if sys.version_info[0] < 3:
     raise RuntimeError('Python3 required')
 
-import tensorflow as tf
-tf_version = tf.__version__.split('.')
-if int(tf_version[0]) != 2:
-    raise RuntimeError('Tensorflow 2.x.x required')
-
-
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
