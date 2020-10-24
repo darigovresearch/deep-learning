@@ -29,7 +29,7 @@ DL_PARAM = {
         'pooling_stride': 2,
         'dropout_rate': 0.5,
         'color_mode': 'rgb',
-        'class_mode': 'categorical',
+        'class_mode': None,
         'seed': 1,
         'epochs': 1000,
         'classes': {
