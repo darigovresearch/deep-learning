@@ -1,11 +1,11 @@
 import os
 import logging
 import settings
+import tensorflow as tf
 
 from datetime import datetime
 from keras.models import Model
 from keras.optimizers import Adam
-from keras.losses import CategoricalCrossentropy
 from keras.callbacks import *
 from keras.layers import *
 
@@ -16,7 +16,7 @@ class UNet:
     """
     Source: https://github.com/usnistgov/semantic-segmentation-unet/blob/master/UNet/model.py
     """
-    def __init__(self, input_size, number_classes, number_channels, is_pretrained, is_saved):
+    def __init__(self, input_size, is_pretrained, is_saved):
         load_unet_parameters = settings.DL_PARAM['unet']
 
         self.learning_rate = load_unet_parameters['learning_rate']
@@ -26,13 +26,12 @@ class UNet:
         self.deconv_kernel_size = load_unet_parameters['deconv_kernel_size']
         self.pooling_stride = load_unet_parameters['pooling_stride']
         self.dropout_rate = load_unet_parameters['dropout_rate']
+        self.loss_fn = load_unet_parameters['loss']
+        self.number_classes = len(load_unet_parameters['classes'])
+        self.number_channels = load_unet_parameters['input_size_c']
 
-        self.number_channels = number_channels
-        self.number_classes = number_classes
+        self.inputs = Input(shape=input_size, dtype=tf.float32)
 
-        self.inputs = Input(shape=input_size, name='image_input')
-
-        self.loss_fn = CategoricalCrossentropy(from_logits=False)
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
@@ -69,8 +68,8 @@ class UNet:
         conv_3 = self.conv_block(conv2_out, n_filters=(4 * self.num_filters), size=self.kernel_size)
         conv3_out = self.pool(conv_3, pool_size=self.pooling_stride)
         conv_4 = self.conv_block(conv3_out, n_filters=(8 * self.num_filters), size=self.kernel_size)
-        conv4_out = self.pool(conv_4, pool_size=self.pooling_stride)
-        conv4_out = Dropout(rate=self.dropout_rate)(conv4_out)
+        conv4_out = Dropout(rate=self.dropout_rate)(conv_4)
+        conv4_out = self.pool(conv4_out, pool_size=self.pooling_stride)
 
         bottleneck = self.conv_block(conv4_out, n_filters=(16 * self.num_filters), size=self.kernel_size)
         bottleneck = Dropout(rate=self.dropout_rate)(bottleneck)
@@ -88,6 +87,11 @@ class UNet:
 
         output_layer = Conv2D(filters=self.number_classes, kernel_size=(1, 1))(deconv_7)
         output_layer = BatchNormalization()(output_layer)
+
+        # reshape = Reshape((self.number_classes, self.inputs[1] * self.inputs[2]),
+        #                   input_shape=(self.number_classes, self.inputs[1], self.inputs[2]))(output_layer)
+        # permute = Permute((2, 1))(reshape)
+        # output_layer = Activation('softmax')(permute)
         output_layer = Activation('softmax')(output_layer)
 
         model_obj = Model(self.inputs, output_layer, name='unet')

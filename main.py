@@ -35,10 +35,8 @@ def get_dl_model(network_type, load_param, is_pretrained, is_saved):
         logging.info(">> UNET model selected...")
 
         input_size = (load_param['input_size_w'], load_param['input_size_h'], load_param['input_size_c'])
-        num_classes = len(load_param['classes'])
-        num_channels = load_param['input_size_c']
 
-        model_obj = unet.UNet(input_size, num_classes, num_channels, is_pretrained, is_saved)
+        model_obj = unet.UNet(input_size, is_pretrained, is_saved)
 
     # TODO: include deeplabv3 as alternative to the set of dl models
     elif network_type == 'deeplabv3':
@@ -163,7 +161,7 @@ if __name__ == '__main__':
         fh.setFormatter(ff)
         log.addHandler(fh)
 
-        log.setLevel(logging.DEBUG)
+        # log.setLevel(logging.DEBUG)
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s")
 

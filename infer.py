@@ -40,6 +40,59 @@ class Infer:
             img_out[img == i, :] = color_dict[i]
         return img_out / 255
 
+    # TODO: refactore
+    def merge_images(self, paths, max_width, max_height):
+        new_im = Image.new('RGB', (max_width, max_height))
+        x = 0
+        y = 0
+
+        for file in paths:
+            img = Image.open(file)
+            width, height = img.size
+            img.thumbnail((width, height), Image.ANTIALIAS)
+            new_im.paste(img, (x, y, x + width, y + height))
+
+            if (x + width) >= max_width:
+                x = 0
+                y += height
+            else:
+                x += width
+
+        return new_im
+
+    # TODO: refactore
+    def slice(self, file, width, height, outputFolder):
+        valid_images = [".jpg", ".gif", ".png", ".tga", ".tif", ".tiff", ".geotiff"]
+        filename = os.path.basename(file)
+        name, file_extension = os.path.splitext(filename)
+
+        if file_extension.lower() not in valid_images:
+            logging.info(">> Image formats accept: " + str(valid_images) + ". Check image and try again!")
+
+        ds = gdal.Open(file)
+        if ds is None:
+            raise RuntimeError
+
+        rows = ds.RasterXSize
+        cols = ds.RasterYSize
+
+        cont = 0
+        paths = []
+        gdal.UseExceptions()
+        for j in range(0, cols, height):
+            for i in range(0, rows, width):
+                try:
+                    paths.append(outputFolder + name + "_" + "{:05d}".format(cont) + file_extension)
+                    com_string = "gdal_translate -eco -q -of GTiff -ot UInt16 -srcwin " + str(i) + " " + str(
+                        j) + " " + str(width) + " " + str(
+                        height) + " " + file + " " + outputFolder + name + "_" + "{:05d}".format(cont) + file_extension
+                    os.system(com_string)
+                    cont += 1
+                except:
+                    pass
+
+        return paths
+
     def predict_deep_network(self, model, path_in, path_out, path_chp):
         """
         """
