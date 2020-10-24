@@ -5,7 +5,7 @@ import tensorflow as tf
 
 from datetime import datetime
 from keras.models import Model
-from keras.optimizers import Adam
+from keras.optimizers import Adam, SGD
 from keras.callbacks import *
 from keras.layers import *
 
@@ -30,9 +30,9 @@ class UNet:
         self.number_classes = len(load_unet_parameters['classes'])
         self.number_channels = load_unet_parameters['input_size_c']
 
-        self.inputs = Input(shape=input_size, dtype=tf.float32)
+        self.inputs = Input(shape=input_size)
 
-        self.optimizer = Adam(learning_rate=self.learning_rate)
+        self.optimizer = SGD(learning_rate=self.learning_rate)
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
@@ -68,8 +68,8 @@ class UNet:
         conv_3 = self.conv_block(conv2_out, n_filters=(4 * self.num_filters), size=self.kernel_size)
         conv3_out = self.pool(conv_3, pool_size=self.pooling_stride)
         conv_4 = self.conv_block(conv3_out, n_filters=(8 * self.num_filters), size=self.kernel_size)
-        conv4_out = Dropout(rate=self.dropout_rate)(conv_4)
-        conv4_out = self.pool(conv4_out, pool_size=self.pooling_stride)
+        conv4_out = self.pool(conv_4, pool_size=self.pooling_stride)
+        conv4_out = Dropout(rate=self.dropout_rate)(conv4_out)
 
         bottleneck = self.conv_block(conv4_out, n_filters=(16 * self.num_filters), size=self.kernel_size)
         bottleneck = Dropout(rate=self.dropout_rate)(bottleneck)
