@@ -30,11 +30,7 @@ class Loader:
             ]
         )
 
-        logging.info(">>>> Number of samples:", len(input_img_paths))
-        logging.info(">>>>>> 10 first: ")
-        for input_path, target_path in zip(input_img_paths[:10], target_img_paths[:10]):
-            logging.info(">>>>>>>> {} | {}".format(input_path, target_path))
-
+        logging.info(">>>> Number of samples: {}".format(len(input_img_paths)))
         return input_img_paths, target_img_paths
 
     def get_list_images(self):

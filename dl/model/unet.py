@@ -8,6 +8,7 @@ from keras.models import Model
 from keras.optimizers import Adam
 from keras.callbacks import *
 from keras.layers import *
+from keras.losses import CategoricalCrossentropy
 
 from keras import backend
 
@@ -26,7 +27,8 @@ class UNet:
         self.deconv_kernel_size = load_unet_parameters['deconv_kernel_size']
         self.pooling_stride = load_unet_parameters['pooling_stride']
         self.dropout_rate = load_unet_parameters['dropout_rate']
-        self.loss_fn = load_unet_parameters['loss']
+        # self.loss_fn = load_unet_parameters['loss']
+        self.loss_fn = CategoricalCrossentropy(from_logits=True)
         self.number_classes = len(load_unet_parameters['classes'])
         self.number_channels = load_unet_parameters['input_size_c']
 
