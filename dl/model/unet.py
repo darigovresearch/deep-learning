@@ -5,7 +5,7 @@ import tensorflow as tf
 
 from datetime import datetime
 from keras.models import Model
-from keras.optimizers import Adam, SGD
+from keras.optimizers import Adam
 from keras.callbacks import *
 from keras.layers import *
 
@@ -32,13 +32,13 @@ class UNet:
 
         self.inputs = Input(shape=input_size)
 
-        self.optimizer = SGD(learning_rate=self.learning_rate)
+        self.optimizer = Adam(learning_rate=self.learning_rate)
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
             EarlyStopping(mode='max', monitor='loss', patience=6),
             ModelCheckpoint(filepath=filepath, monitor='accuracy', save_best_only=True,
-                            save_weights_only='True', mode='max'),
+                            save_weights_only='True', mode='max', verbose=1),
             TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
         ]
         self.model = self.build_model()
@@ -87,11 +87,6 @@ class UNet:
 
         output_layer = Conv2D(filters=self.number_classes, kernel_size=(1, 1))(deconv_7)
         output_layer = BatchNormalization()(output_layer)
-
-        # reshape = Reshape((self.number_classes, self.inputs[1] * self.inputs[2]),
-        #                   input_shape=(self.number_classes, self.inputs[1], self.inputs[2]))(output_layer)
-        # permute = Permute((2, 1))(reshape)
-        # output_layer = Activation('softmax')(permute)
         output_layer = Activation('softmax')(output_layer)
 
         model_obj = Model(self.inputs, output_layer, name='unet')

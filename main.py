@@ -8,7 +8,8 @@ import cv2
 import numpy as np
 import tifffile as tiff
 
-from dl.model import utils
+from dl.model import loader
+from dl.model import helper
 from dl.model import unet
 from coloredlogs import ColoredFormatter
 
@@ -66,19 +67,30 @@ def main(network_type, is_training, is_predicting):
 
     if eval(is_training):
         dl_obj = get_dl_model(network_type, load_param, False, False)
-        path_train_samples = os.path.join(settings.DL_PARAM[network_type]['image_training_folder'], 'image')
-        path_val_samples = os.path.join(settings.DL_PARAM[network_type]['image_validation_folder'], 'image')
-        num_train_samples = len(os.listdir(path_train_samples))
-        num_val_samples = len(os.listdir(path_val_samples))
+        # train_generator_obj, val_generator_obj = utils.DL().training_generator(network_type, True)
 
-        train_generator_obj, val_generator_obj = utils.DL().training_generator(network_type, True)
+        path_train_images = os.path.join(load_param['image_training_folder'], 'image')
+        path_train_labels = os.path.join(load_param['image_training_folder'], 'label')
+        path_val_images = os.path.join(load_param['image_validation_folder'], 'image')
+        path_val_labels = os.path.join(load_param['image_validation_folder'], 'label')
+
+        train_dataset_obj = loader.Loader(path_train_images, path_train_labels)
+        val_dataset_obj = loader.Loader(path_val_images, path_val_labels)
+        batch_size = load_param['batch_size']
+        img_size = (load_param['input_size_w'], load_param['input_size_h'])
+
+        train_generator_obj = helper.Helper(batch_size, img_size, train_dataset_obj.get_list_images(),
+                                            train_dataset_obj.get_list_labels())
+        val_generator_obj = helper.Helper(batch_size, img_size, val_dataset_obj.get_list_images(),
+                                          val_dataset_obj.get_list_labels())
+
         dl_obj.get_model().fit(train_generator_obj,
-                               steps_per_epoch=np.ceil(num_train_samples //
-                                                       settings.DL_PARAM[network_type]['batch_size']),
+                               steps_per_epoch=np.ceil(len(train_dataset_obj.get_list_images()) //
+                                                       load_param['batch_size']),
                                validation_data=val_generator_obj,
-                               validation_steps=int(num_val_samples //
-                                                    settings.DL_PARAM[network_type]['batch_size']),
-                               epochs=settings.DL_PARAM[network_type]['epochs'],
+                               validation_steps=np.ceil(len(val_dataset_obj.get_list_images()) //
+                                                        load_param['batch_size']),
+                               epochs=load_param['epochs'],
                                callbacks=dl_obj.get_callbacks())
 
     if eval(is_predicting):
@@ -161,7 +173,7 @@ if __name__ == '__main__':
         fh.setFormatter(ff)
         log.addHandler(fh)
 
-        # log.setLevel(logging.DEBUG)
+        log.setLevel(logging.DEBUG)
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s")
 

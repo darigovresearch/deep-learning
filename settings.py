@@ -2,6 +2,7 @@ import os
 
 from decouple import config
 
+VALID_ENTRIES_EXTENSION = (".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".tiff", ".TIF", ".TIFF")
 VALID_PREDICTION_EXTENSION = (".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".tiff", ".TIF", ".TIFF")
 DL_DATASET = config('DL_DATASET')
 
@@ -16,12 +17,12 @@ DL_PARAM = {
         'save_model_dir': os.path.join(DL_DATASET, 'training', 'all', 'model'),
         'tensorboard_log_dir': os.path.join(DL_DATASET, 'training', 'all', 'log'),
         'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
-        'pretrained_weights': 'model-78.hdf5',
-        'loss': 'sparse_categorical_crossentropy',
+        'pretrained_weights': '',
+        'loss': 'categorical_crossentropy',
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,
-        'batch_size': 8,
+        'batch_size': 16,
         'learning_rate': 0.001,
         'filters': 64,
         'kernel_size': 3,
