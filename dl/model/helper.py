@@ -2,6 +2,7 @@ import numpy as np
 
 from keras.utils import Sequence
 from keras.preprocessing.image import load_img
+from keras.utils import to_categorical
 
 
 class Helper(Sequence):
@@ -27,13 +28,18 @@ class Helper(Sequence):
         i = idx * self.batch_size
         batch_input_img_paths = self.input_img_paths[i: i + self.batch_size]
         batch_target_img_paths = self.target_img_paths[i: i + self.batch_size]
+
         x = np.zeros((self.batch_size,) + self.img_size + (3,), dtype="float32")
         for j, path in enumerate(batch_input_img_paths):
             img = load_img(path, target_size=self.img_size)
             x[j] = img
+
         y = np.zeros((self.batch_size,) + self.img_size + (1,), dtype="uint8")
         for j, path in enumerate(batch_target_img_paths):
             img = load_img(path, target_size=self.img_size, color_mode="grayscale")
             y[j] = np.expand_dims(img, 2)
+
+        y = to_categorical(y.astype('float32'))
+
         return x, y
 

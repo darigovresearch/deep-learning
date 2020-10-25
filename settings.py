@@ -18,7 +18,7 @@ DL_PARAM = {
         'tensorboard_log_dir': os.path.join(DL_DATASET, 'training', 'all', 'log'),
         'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
         'pretrained_weights': '',
-        'loss': 'categorical_crossentropy',
+        'loss': 'sparse_categorical_crossentropy',
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,
