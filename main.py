@@ -85,11 +85,9 @@ def main(network_type, is_training, is_predicting):
                                           val_dataset_obj.get_list_labels())
 
         dl_obj.get_model().fit(train_generator_obj,
-                               steps_per_epoch=np.ceil(len(train_dataset_obj.get_list_images()) //
-                                                       load_param['batch_size']),
+                               steps_per_epoch=train_generator_obj.__len__(),
                                validation_data=val_generator_obj,
-                               validation_steps=np.ceil(len(val_dataset_obj.get_list_images()) //
-                                                        load_param['batch_size']),
+                               validation_steps=val_generator_obj.__len__(),
                                epochs=load_param['epochs'],
                                callbacks=dl_obj.get_callbacks())
 

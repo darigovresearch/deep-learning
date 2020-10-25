@@ -43,7 +43,7 @@ class UNet:
                             save_weights_only='True', mode='max', verbose=1),
             TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
         ]
-        self.model = self.build_model()
+        self.model = self.build_model_2()
 
         if is_pretrained is True:
             logging.info(">> Loading pretrained weights: {}...".format(load_unet_parameters['pretrained_weights']))
@@ -95,6 +95,53 @@ class UNet:
         model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
 
         logging.info(">>>> Done!")
+
+        return model_obj
+
+    def build_model_2(self):
+        x = Conv2D(32, 3, strides=2, padding="same")(self.inputs)
+        x = BatchNormalization()(x)
+        x = Activation("relu")(x)
+
+        previous_block_activation = x
+
+        for filters in [64, 128, 256]:
+            x = Activation("relu")(x)
+            x = SeparableConv2D(filters, 3, padding="same")(x)
+            x = BatchNormalization()(x)
+
+            x = Activation("relu")(x)
+            x = SeparableConv2D(filters, 3, padding="same")(x)
+            x = BatchNormalization()(x)
+
+            x = MaxPooling2D(3, strides=2, padding="same")(x)
+
+            residual = Conv2D(filters, 1, strides=2, padding="same")(
+                previous_block_activation
+            )
+            x = add([x, residual])
+            previous_block_activation = x
+
+        for filters in [256, 128, 64, 32]:
+            x = Activation("relu")(x)
+            x = Conv2DTranspose(filters, 3, padding="same")(x)
+            x = BatchNormalization()(x)
+
+            x = Activation("relu")(x)
+            x = Conv2DTranspose(filters, 3, padding="same")(x)
+            x = BatchNormalization()(x)
+
+            x = UpSampling2D(2)(x)
+
+            residual = UpSampling2D(2)(previous_block_activation)
+            residual = Conv2D(filters, 1, padding="same")(residual)
+            x = add([x, residual])
+            previous_block_activation = x
+
+        outputs = Conv2D(self.number_classes, 3, activation="softmax", padding="same")(x)
+
+        model_obj = Model(self.inputs, outputs, name='unet')
+        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
 
         return model_obj
 
