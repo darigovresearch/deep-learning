@@ -28,10 +28,10 @@ class UNet:
         self.dropout_rate = load_unet_parameters['dropout_rate']
         self.number_classes = len(load_unet_parameters['classes'])
         self.number_channels = load_unet_parameters['input_size_c']
-        self.loss_fn = SparseCategoricalCrossentropy(from_logits=True)
 
         self.inputs = Input(shape=input_size)
 
+        self.loss_fn = SparseCategoricalCrossentropy(from_logits=True)
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
