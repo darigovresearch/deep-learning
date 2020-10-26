@@ -32,7 +32,8 @@ class UNet:
         self.inputs = Input(shape=input_size)
 
         self.loss_fn = SparseCategoricalCrossentropy(from_logits=True)
-        self.optimizer = Adam(learning_rate=self.learning_rate)
+        # self.optimizer = Adam(learning_rate=self.learning_rate)
+        self.optimizer = 'rmsprop'
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
