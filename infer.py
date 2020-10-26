@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import logging
-import skimage.io
+import skimage.io as io
 
 from dl.model import unet as model
 
@@ -29,7 +29,7 @@ class Infer:
 
         for i, item in enumerate(npyfile):
             img = self.label(color_dict, item) if flag_multi_class else item[:, :, 0]
-            # io.imsave(os.path.join(save_path, "%d_predict.png" % i), img)
+            io.imsave(os.path.join(save_path, "%d_predict.png" % i), img)
 
     def label(self, color_dict, img):
         """
@@ -39,26 +39,6 @@ class Infer:
         for i in range(len(color_dict)):
             img_out[img == i, :] = color_dict[i]
         return img_out / 255
-
-    # TODO: refactore
-    def merge_images(self, paths, max_width, max_height):
-        new_im = Image.new('RGB', (max_width, max_height))
-        x = 0
-        y = 0
-
-        for file in paths:
-            img = Image.open(file)
-            width, height = img.size
-            img.thumbnail((width, height), Image.ANTIALIAS)
-            new_im.paste(img, (x, y, x + width, y + height))
-
-            if (x + width) >= max_width:
-                x = 0
-                y += height
-            else:
-                x += width
-
-        return new_im
 
     # TODO: refactore
     def slice(self, file, width, height, outputFolder):
@@ -96,7 +76,7 @@ class Infer:
     def predict_deep_network(self, model, path_in, path_out, path_chp):
         """
         """
-        logging.info(">> Perform prediction...")
+        logging.info(">> Performing prediction...")
         file_list = []
 
         for path in os.listdir(path_in):

@@ -17,12 +17,12 @@ DL_PARAM = {
         'save_model_dir': os.path.join(DL_DATASET, 'training', 'all', 'model'),
         'tensorboard_log_dir': os.path.join(DL_DATASET, 'training', 'all', 'log'),
         'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
-        'pretrained_weights': '',
-        'loss': 'categorical_crossentropy',
+        'pretrained_weights': 'model-02.hdf5',
+        'loss': 'sparse_categorical_crossentropy',
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,
-        'batch_size': 16,
+        'batch_size': 8,
         'learning_rate': 0.001,
         'filters': 64,
         'kernel_size': 3,
@@ -34,11 +34,11 @@ DL_PARAM = {
         'seed': 1,
         'epochs': 1000,
         'classes': {
+                'other': [0, 0, 0],
                 "nut": [102, 153, 0],
-                "palm": [153, 255, 153],
-                'other': [0, 0, 0]
+                "palm": [153, 255, 153]
         },
-        'color_classes': {'nut': 1, 'palm': 2, 'other': 0},
+        'color_classes': {'other': 0, 'nut': 1, 'palm': 2},
         'width_slice': 1000,
         'height_slice': 1000,
     }

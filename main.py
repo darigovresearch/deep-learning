@@ -13,6 +13,12 @@ from dl.model import helper
 from dl.model import unet
 from coloredlogs import ColoredFormatter
 
+from IPython.display import Image, display
+from keras.preprocessing.image import array_to_img
+
+import PIL
+from PIL import ImageOps
+
 import sys
 if sys.version_info[0] < 3:
     raise RuntimeError('Python3 required')
@@ -74,15 +80,18 @@ def main(network_type, is_training, is_predicting):
         path_val_images = os.path.join(load_param['image_validation_folder'], 'image')
         path_val_labels = os.path.join(load_param['image_validation_folder'], 'label')
 
-        train_dataset_obj = loader.Loader(path_train_images, path_train_labels)
-        val_dataset_obj = loader.Loader(path_val_images, path_val_labels)
+        train_images = loader.Loader(path_train_images)
+        train_labels = loader.Loader(path_train_labels)
+        val_images = loader.Loader(path_val_images)
+        val_labels = loader.Loader(path_val_labels)
+
         batch_size = load_param['batch_size']
         img_size = (load_param['input_size_w'], load_param['input_size_h'])
 
-        train_generator_obj = helper.Helper(batch_size, img_size, train_dataset_obj.get_list_images(),
-                                            train_dataset_obj.get_list_labels())
-        val_generator_obj = helper.Helper(batch_size, img_size, val_dataset_obj.get_list_images(),
-                                          val_dataset_obj.get_list_labels())
+        train_generator_obj = helper.Helper(batch_size, img_size, train_images.get_list_images(),
+                                            train_labels.get_list_labels())
+        val_generator_obj = helper.Helper(batch_size, img_size, val_images.get_list_images(),
+                                          val_labels.get_list_labels())
 
         dl_obj.get_model().fit(train_generator_obj,
                                steps_per_epoch=train_generator_obj.__len__(),
@@ -94,31 +103,27 @@ def main(network_type, is_training, is_predicting):
     if eval(is_predicting):
         dl_obj = get_dl_model(network_type, load_param, True, False)
 
-        list_images_to_predict = os.listdir(load_param['image_prediction_folder'])
-        list_images_to_predict = [file for file in list_images_to_predict if file.endswith(settings.VALID_PREDICTION_EXTENSION)]
+        pred_images_path = os.path.join(load_param['image_prediction_folder'])
+        pred_images = loader.Loader(pred_images_path)
 
         classes = load_param['classes']
         COLOR_DICT = np.array(['nut', 'palm', 'other'])
 
-        for item in list_images_to_predict:
-            complete_path = os.path.join(settings.DL_PARAM[network_type]['image_prediction_folder'], item)
-            filename, extension = os.path.splitext(item)
+        for item in pred_images.get_list_images():
+            filename = os.path.basename(item)
+            name, extension = os.path.splitext(filename)
 
-            if extension.lower() == ".tif" or extension.lower() == ".tiff":
-                image_full = tiff.imread(complete_path)
-                dims = image_full.shape
-            else:
-                image_full = cv2.imread(complete_path)
-                dims = image_full.shape
+            # if extension.lower() == ".tif" or extension.lower() == ".tiff":
+            #     image_full = tiff.imread(item)
+            #     dims = image_full.shape
+            # else:
+            image_full = cv2.imread(item)
+            dims = image_full.shape
+            image_full = image_full / 255
+            image_full = np.reshape(image_full, (1, 256, 256, 3))
 
-            # img = image_full / 255
-            # img = np.reshape(image_full, (1, 256, 256, 3))
-            # y_prob = dl_obj.get_model().predict(img)
-            # y_classes = y_prob.argmax(axis=-1)
-            # output = np.reshape(y_classes, (256, 256))
-
-            pr = dl_obj.get_model().predict(np.array([image_full]))[0]
-            pr = pr.reshape((256, 256, 3)).argmax(axis=2)
+            # pr = dl_obj.get_model().predict(np.array([image_full]))[0]
+            pr = dl_obj.get_model().predict(image_full)
             pred_mask = np.argmax(pr, axis=-1)
             output = np.reshape(pred_mask, (256, 256))
 
@@ -127,11 +132,10 @@ def main(network_type, is_training, is_predicting):
                 for i in range(dims[1]):
                     img_color[j, i] = classes[COLOR_DICT[output[j, i]]]
 
-            prediction_path = os.path.join(settings.DL_PARAM[network_type]['output_prediction'], filename + '.png')
+            prediction_path = os.path.join(settings.DL_PARAM[network_type]['output_prediction'], name + '.png')
             imageio.imwrite(prediction_path, img_color)
 
             # TODO:
-            #  1. save prediction in png
             #  2. merge the prediction if it was sliced
             #  3. poligonize the merged prediction image
 
