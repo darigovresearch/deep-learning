@@ -85,21 +85,18 @@ def main(network_type, is_training, is_predicting):
         val_generator_obj = helper.Helper(batch_size, img_size, val_images.get_list_images(),
                                           val_labels.get_list_images())
 
-        dl_obj.get_model().fit(train_generator_obj,
-                               steps_per_epoch=train_generator_obj.__len__(),
-                               validation_data=val_generator_obj,
-                               validation_steps=val_generator_obj.__len__(),
-                               epochs=load_param['epochs'],
-                               callbacks=dl_obj.get_callbacks())
+        history = dl_obj.get_model().fit(train_generator_obj,
+                                         steps_per_epoch=train_generator_obj.__len__(),
+                                         validation_data=val_generator_obj,
+                                         validation_steps=val_generator_obj.__len__(),
+                                         epochs=load_param['epochs'],
+                                         callbacks=dl_obj.get_callbacks())
 
     if eval(is_predicting):
         dl_obj = get_dl_model(network_type, load_param, True, False)
 
         pred_images_path = os.path.join(load_param['image_prediction_folder'])
         pred_images = loader.Loader(pred_images_path)
-
-        classes = load_param['classes']
-        COLOR_DICT = np.array(['other', 'nut', 'palm'])
 
         for item in pred_images.get_list_images():
             filename = os.path.basename(item)
@@ -108,7 +105,7 @@ def main(network_type, is_training, is_predicting):
             if filename.endswith(settings.VALID_PREDICTION_EXTENSION):
                 image_full = cv2.imread(item)
                 dims = image_full.shape
-                image_full = image_full / 255
+                # image_full = image_full / 255
                 image_full = np.reshape(image_full, (1, dims[0], dims[1], dims[2]))
 
                 pr = dl_obj.get_model().predict(image_full)
@@ -118,7 +115,7 @@ def main(network_type, is_training, is_predicting):
                 img_color = np.zeros((dims[0], dims[1], dims[2]), dtype='uint8')
                 for j in range(dims[0]):
                     for i in range(dims[1]):
-                        img_color[j, i] = classes[COLOR_DICT[output[j, i]]]
+                        img_color[j, i] = load_param['color_classes'][output[j, i]]
 
                 prediction_path = os.path.join(settings.DL_PARAM[network_type]['output_prediction'], name + '.png')
                 imageio.imwrite(prediction_path, img_color)
