@@ -12,10 +12,6 @@ class Helper(Sequence):
             https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly
             https://stackoverflow.com/questions/43884463/how-to-convert-rgb-image-to-one-hot-encoded-3d-array-based-on-color-using-numpy
     """
-
-    def __init__(self):
-        pass
-
     def __init__(self, batch_size, img_size, input_img_paths, target_img_paths):
         self.batch_size = batch_size
         self.img_size = img_size

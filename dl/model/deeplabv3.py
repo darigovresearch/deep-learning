@@ -1,178 +1,325 @@
-import logging
+import os
+import argparse
+import time
+import platform
+import json
+import warnings
+import shutil
+import random
 
-from keras.models import *
-from keras.layers import *
-from keras.optimizers import *
+import numpy as np
+import cv2 as cv
+from skimage.io import imread, imsave
+import matplotlib.pyplot as plt
+from tqdm import tqdm
+
+import tensorflow as tf
+import tensorflow.keras.backend as K
+from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.layers import Input, Conv2D, Dropout
+from tensorflow.keras.layers import Concatenate, Lambda, Activation, AveragePooling2D, SeparableConv2D
+from tensorflow.keras.utils import multi_gpu_model
+
+from tensorflow.keras import optimizers
+from tensorflow.keras.applications import MobileNetV2, Xception
+from tensorflow.keras.utils import Sequence, GeneratorEnqueuer, OrderedEnqueuer
+from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, LearningRateScheduler
+from tensorflow.keras.utils import CustomObjectScope
+from tensorflow.keras import initializers
+from tensorflow.keras import regularizers
+from tensorflow.keras.layers import BatchNormalization
+
+from tensorflow.python.keras.utils.data_utils import iter_sequence_infinite
+
+from ku.metrics_ext import MeanIoUExt
+from ku.loss_ext import CategoricalCrossentropyWithLabelGT
+
+# os.environ["CUDA_DEVICE_ORDER"] = 'PCI_BUS_ID'
+# os.environ["CUDA_VISIBLE_DEVICES"] = '-1'
+
+# Constants.
+DEBUG = True
+MLFLOW_USAGE = False
+NUM_CLASSES = 21
+
+MODE_TRAIN = 0
+MODE_VAL = 1
+MODE_TEST = 2
+
+BASE_MODEL_MOBILENETV2 = 0
+BASE_MODEL_XCEPTION = 1
 
 
-class DeepLabV3plus:
-    """
-    Source: https://github.com/aruns2120/Semantic-Segmentation-Severstal/blob/
-    master/DeepLab%20V3%2B/SeverstalSteel_DeepLabV3%2B.ipynb
-    """
-    def __init__(self):
-        pass
+class SemanticSegmentation(object):
+    """Keras Semantic segmentation model of DeeplabV3+"""
 
-    def SeparableConv_BN(self, filters, prefix='', stride=1, kernel_size=3, rate=1, depth_activation=False):
-        stride = stride
-        depth_activation = depth_activation
-        # manual padding size when stride!=1
-        if stride != 1:
-            # effective kernel size = kernel_size + (kernel_size - 1) * (rate - 1)
-            n_pads = (kernel_size + (kernel_size - 1) * (rate - 1) - 1) // 2
-            zeropad = ZeroPadding2D(padding=n_pads)
+    # Constants.
+    # MODEL_PATH = 'semantic_segmentation_deeplabv3plus'
+    MODEL_PATH = 'semantic_segmentation_deeplabv3plus.h5'
+    TF_LITE_MODEL_PATH = 'semantic_segmentation_deeplabv3plus.tflite'
 
-        depthwise_conv = DepthwiseConv2D(kernel_size=kernel_size, strides=stride, dilation_rate=rate,
-                                                     padding='same' if stride == 1 else 'valid',
-                                                     name=prefix + '_depthW')
-        batchnorm_d = BatchNormalization(name=prefix + '_depthW_BN')
+    # MODEL_PATH = 'semantic_segmentation_deeplabv3plus_is224_lr0_0001_ep344.h5'
 
-        pointwise_conv = Conv2D(filters, kernel_size=1, padding='same', name=prefix + '_pointW')
-        batchnorm_p = BatchNormalization(name=prefix + '_pointW_BN')
+    def __init__(self, conf):
+        """
+        Parameters
+        ----------
+        conf: dictionary
+            Semantic segmentation model configuration dictionary.
+        """
 
-    def Xception_Block(self, depth_list, prefix='', residual_type=None, stride=1, rate=1, depth_activation=False,
-                       return_skip=False):
-        sepConv1 = self.SeparableConv_BN(filters=depth_list[0], prefix=prefix + '_sepConv1', stride=1, rate=rate,
-                                         depth_activation=depth_activation)
-        sepConv2 = self.SeparableConv_BN(filters=depth_list[1], prefix=prefix + '_sepConv2', stride=1, rate=rate,
-                                         depth_activation=depth_activation)
-        sepConv3 = self.SeparableConv_BN(filters=depth_list[2], prefix=prefix + '_sepConv3', stride=stride, rate=rate,
-                                         depth_activation=depth_activation)
+        # Check exception.
+        assert conf['nn_arch']['output_stride'] == 8 or conf['nn_arch']['output_stride'] == 16
 
-        if residual_type == 'conv':
-            conv2D = self.Conv2D_custom(depth_list[2], prefix=prefix + '_conv_residual', stride=stride, kernel_size=1,
-                                        rate=1)
-            batchnorm_res = BatchNormalization(name=prefix + '_BN_residual')
+        # Initialize.
+        self.conf = conf
+        self.raw_data_path = self.conf['raw_data_path']
+        self.hps = self.conf['hps']
+        self.nn_arch = self.conf['nn_arch']
+        self.model_loading = self.conf['model_loading']
 
-        return_skip = return_skip
-        residual_type = residual_type
+        if self.model_loading:
+            opt = optimizers.Adam(lr=self.hps['lr']
+                                  , beta_1=self.hps['beta_1']
+                                  , beta_2=self.hps['beta_2']
+                                  , decay=self.hps['decay'])
+            with CustomObjectScope({'CategoricalCrossentropyWithLabelGT': CategoricalCrossentropyWithLabelGT,
+                                    'MeanIoUExt': MeanIoUExt}):
+                if self.conf['multi_gpu']:
+                    self.model = load_model(os.path.join(self.raw_data_path, self.MODEL_PATH))
 
-    def call(self, x):
-        output = self.sepConv1(x)
-        output = self.sepConv2(output)
-        skip = output  # skip connection to decoder
-        output = self.sepConv3(output)
-
-        if self.residual_type == 'conv':
-            res = self.conv2D(x)
-            res = self.batchnorm_res(res)
-            output += res
-        elif self.residual_type == 'sum':
-            output += x
+                    self.parallel_model = multi_gpu_model(self.model, gpus=self.conf['num_gpus'])
+                    self.parallel_model.compile(optimizer=opt
+                                                , loss=self.model.losses
+                                                , metrics=self.model.metrics)
+                else:
+                    self.model = load_model(os.path.join(self.raw_data_path, self.MODEL_PATH))
+                    # self.model.compile(optimizer=opt,
+                    #           , loss=CategoricalCrossentropyWithLabelGT(num_classes=self.nn_arch['num_classes'])
+                    #           , metrics=[MeanIoUExt(num_classes=NUM_CLASSES)]
         else:
-            if (self.residual_type):
-                raise ValueError('Arg residual_type should be one of {conv, sum}')
+            # Design the semantic segmentation model.
+            # Load a base model.
+            if self.conf['base_model'] == BASE_MODEL_MOBILENETV2:
+                # Load mobilenetv2 as the base model.
+                mv2 = MobileNetV2(include_top=False)  # , depth_multiplier=self.nn_arch['mv2_depth_multiplier'])
 
-        if self.return_skip:
-            return output, skip
+                if self.nn_arch['output_stride'] == 8:
+                    self.base = Model(inputs=mv2.inputs, outputs=mv2.get_layer(
+                        'block_5_add').output)  # Layer satisfying output stride of 8.
+                else:
+                    self.base = Model(inputs=mv2.inputs, outputs=mv2.get_layer(
+                        'block_12_add').output)  # Layer satisfying output stride of 16.
 
-        return output
+                self.base.trainable = True
+                for layer in self.base.layers: layer.trainable = True  # ?
 
-    def model(self, input_size, n_classes):
+                self.base._init_set_name('base')
+            elif self.conf['base_model'] == BASE_MODEL_XCEPTION:
+                # Load xception as the base model.
+                mv2 = Xception(include_top=False)  # , depth_multiplier=self.nn_arch['mv2_depth_multiplier'])
 
-        input_size = input_size
+                if self.nn_arch['output_stride'] == 8:
+                    self.base = Model(inputs=mv2.inputs, outputs=mv2.get_layer(
+                        'block4_sepconv2_bn').output)  # Layer satisfying output stride of 8.
+                else:
+                    self.base = Model(inputs=mv2.inputs, outputs=mv2.get_layer(
+                        'block13_sepconv2_bn').output)  # Layer satisfying output stride of 16.
 
-        # Encoder block
-        conv2d1 = Conv2D(32, (3, 3), strides=2, name='entry_conv1', padding='same')
-        bn1 = BatchNormalization(name='entry_BN')
-        custom_conv1 = self.Conv2D_custom(64, kernel_size=3, stride=1, prefix='entry_conv2')
-        bn2 = BatchNormalization(name='conv2_s1_BN')
+                self.base.trainable = True
+                for layer in self.base.layers: layer.trainable = True  # ?
 
-        entry_xception1 = self.Xception_Block([128, 128, 128], prefix='entry_x1', residual_type='conv', stride=2, rate=1)
-        entry_xception2 = self.Xception_Block([256, 256, 256], prefix='entry_x2', residual_type='conv', stride=2, rate=1, return_skip=True)
-        entry_xception3 = self.Xception_Block([728, 728, 728], prefix='entry_x3', residual_type='conv', stride=2, rate=1)
+                self.base._init_set_name('base')
 
-        middle_xception = [
-            self.Xception_Block([728, 728, 728], prefix=f'middle_x{i + 1}', residual_type='sum', stride=1, rate=1) for i in
-            range(16)]
+                # Make the encoder-decoder model.
+            self._make_encoder()
+            self._make_decoder()
 
-        exit_xception1 = self.Xception_Block([728, 1024, 1024], prefix='exit_x1', residual_type='conv', stride=1, rate=1)
-        exit_xception2 = self.Xception_Block([1536, 1536, 2048], prefix='exit_x2', residual_type=None, stride=1, rate=2, depth_activation=True)
+            inputs = self.encoder.inputs
+            features = self.encoder(inputs)
+            outputs = self.decoder([inputs[0], features]) if self.nn_arch['boundary_refinement'] \
+                else self.decoder(features)
 
-        conv_feat = Conv2D(256, (1, 1), padding='same', name='conv_featureProj')
-        bn_feat = BatchNormalization(name='featureProj_BN')
-        atrous_conv1 = self.SeparableConv_BN(filters=256, prefix='aspp1', stride=1, rate=6, depth_activation=True)
-        atrous_conv2 = self.SeparableConv_BN(filters=256, prefix='aspp2', stride=1, rate=12, depth_activation=True)
-        atrous_conv3 = self.SeparableConv_BN(filters=256, prefix='aspp3', stride=1, rate=18, depth_activation=True)
-        image_pooling = AveragePooling2D(8)
-        conv_pool = Conv2D(256, (1, 1), padding='same', name='conv_imgPool')
-        bn_pool = BatchNormalization(name='imgPool_BN')
-        concat1 = Concatenate()
-        encoder_op = Conv2D(256, (1, 1), padding='same', name='conv_encoder_op')
-        bn_enc = BatchNormalization(name='encoder_op_BN')
+            self.model = Model(inputs, outputs)
 
-        upsample1 = UpSampling2D(size=4)
-        conv_low = Conv2D(48, (1, 1), padding='same', name='conv_lowlevel_f')
-        bn_low = BatchNormalization(name='low_BN')
-        concat2 = Concatenate()
-        sepconv_last = self.SeparableConv_BN(filters=256, prefix='final_sepconv', stride=1, depth_activation=True)
+            # Compile.
+            opt = optimizers.Adam(lr=self.hps['lr']
+                                  , beta_1=self.hps['beta_1']
+                                  , beta_2=self.hps['beta_2']
+                                  , decay=self.hps['decay'])
 
-        out_conv = Conv2D(self.n_classes, (1, 1), activation='sigmoid', padding='same', name='output_layer')
-        upsample2 = UpSampling2D(size=4)
+            self.model.compile(optimizer=opt
+                               , loss=CategoricalCrossentropyWithLabelGT(num_classes=self.nn_arch['num_classes'])
+                               , metrics=[MeanIoUExt(num_classes=NUM_CLASSES)])
+            self.model._init_set_name('deeplabv3plus_mnv2')
 
-    def call(self, inputs):
-        # ===================#
-        #  Encoder Network  #
-        # ===================#
-        # Entry Block
-        x = self.conv2d1(inputs)
-        x = self.bn1(x)
-        x = tf.nn.relu(x)
+            if self.conf['multi_gpu']:
+                self.parallel_model = multi_gpu_model(self.model, gpus=self.conf['num_gpus'])
+                self.parallel_model.compile(optimizer=opt
+                                            , loss=self.model.losses
+                                            , metrics=self.model.metrics)
 
-        x = self.custom_conv1(x)
-        x = self.bn2(x)
+    def _make_encoder(self):
+        """Make encoder."""
+        assert hasattr(self, 'base')
 
-        x = self.entry_xception1(x)
-        x, skip1 = self.entry_xception2(x)
-        x = self.entry_xception3(x)
+        # Inputs.
+        input_image = Input(shape=(self.nn_arch['image_size']
+                                   , self.nn_arch['image_size']
+                                   , 3)
+                            , name='input_image')
 
-        # Middle Block
-        for i in range(16):
-            x = self.middle_xception[i](x)
+        # Extract feature.
+        x = self.base(input_image)
 
-        # Exit Block
-        x = self.exit_xception1(x)
-        x = self.exit_xception2(x)
+        # Conduct dilated convolution pooling.
+        pooled_outputs = []
+        for conf in self.nn_arch["encoder_middle_conf"]:
+            if conf['input'] == -1:
+                x2 = x  # ?
+            else:
+                x2 = pooled_outputs[conf['input']]
 
-        # ====================#
-        # Feature Projection #
-        # ====================#
+            if conf['op'] == 'conv':
+                if conf['kernel'] == 1:
+                    x2 = Conv2D(self.nn_arch['reduction_size']
+                                , kernel_size=1
+                                , padding='same'
+                                , use_bias=False
+                                , kernel_regularizer=regularizers.l2(self.hps['weight_decay']))(x2)
+                    x2 = BatchNormalization(momentum=self.hps['bn_momentum'], scale=self.hps['bn_scale'])(x2)
+                    x2 = Activation('relu')(x2)
+                else:
+                    # Split separable conv2d.
+                    x2 = SeparableConv2D(self.nn_arch['reduction_size']  # ?
+                                         , conf['kernel']
+                                         , depth_multiplier=1
+                                         , dilation_rate=(conf['rate'][0] * self.nn_arch['conv_rate_multiplier']
+                                                          , conf['rate'][1] * self.nn_arch['conv_rate_multiplier'])
+                                         , padding='same'
+                                         , use_bias=False
+                                         , kernel_initializer=initializers.TruncatedNormal())(x2)
+                    x2 = BatchNormalization(momentum=self.hps['bn_momentum'], scale=self.hps['bn_scale'])(x2)
+                    x2 = Activation('relu')(x2)
+                    x2 = Conv2D(self.nn_arch['reduction_size']
+                                , kernel_size=1
+                                , padding='same'
+                                , use_bias=False
+                                , kernel_initializer=initializers.TruncatedNormal()
+                                , kernel_regularizer=regularizers.l2(self.hps['weight_decay']))(x2)
+                    x2 = BatchNormalization(momentum=self.hps['bn_momentum'], scale=self.hps['bn_scale'])(x2)
+                    x2 = Activation('relu')(x2)
+            elif conf['op'] == 'pyramid_pooling':
+                x2 = AveragePooling2D(pool_size=conf['kernel'], padding='valid')(x2)
+                x2 = Conv2D(self.nn_arch['reduction_size']
+                            , kernel_size=1
+                            , padding='same'
+                            , use_bias=False
+                            , kernel_regularizer=regularizers.l2(self.hps['weight_decay']))(x2)
+                x2 = BatchNormalization(momentum=self.hps['bn_momentum'], scale=self.hps['bn_scale'])(x2)
+                x2 = Activation('relu')(x2)
 
-        b0 = self.conv_feat(x)
-        b0 = self.bn_feat(b0)
-        b0 = tf.nn.relu(b0)
+                target_size = conf['target_size_factor']  # ?
+                x2 = Lambda(lambda x: K.resize_images(x
+                                                      , target_size[0]
+                                                      , target_size[1]
+                                                      , "channels_last"
+                                                      , interpolation='bilinear'))(x2)  # ?
+            else:
+                raise ValueError('Invalid operation.')
 
-        b1 = self.atrous_conv1(x)
-        b2 = self.atrous_conv2(x)
-        b3 = self.atrous_conv3(x)
+            pooled_outputs.append(x2)
 
-        # Image Pooling
-        b4 = self.image_pooling(x)
-        b4 = self.conv_pool(b4)
-        b4 = self.bn_pool(b4)
-        b4 = tf.nn.relu(b4)
-        b4 = tf.image.resize(b4, size=[b3.get_shape()[1], b3.get_shape()[2]])
+        # Concatenate pooled tensors.
+        x3 = Concatenate(axis=-1)(pooled_outputs)
+        x3 = Dropout(rate=self.nn_arch['dropout_rate'])(x3)
+        x3 = Conv2D(self.nn_arch['concat_channels']
+                    , kernel_size=1
+                    , padding='same'
+                    , use_bias=False
+                    , kernel_regularizer=regularizers.l2(self.hps['weight_decay']))(x3)
+        x3 = BatchNormalization(momentum=self.hps['bn_momentum'], scale=self.hps['bn_scale'])(x3)
+        x3 = Activation('relu')(x3)
+        # output = Dropout(rate=self.nn_arch['dropout_rate'])(x3)
+        output = x3
 
-        x = self.concat1([b4, b0, b1, b2, b3])
+        self.encoder = Model(input_image, output)
+        self.encoder._init_set_name('encoder')
 
-        x = self.encoder_op(x)
-        x = self.bn_enc(x)
-        x = tf.nn.relu(x)
-        x = tf.nn.dropout(x, rate=0.1)
+    def _make_decoder(self):
+        """Make decoder."""
+        assert hasattr(self, 'base') and hasattr(self, 'encoder')
 
-        # ===================#
-        #  Decoder Network  #
-        # ===================#
+        inputs = self.encoder.outputs
+        features = Input(shape=K.int_shape(inputs[0])[1:])
 
-        x = self.upsample1(x)
+        if self.nn_arch['boundary_refinement']:
+            # Refine boundary.
+            low_features = Input(shape=K.int_shape(self.encoder.inputs[0])[1:])
+            x = self._refine_boundary(low_features, features)
+        else:
+            x = features
 
-        low_level = self.conv_low(skip1)
-        low_level = self.bn_low(low_level)
-        low_level = tf.nn.relu(low_level)
-        x = self.concat2([x, low_level])
+        # Upsampling & softmax.
+        x = Conv2D(self.nn_arch['num_classes']
+                   , kernel_size=3
+                   , padding='same'
+                   , use_bias=False
+                   , kernel_regularizer=regularizers.l2(self.hps['weight_decay']))(x)  # Kernel size?
 
-        x = self.sepconv_last(x)
+        output_stride = self.nn_arch['output_stride']
 
-        x = self.out_conv(x)
-        x = self.upsample2(x)
+        if self.nn_arch['boundary_refinement']:
+            output_stride = output_stride / 8 if output_stride == 16 else output_stride / 4
+
+        x = Lambda(lambda x: K.resize_images(x
+                                             , output_stride
+                                             , output_stride
+                                             , "channels_last"
+                                             , interpolation='bilinear'))(x)  # ?
+        outputs = Activation('softmax')(x)
+
+        self.decoder = Model(inputs=[low_features, features], outputs=outputs) if self.nn_arch['boundary_refinement'] \
+            else Model(inputs=[features], outputs=outputs)
+        self.decoder._init_set_name('decoder')
+
+    def _refine_boundary(self, low_features, features):
+        """Refine segmentation boundary.
+
+        Parameters
+        ----------
+        low_features: Tensor
+            Image input tensor.
+        features: Tensor
+            Encoder's output tensor.
+
+        Returns
+        -------
+        Refined features.
+            Tensor
+        """
+        low_features = self.base(low_features)
+        low_features = Conv2D(48
+                              , kernel_size=1
+                              , padding='same'
+                              , use_bias=False
+                              , kernel_regularizer=regularizers.l2(self.hps['weight_decay']))(low_features)
+        low_features = BatchNormalization(momentum=self.hps['bn_momentum'], scale=self.hps['bn_scale'])(low_features)
+        low_features = Activation('relu')(low_features)
+
+        # Resize low_features, features.
+        output_stride = self.nn_arch['output_stride']
+        low_features = Lambda(lambda x: K.resize_images(x
+                                                        , output_stride / 2
+                                                        , output_stride / 2
+                                                        , "channels_last"
+                                                        , interpolation='bilinear'))(low_features)  # ?
+        features = Lambda(lambda x: K.resize_images(x
+                                                    , output_stride / 2
+                                                    , output_stride / 2
+                                                    , "channels_last"
+                                                    , interpolation='bilinear'))(features)  # ?
+
+        x = Concatenate(axis=-1)([low_features, features])
+
         return x

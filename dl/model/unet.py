@@ -32,8 +32,7 @@ class UNet:
         self.inputs = Input(shape=input_size)
 
         self.loss_fn = SparseCategoricalCrossentropy(from_logits=True)
-        # self.optimizer = Adam(learning_rate=self.learning_rate)
-        self.optimizer = 'rmsprop'
+        self.optimizer = Adam(learning_rate=self.learning_rate)
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
@@ -42,7 +41,7 @@ class UNet:
                             save_weights_only='True', mode='max', verbose=1),
             TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
         ]
-        self.model = self.build_model_2()
+        self.model = self.build_model()
 
         if is_pretrained is True:
             logging.info(">> Loading pretrained weights: {}...".format(load_unet_parameters['pretrained_weights']))
@@ -109,26 +108,27 @@ class UNet:
 
         for filters in [64, 128, 256]:
             x = Activation("relu")(x)
-            x = SeparableConv2D(filters, self.kernel_size, padding="same")(x)
+            x = SeparableConv2D(filters, self.kernel_size, padding="same", kernel_initializer='he_normal')(x)
             x = BatchNormalization()(x)
 
             x = Activation("relu")(x)
-            x = SeparableConv2D(filters, self.kernel_size, padding="same")(x)
+            x = SeparableConv2D(filters, self.kernel_size, padding="same", kernel_initializer='he_normal')(x)
             x = BatchNormalization()(x)
 
             x = MaxPooling2D(self.kernel_size, strides=self.pooling_stride, padding="same")(x)
 
-            residual = Conv2D(filters, 1, strides=self.pooling_stride, padding="same")(previous_block_activation)
+            residual = Conv2D(filters, 1, strides=self.pooling_stride, padding="same",
+                              kernel_initializer='he_normal')(previous_block_activation)
             x = add([x, residual])
             previous_block_activation = x
 
         for filters in [256, 128, 64, 32]:
             x = Activation("relu")(x)
-            x = Conv2DTranspose(filters, self.deconv_kernel_size, padding="same")(x)
+            x = Conv2DTranspose(filters, self.deconv_kernel_size, padding="same", kernel_initializer='he_normal')(x)
             x = BatchNormalization()(x)
 
             x = Activation("relu")(x)
-            x = Conv2DTranspose(filters, self.deconv_kernel_size, padding="same")(x)
+            x = Conv2DTranspose(filters, self.deconv_kernel_size, padding="same", kernel_initializer='he_normal')(x)
             x = BatchNormalization()(x)
 
             x = UpSampling2D(self.pooling_stride)(x)
@@ -138,7 +138,8 @@ class UNet:
             x = add([x, residual])
             previous_block_activation = x
 
-        outputs = Conv2D(self.number_classes, self.kernel_size, activation="softmax", padding="same")(x)
+        outputs = Conv2D(self.number_classes, self.kernel_size, activation="softmax", padding="same",
+                         kernel_initializer='he_normal')(x)
 
         model_obj = Model(self.inputs, outputs, name='unet')
         model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])

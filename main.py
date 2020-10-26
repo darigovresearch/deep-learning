@@ -99,7 +99,7 @@ def main(network_type, is_training, is_predicting):
         pred_images = loader.Loader(pred_images_path)
 
         classes = load_param['classes']
-        COLOR_DICT = np.array(['nut', 'palm', 'other'])
+        COLOR_DICT = np.array(['other', 'nut', 'palm'])
 
         for item in pred_images.get_list_images():
             filename = os.path.basename(item)
@@ -109,9 +109,8 @@ def main(network_type, is_training, is_predicting):
                 image_full = cv2.imread(item)
                 dims = image_full.shape
                 image_full = image_full / 255
-                image_full = np.reshape(image_full, (1, 256, 256, 3))
+                image_full = np.reshape(image_full, (1, dims[0], dims[1], dims[2]))
 
-                # pr = dl_obj.get_model().predict(np.array([image_full]))[0]
                 pr = dl_obj.get_model().predict(image_full)
                 pred_mask = np.argmax(pr, axis=-1)
                 output = np.reshape(pred_mask, (dims[0], dims[1]))
