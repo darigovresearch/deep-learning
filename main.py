@@ -6,18 +6,11 @@ import settings
 import imageio
 import cv2
 import numpy as np
-import tifffile as tiff
 
 from dl.model import loader
 from dl.model import helper
 from dl.model import unet
 from coloredlogs import ColoredFormatter
-
-from IPython.display import Image, display
-from keras.preprocessing.image import array_to_img
-
-import PIL
-from PIL import ImageOps
 
 import sys
 if sys.version_info[0] < 3:
@@ -73,7 +66,6 @@ def main(network_type, is_training, is_predicting):
 
     if eval(is_training):
         dl_obj = get_dl_model(network_type, load_param, False, False)
-        # train_generator_obj, val_generator_obj = utils.DL().training_generator(network_type, True)
 
         path_train_images = os.path.join(load_param['image_training_folder'], 'image')
         path_train_labels = os.path.join(load_param['image_training_folder'], 'label')
@@ -89,9 +81,9 @@ def main(network_type, is_training, is_predicting):
         img_size = (load_param['input_size_w'], load_param['input_size_h'])
 
         train_generator_obj = helper.Helper(batch_size, img_size, train_images.get_list_images(),
-                                            train_labels.get_list_labels())
+                                            train_labels.get_list_images())
         val_generator_obj = helper.Helper(batch_size, img_size, val_images.get_list_images(),
-                                          val_labels.get_list_labels())
+                                          val_labels.get_list_images())
 
         dl_obj.get_model().fit(train_generator_obj,
                                steps_per_epoch=train_generator_obj.__len__(),
@@ -113,27 +105,26 @@ def main(network_type, is_training, is_predicting):
             filename = os.path.basename(item)
             name, extension = os.path.splitext(filename)
 
-            # if extension.lower() == ".tif" or extension.lower() == ".tiff":
-            #     image_full = tiff.imread(item)
-            #     dims = image_full.shape
-            # else:
-            image_full = cv2.imread(item)
-            dims = image_full.shape
-            image_full = image_full / 255
-            image_full = np.reshape(image_full, (1, 256, 256, 3))
+            if filename.endswith(settings.VALID_PREDICTION_EXTENSION):
+                image_full = cv2.imread(item)
+                dims = image_full.shape
+                image_full = image_full / 255
+                image_full = np.reshape(image_full, (1, 256, 256, 3))
 
-            # pr = dl_obj.get_model().predict(np.array([image_full]))[0]
-            pr = dl_obj.get_model().predict(image_full)
-            pred_mask = np.argmax(pr, axis=-1)
-            output = np.reshape(pred_mask, (256, 256))
+                # pr = dl_obj.get_model().predict(np.array([image_full]))[0]
+                pr = dl_obj.get_model().predict(image_full)
+                pred_mask = np.argmax(pr, axis=-1)
+                output = np.reshape(pred_mask, (dims[0], dims[1]))
 
-            img_color = np.zeros((256, 256, 3), dtype='uint8')
-            for j in range(dims[0]):
-                for i in range(dims[1]):
-                    img_color[j, i] = classes[COLOR_DICT[output[j, i]]]
+                img_color = np.zeros((dims[0], dims[1], dims[2]), dtype='uint8')
+                for j in range(dims[0]):
+                    for i in range(dims[1]):
+                        img_color[j, i] = classes[COLOR_DICT[output[j, i]]]
 
-            prediction_path = os.path.join(settings.DL_PARAM[network_type]['output_prediction'], name + '.png')
-            imageio.imwrite(prediction_path, img_color)
+                prediction_path = os.path.join(settings.DL_PARAM[network_type]['output_prediction'], name + '.png')
+                imageio.imwrite(prediction_path, img_color)
+            else:
+                logging.info(">>>> Image prediction fail: {}. Check filename format!".format(filename))
 
             # TODO:
             #  2. merge the prediction if it was sliced
