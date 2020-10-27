@@ -3,13 +3,12 @@ import logging
 import time
 import argparse
 import settings
-import imageio
-import cv2
-import numpy as np
+import infer
 
 from dl.model import loader
 from dl.model import helper
 from dl.model import unet
+
 from coloredlogs import ColoredFormatter
 
 import sys
@@ -94,37 +93,7 @@ def main(network_type, is_training, is_predicting):
 
     if eval(is_predicting):
         dl_obj = get_dl_model(network_type, load_param, True, False)
-
-        pred_images_path = os.path.join(load_param['image_prediction_folder'])
-        pred_images = loader.Loader(pred_images_path)
-
-        for item in pred_images.get_list_images():
-            filename = os.path.basename(item)
-            name, extension = os.path.splitext(filename)
-
-            if filename.endswith(settings.VALID_PREDICTION_EXTENSION):
-                image_full = cv2.imread(item)
-                dims = image_full.shape
-                # image_full = image_full / 255
-                image_full = np.reshape(image_full, (1, dims[0], dims[1], dims[2]))
-
-                pr = dl_obj.get_model().predict(image_full)
-                pred_mask = np.argmax(pr, axis=-1)
-                output = np.reshape(pred_mask, (dims[0], dims[1]))
-
-                img_color = np.zeros((dims[0], dims[1], dims[2]), dtype='uint8')
-                for j in range(dims[0]):
-                    for i in range(dims[1]):
-                        img_color[j, i] = load_param['color_classes'][output[j, i]]
-
-                prediction_path = os.path.join(settings.DL_PARAM[network_type]['output_prediction'], name + '.png')
-                imageio.imwrite(prediction_path, img_color)
-            else:
-                logging.info(">>>> Image prediction fail: {}. Check filename format!".format(filename))
-
-            # TODO:
-            #  2. merge the prediction if it was sliced
-            #  3. poligonize the merged prediction image
+        infer.Infer().predict_deep_network(dl_obj, load_param)
 
     end_time = time.time()
     logging.info("Whole process completed! [Time: {0:.5f} seconds]!".format(end_time-start_time))

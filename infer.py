@@ -1,9 +1,13 @@
 import os
-import numpy as np
 import logging
+import imageio
+import cv2
 import skimage.io as io
+import numpy as np
 
-from dl.model import unet as model
+import dl.model.loader as loader
+import dl.model.helper as helper
+import settings
 
 import sys
 if sys.version_info[0] < 3:
@@ -13,9 +17,6 @@ import tensorflow as tf
 tf_version = tf.__version__.split('.')
 if int(tf_version[0]) != 2:
     raise RuntimeError('Tensorflow 2.x.x required')
-
-
-TILE_SIZE = 256
 
 
 class Infer:
@@ -40,14 +41,15 @@ class Infer:
             img_out[img == i, :] = color_dict[i]
         return img_out / 255
 
-    # TODO: refactore
-    def slice(self, file, width, height, outputFolder):
-        valid_images = [".jpg", ".gif", ".png", ".tga", ".tif", ".tiff", ".geotiff"]
+    def slice(self, file, width, height, output_folder):
+        """
+        """
         filename = os.path.basename(file)
         name, file_extension = os.path.splitext(filename)
 
-        if file_extension.lower() not in valid_images:
-            logging.info(">> Image formats accept: " + str(valid_images) + ". Check image and try again!")
+        if file_extension.lower() not in settings.VALID_PREDICTION_EXTENSION:
+            logging.info(">> Image formats accept: {}. Check image and try again!".
+                         format(settings.VALID_PREDICTION_EXTENSION))
 
         ds = gdal.Open(file)
         if ds is None:
@@ -62,10 +64,10 @@ class Infer:
         for j in range(0, cols, height):
             for i in range(0, rows, width):
                 try:
-                    paths.append(outputFolder + name + "_" + "{:05d}".format(cont) + file_extension)
+                    paths.append(output_folder + name + "_" + "{:05d}".format(cont) + file_extension)
                     com_string = "gdal_translate -eco -q -of GTiff -ot UInt16 -srcwin " + str(i) + " " + str(
                         j) + " " + str(width) + " " + str(
-                        height) + " " + file + " " + outputFolder + name + "_" + "{:05d}".format(cont) + file_extension
+                        height) + " " + file + " " + output_folder + name + "_" + "{:05d}".format(cont) + file_extension
                     os.system(com_string)
                     cont += 1
                 except:
@@ -73,16 +75,37 @@ class Infer:
 
         return paths
 
-    def predict_deep_network(self, model, path_in, path_out, path_chp):
+    def predict_deep_network(self, model, load_param):
         """
         """
         logging.info(">> Performing prediction...")
-        file_list = []
 
-        for path in os.listdir(path_in):
-            full_path = os.path.join(path_in, path)
+        pred_images = loader.Loader(load_param['image_prediction_folder'])
 
-            if os.path.isfile(full_path):
-                file_list.append(full_path)
+        for item in pred_images.get_list_images():
+            filename = os.path.basename(item)
+            name, extension = os.path.splitext(filename)
 
-        model.predict_multiple(checkpoints_path=path_chp, inps=file_list,  out_dir=path_out)
+            if filename.endswith(settings.VALID_PREDICTION_EXTENSION):
+                image_full = cv2.imread(item)
+                dims = image_full.shape
+                # image_full = image_full / 255
+                image_full = np.reshape(image_full, (1, dims[0], dims[1], dims[2]))
+
+                pr = model.get_model().predict(image_full)
+                pred_mask = np.argmax(pr, axis=-1)
+                output = np.reshape(pred_mask, (dims[0], dims[1]))
+
+                img_color = np.zeros((dims[0], dims[1], dims[2]), dtype='uint8')
+                for j in range(dims[0]):
+                    for i in range(dims[1]):
+                        img_color[j, i] = load_param['color_classes'][output[j, i]]
+
+                prediction_path = os.path.join(load_param['output_prediction'], name + '.png')
+                imageio.imwrite(prediction_path, img_color)
+            else:
+                logging.info(">>>> Image prediction fail: {}. Check filename format!".format(filename))
+
+            # TODO:
+            #  2. merge the prediction if it was sliced
+            #  3. poligonize the merged prediction image
