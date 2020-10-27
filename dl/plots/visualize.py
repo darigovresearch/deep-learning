@@ -34,8 +34,6 @@ class Visualize:
         ax[1].plot(history.history['val_acc'], color='r', label="Validation accuracy")
         legend = ax[1].legend(loc='best', shadow=True)
 
-
-
     def confusion_matrix(self, model, validation_generator, num_of_test_samples, batch_size):
         """
         Source: https://gist.github.com/RyanAkilos/3808c17f79e77c4117de35aa68447045

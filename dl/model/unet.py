@@ -36,7 +36,7 @@ class UNet:
 
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
         self.callbacks = [
-            EarlyStopping(mode='max', monitor='loss', patience=10),
+            #EarlyStopping(mode='max', monitor='loss', patience=10),
             ModelCheckpoint(filepath=filepath, monitor='accuracy', save_best_only=True,
                             save_weights_only='True', mode='max', verbose=1),
             TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
@@ -93,56 +93,6 @@ class UNet:
         model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
 
         logging.info(">>>> Done!")
-
-        return model_obj
-
-    def build_model_2(self):
-        """
-        Source: https://keras.io/examples/vision/oxford_pets_image_segmentation/
-        """
-        x = Conv2D(32, 3, strides=self.pooling_stride, padding="same")(self.inputs)
-        x = BatchNormalization()(x)
-        x = Activation("relu")(x)
-
-        previous_block_activation = x
-
-        for filters in [64, 128, 256]:
-            x = Activation("relu")(x)
-            x = SeparableConv2D(filters, self.kernel_size, padding="same", kernel_initializer='he_normal')(x)
-            x = BatchNormalization()(x)
-
-            x = Activation("relu")(x)
-            x = SeparableConv2D(filters, self.kernel_size, padding="same", kernel_initializer='he_normal')(x)
-            x = BatchNormalization()(x)
-
-            x = MaxPooling2D(self.kernel_size, strides=self.pooling_stride, padding="same")(x)
-
-            residual = Conv2D(filters, 1, strides=self.pooling_stride, padding="same",
-                              kernel_initializer='he_normal')(previous_block_activation)
-            x = add([x, residual])
-            previous_block_activation = x
-
-        for filters in [256, 128, 64, 32]:
-            x = Activation("relu")(x)
-            x = Conv2DTranspose(filters, self.deconv_kernel_size, padding="same", kernel_initializer='he_normal')(x)
-            x = BatchNormalization()(x)
-
-            x = Activation("relu")(x)
-            x = Conv2DTranspose(filters, self.deconv_kernel_size, padding="same", kernel_initializer='he_normal')(x)
-            x = BatchNormalization()(x)
-
-            x = UpSampling2D(self.pooling_stride)(x)
-
-            residual = UpSampling2D(self.pooling_stride)(previous_block_activation)
-            residual = Conv2D(filters, 1, padding="same")(residual)
-            x = add([x, residual])
-            previous_block_activation = x
-
-        outputs = Conv2D(self.number_classes, self.kernel_size, activation="softmax", padding="same",
-                         kernel_initializer='he_normal')(x)
-
-        model_obj = Model(self.inputs, outputs, name='unet')
-        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
 
         return model_obj
 
