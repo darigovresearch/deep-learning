@@ -89,7 +89,7 @@ class Infer:
             if filename.endswith(settings.VALID_PREDICTION_EXTENSION):
                 image_full = cv2.imread(item)
                 dims = image_full.shape
-                # image_full = image_full / 255
+                image_full = image_full / 255
                 image_full = np.reshape(image_full, (1, dims[0], dims[1], dims[2]))
 
                 pr = model.get_model().predict(image_full)
