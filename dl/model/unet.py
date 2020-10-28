@@ -5,7 +5,7 @@ import settings
 from datetime import datetime
 from keras.models import Model
 from keras.optimizers import Adam
-from keras.losses import CategoricalCrossentropy
+from keras.losses import SparseCategoricalCrossentropy
 from keras.callbacks import *
 from keras.layers import *
 
@@ -31,7 +31,7 @@ class UNet:
 
         self.inputs = Input(shape=input_size)
 
-        self.loss_fn = CategoricalCrossentropy(from_logits=False)
+        self.loss_fn = SparseCategoricalCrossentropy(from_logits=False)
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
         suffix = "model-input" + str(input_size) + "-batch" + str(load_unet_parameters['batch_size']) + "-drop" + \
@@ -97,9 +97,6 @@ class UNet:
         logging.info(">>>> Done!")
 
         return model_obj
-
-    def dice_coef(self, y_true, y_pred):
-        return (2. * backend.sum(y_true * y_pred) + 1.) / (backend.sum(y_true) + backend.sum(y_pred) + 1.)
 
     def pool(self, tensor, pool_size):
         output = MaxPooling2D(pool_size=pool_size)(tensor)
