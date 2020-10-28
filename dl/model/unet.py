@@ -31,7 +31,7 @@ class UNet:
 
         self.inputs = Input(shape=input_size)
 
-        self.loss_fn = SparseCategoricalCrossentropy(from_logits=True)
+        # self.loss_fn = SparseCategoricalCrossentropy(from_logits=True)
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
         suffix = "model-input" + str(input_size) + "-batch" + str(load_unet_parameters['batch_size']) + "-drop" + \
@@ -92,7 +92,7 @@ class UNet:
         output_layer = Activation('softmax')(output_layer)
 
         model_obj = Model(self.inputs, output_layer, name='unet')
-        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
+        model_obj.compile(optimizer=self.optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
         logging.info(">>>> Done!")
 
