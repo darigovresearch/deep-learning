@@ -5,8 +5,7 @@ import argparse
 import settings
 import infer
 
-from dl.model import loader
-from dl.model import helper
+from dl.input import helper, loader
 from dl.model import unet
 
 from coloredlogs import ColoredFormatter

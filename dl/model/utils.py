@@ -9,7 +9,10 @@ class DL:
 
     def training_generator(self, network_type, is_augment):
         """
-        can generate image and mask at the same time
+        ** This procedure seems not to work with multiclass image segmentation. The images is all empty, there is a huge]
+        misunderstanding about labeling type required for this task (i.e. should the label be built with class id,
+        onehot-encoded, or rgb??). Nothing really clear in Keras documentation.
+
         Source: https://github.com/zhixuhao/unet/blob/master/data.py
         hierarchy of folders: https://stackoverflow.com/questions/58050113/imagedatagenerator-for-semantic-segmentation
         color_mode: https://stackoverflow.com/questions/53248099/keras-image-segmentation-using-grayscale-masks-and-imagedatagenerator-class

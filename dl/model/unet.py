@@ -34,9 +34,11 @@ class UNet:
         self.loss_fn = CategoricalCrossentropy(from_logits=True)
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
-        filepath = os.path.join(load_unet_parameters['output_checkpoints'], "model-{epoch:02d}.hdf5")
+        suffix = "model-input" + str(input_size) + "-batch" + str(load_unet_parameters['batch_size']) + "-drop" + \
+                 str(load_unet_parameters['dropout_rate']).replace(".", "") + "-epoch" + "{epoch:02d}.hdf5"
+        filepath = os.path.join(load_unet_parameters['output_checkpoints'], suffix)
         self.callbacks = [
-            #EarlyStopping(mode='max', monitor='loss', patience=10),
+            EarlyStopping(mode='max', monitor='loss', patience=20),
             ModelCheckpoint(filepath=filepath, monitor='accuracy', save_best_only=True,
                             save_weights_only='True', mode='max', verbose=1),
             TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
