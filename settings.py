@@ -18,7 +18,7 @@ DL_PARAM = {
         'tensorboard_log_dir': os.path.join(DL_DATASET, 'training', 'all', 'log'),
         'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
         'image_prediction_tmp_slice_folder': os.path.join(DL_DATASET, 'tmp_slice'),
-        'pretrained_weights': 'model-35.hdf5',
+        'pretrained_weights': 'model-batch16-sparse-drop05.hdf5',
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,
@@ -30,7 +30,7 @@ DL_PARAM = {
         'pooling_stride': 2,
         'dropout_rate': 0.5,
         'color_mode': 'rgb',
-        'class_mode': None,
+        'class_mode': 'categorical',
         'seed': 1,
         'epochs': 100,
         'classes': {
