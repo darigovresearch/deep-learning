@@ -36,5 +36,8 @@ class Helper(Sequence):
         for j, path in enumerate(batch_target_img_paths):
             img = load_img(path, target_size=self.img_size, color_mode="grayscale")
             y[j] = np.expand_dims(img, 2)
+
+        # y = to_categorical(y.astype('float32'))
+
         return x, y
 

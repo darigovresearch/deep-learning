@@ -43,7 +43,6 @@ class Infer:
     def segment_image(self, model, file_path, classes):
         """
         """
-        #TODO: read tiff with opencv
         image_full = cv2.imread(file_path)
         dims = image_full.shape
         image_full = image_full / 255
