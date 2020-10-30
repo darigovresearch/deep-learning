@@ -34,7 +34,8 @@ class UNet:
         self.loss_fn = SparseCategoricalCrossentropy(from_logits=True)
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
-        suffix = "model-input" + str(input_size) + "-batch" + str(load_unet_parameters['batch_size']) + "-drop" + \
+        suffix = "model-input" + str(input_size[0]-input_size[1]) + "-batch" + \
+                 str(load_unet_parameters['batch_size']) + "-drop" + \
                  str(load_unet_parameters['dropout_rate']).replace(".", "") + "-epoch" + "{epoch:02d}.hdf5"
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], suffix)
         self.callbacks = [
