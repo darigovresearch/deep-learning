@@ -14,23 +14,24 @@ DL_PARAM = {
         'annotation_validation_folder': os.path.join(DL_DATASET, 'validation', 'all'),
         'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'inference'),
         'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'weight'),
+        'output_history': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'history'),
         'save_model_dir': os.path.join(DL_DATASET, 'training', 'all', 'model'),
         'tensorboard_log_dir': os.path.join(DL_DATASET, 'training', 'all', 'log'),
         'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
         'image_prediction_tmp_slice_folder': os.path.join(DL_DATASET, 'tmp_slice'),
-        'pretrained_weights': 'model-batch16-sparse-drop05.hdf5',
+        'pretrained_weights': 'model-input0-batch16-drop05-epoch21.hdf5',
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,
-        'batch_size': 16,
-        'learning_rate': 0.001,
+        'batch_size': 8,
+        'learning_rate': 0.0001,
         'filters': 64,
         'kernel_size': 3,
         'deconv_kernel_size': 3,
         'pooling_stride': 2,
         'dropout_rate': 0.5,
         'color_mode': 'rgb',
-        'class_mode': 'categorical',
+        'class_mode': None,
         'seed': 1,
         'epochs': 100,
         'classes': {
@@ -43,3 +44,4 @@ DL_PARAM = {
         'height_slice': 1000,
     }
 }
+

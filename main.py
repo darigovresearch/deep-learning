@@ -1,10 +1,12 @@
 import os
 import logging
 import time
+import json
 import argparse
 import settings
-import infer
 
+from datetime import datetime
+from dl.output import infer
 from dl.input import helper, loader
 from dl.model import unet
 
@@ -89,6 +91,11 @@ def main(network_type, is_training, is_predicting):
                                          validation_steps=val_generator_obj.__len__(),
                                          epochs=load_param['epochs'],
                                          callbacks=dl_obj.get_callbacks())
+
+        timestamp = datetime.now().strftime("%d-%b-%Y-%H-%M")
+        history_file = os.path.join(load_param['output_history'], "history-" + str(timestamp) + ".json")
+        with open(history_file, 'w') as f:
+            json.dump(history.history, f)
 
     if eval(is_predicting):
         dl_obj = get_dl_model(network_type, load_param, True, False)

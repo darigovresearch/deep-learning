@@ -34,7 +34,7 @@ class UNet:
         self.loss_fn = SparseCategoricalCrossentropy(from_logits=True)
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
-        suffix = "model-input" + str(input_size[0]-input_size[1]) + "-batch" + \
+        suffix = "model-input" + str(input_size[0]) + "-" + str(input_size[1]) + "-batch" + \
                  str(load_unet_parameters['batch_size']) + "-drop" + \
                  str(load_unet_parameters['dropout_rate']).replace(".", "") + "-epoch" + "{epoch:02d}.hdf5"
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], suffix)
@@ -54,7 +54,7 @@ class UNet:
 
         if is_saved is True:
             logging.info(">>>>>> Model built. Saving model in {}...".format(load_unet_parameters['save_model_dir']))
-            timestamp = datetime.now().strftime("%d-%b-%Y-%H-%M)")
+            timestamp = datetime.now().strftime("%d-%b-%Y-%H-%M")
             self.model.save(os.path.join(load_unet_parameters['save_model_dir'], "unet-" + timestamp + ".h5"))
 
     def build_model(self):
