@@ -92,10 +92,10 @@ def main(network_type, is_training, is_predicting):
                                          epochs=load_param['epochs'],
                                          callbacks=dl_obj.get_callbacks())
 
-        timestamp = datetime.now().strftime("%d-%b-%Y-%H-%M")
-        history_file = os.path.join(load_param['output_history'], "history-" + str(timestamp) + ".json")
-        with open(history_file, 'w') as f:
-            json.dump(history.history, f)
+        # timestamp = datetime.now().strftime("%d-%b-%Y-%H-%M")
+        # history_file = os.path.join(load_param['output_history'], "history-" + str(timestamp) + ".json")
+        # with open(history_file, 'w') as f:
+        #     json.dump(history.history, f)
 
     if eval(is_predicting):
         dl_obj = get_dl_model(network_type, load_param, True, False)
