@@ -5,6 +5,8 @@ import cv2
 import numpy as np
 
 import dl.input.loader as loader
+import dl.output.slicer as slicer
+import dl.output.poligonize as poligonizer
 import settings
 
 
@@ -36,48 +38,14 @@ class Infer:
 
         return prediction_path
 
-    def slice(self, file, width, height, output_folder):
-        """
-        """
-        filename = os.path.basename(file)
-        name, file_extension = os.path.splitext(filename)
-
-        if file_extension.lower() not in settings.VALID_PREDICTION_EXTENSION:
-            logging.info(">> Image formats accept: {}. Check image and try again!".
-                         format(settings.VALID_PREDICTION_EXTENSION))
-
-        ds = gdal.Open(file)
-        if ds is None:
-            raise RuntimeError
-
-        rows = ds.RasterXSize
-        cols = ds.RasterYSize
-
-        cont = 0
-        paths = []
-        gdal.UseExceptions()
-        for j in range(0, cols, height):
-            for i in range(0, rows, width):
-                try:
-                    # TODO: apply buffer to each tile
-                    paths.append(output_folder + name + "_" + "{:05d}".format(cont) + file_extension)
-
-                    com_string = "gdal_translate -eco -q -of GTiff -ot UInt16 -srcwin " + str(i) + " " + str(j) + " " \
-                                 + str(width) + " " + str(height) + " " + file + " " + output_folder + name + "_" \
-                                 + "{:05d}".format(cont) + file_extension
-                    os.system(com_string)
-                    cont += 1
-                except:
-                    pass
-
-        return paths
-
-    def poligonize(self, output):
-
-        if isinstance(output, list):
-            pass
-        else:
-
+    # def poligonize(self, output):
+    #     """
+    #     """
+    #     if isinstance(output, list):
+    #         for item in output:
+    #             poligonizer.Poligonize().polygonize(item, image, output)
+    #     else:
+    #         poligonizer.Poligonize().polygonize(output, image, output)
 
     def predict_deep_network(self, model, load_param):
         """
@@ -95,17 +63,18 @@ class Infer:
 
                 if dims[0] > load_param['width_slice'] or dims[1] > load_param['height_slice']:
                     logging.info(">>>> Image {} is bigger than the required dimension! Cropping and predicting...")
-                    list_images = self.slice(image_full, load_param['width_slice'], load_param['height_slice'], )
+                    list_images = slicer.Slicer().slice(image_full, load_param['width_slice'],
+                                                        load_param['height_slice'],
+                                                        load_param['image_prediction_tmp_slice_folder'])
 
                     output_slices_list = []
                     for item in list_images:
-                        path_to_the_sliced_image = os.path.join(load_param['image_prediction_tmp_slice_folder'], item)
-                        output = self.segment_image(model, path_to_the_sliced_image, load_param['color_classes'],
+                        output = self.segment_image(model, item, load_param['color_classes'],
                                                     load_param['output_prediction'])
                         output_slices_list.append(output)
 
                     logging.info(">>>> Sewing results and poligonizing...")
-                    # self.poligonize(output_slices_list)
+                    # poligonizer(output_slices_list)
 
                 else:
                     output = self.segment_image(model, item, load_param['color_classes'],
