@@ -1,6 +1,7 @@
 import numpy as np
 
 from keras.utils import Sequence
+from keras.utils import to_categorical
 from keras.preprocessing.image import load_img
 
 
@@ -37,7 +38,8 @@ class Helper(Sequence):
             img = load_img(path, target_size=self.img_size, color_mode="grayscale")
             y[j] = np.expand_dims(img, 2)
 
-        # y = to_categorical(y.astype('float32'))
+        y = to_categorical(y.astype('float32'), num_classes=3)
 
         return x, y
+
 

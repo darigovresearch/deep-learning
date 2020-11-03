@@ -19,7 +19,7 @@ DL_PARAM = {
         'tensorboard_log_dir': os.path.join(DL_DATASET, 'training', 'all', 'log'),
         'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
         'image_prediction_tmp_slice_folder': os.path.join(DL_DATASET, 'tmp_slice'),
-        'pretrained_weights': 'model-input0-batch16-drop05-epoch21.hdf5',
+        'pretrained_weights': 'model-input256-256-batch8-drop05-epoch100.hdf5',
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,

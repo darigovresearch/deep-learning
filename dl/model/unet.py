@@ -5,7 +5,7 @@ import settings
 from datetime import datetime
 from keras.models import Model
 from keras.optimizers import Adam
-from keras.losses import SparseCategoricalCrossentropy
+from keras.losses import CategoricalCrossentropy
 from keras.callbacks import *
 from keras.layers import *
 
@@ -31,7 +31,7 @@ class UNet:
 
         self.inputs = Input(shape=input_size)
 
-        self.loss_fn = SparseCategoricalCrossentropy(from_logits=True)
+        self.loss_fn = CategoricalCrossentropy(from_logits=True)
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
         suffix = "model-input" + str(input_size[0]) + "-" + str(input_size[1]) + "-batch" + \
@@ -93,7 +93,8 @@ class UNet:
         output_layer = Activation('softmax')(output_layer)
 
         model_obj = Model(self.inputs, output_layer, name='unet')
-        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
+        # model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
+        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['categorical_accuracy'])
 
         logging.info(">>>> Done!")
 
