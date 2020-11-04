@@ -93,8 +93,8 @@ class UNet:
         output_layer = Activation('softmax')(output_layer)
 
         model_obj = Model(self.inputs, output_layer, name='unet')
-        # model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
-        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['categorical_accuracy'])
+        model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])
+        #model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['categorical_accuracy'])
 
         logging.info(">>>> Done!")
 
