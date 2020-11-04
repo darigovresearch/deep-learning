@@ -23,8 +23,8 @@ class Infer:
         image_full = np.reshape(image_full, (1, dims[0], dims[1], dims[2]))
 
         pr = model.get_model().predict(image_full)
-        pred_mask = np.argmax(pr, axis=1)
-        output = np.reshape(pred_mask, (dims[0], dims[1]))
+        output = np.argmax(pr, axis=-1)
+        output = np.reshape(output, (dims[0], dims[1]))
 
         img_color = np.zeros((dims[0], dims[1], dims[2]), dtype='uint8')
         for j in range(dims[0]):

@@ -39,7 +39,7 @@ class UNet:
                  str(load_unet_parameters['dropout_rate']).replace(".", "") + "-epoch" + "{epoch:02d}.hdf5"
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], suffix)
         self.callbacks = [
-            EarlyStopping(mode='max', monitor='loss', patience=20),
+            EarlyStopping(mode='max', monitor='accuracy', patience=20),
             ModelCheckpoint(filepath=filepath, monitor='accuracy', save_best_only=True,
                             save_weights_only='True', mode='max', verbose=1),
             TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
