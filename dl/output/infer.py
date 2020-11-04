@@ -23,7 +23,7 @@ class Infer:
         image_full = np.reshape(image_full, (1, dims[0], dims[1], dims[2]))
 
         pr = model.get_model().predict(image_full)
-        pred_mask = np.argmax(pr, axis=-1)
+        pred_mask = np.argmax(pr, axis=1)
         output = np.reshape(pred_mask, (dims[0], dims[1]))
 
         img_color = np.zeros((dims[0], dims[1], dims[2]), dtype='uint8')
@@ -74,7 +74,7 @@ class Infer:
                         output_slices_list.append(output)
 
                     logging.info(">>>> Sewing results and poligonizing...")
-                    # poligonizer(output_slices_list)
+                    # self.poligonize(output_slices_list)
 
                 else:
                     output = self.segment_image(model, item, load_param['color_classes'],
