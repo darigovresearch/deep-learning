@@ -38,6 +38,7 @@ class Helper(Sequence):
             img = load_img(path, target_size=self.img_size, color_mode="grayscale")
             y[j] = np.expand_dims(img, 2)
 
+        # TODO: hardcoded number of classes
         y = to_categorical(y.astype('float32'), num_classes=3)
 
         return x, y

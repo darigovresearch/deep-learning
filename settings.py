@@ -20,7 +20,7 @@ DL_PARAM = {
         'tensorboard_log_dir': os.path.join(DL_DATASET, 'training', 'all', 'log'),
         'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
         'image_prediction_tmp_slice_folder': os.path.join(DL_DATASET, 'tmp_slice'),
-        'pretrained_weights': 'model-input256-256-batch16-drop05-epoch21.hdf5',
+        'pretrained_weights': 'model-input256-256-batch16-drop05-epoch98.hdf5',
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,
@@ -36,11 +36,11 @@ DL_PARAM = {
         'seed': 1,
         'epochs': 100,
         'classes': {
-                'other': [0, 0, 0],
                 "nut": [102, 153, 0],
-                "palm": [153, 255, 153]
+                "palm": [153, 255, 153],
+                'other': [0, 0, 0]
         },
-        'color_classes': {0: [0, 0, 0], 1: [102, 153, 0], 2: [153, 255, 153]},
+        'color_classes': {0: [102, 153, 0], 1: [153, 255, 153], 2: [0, 0, 0]},
         'width_slice': 1000,
         'height_slice': 1000,
     }

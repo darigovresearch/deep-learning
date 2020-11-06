@@ -27,9 +27,9 @@ class Infer:
         output = np.reshape(output, (dims[0], dims[1]))
 
         img_color = np.zeros((dims[0], dims[1], dims[2]), dtype='uint8')
-        for j in range(dims[0]):
-            for i in range(dims[1]):
-                img_color[j, i] = classes[output[j, i]]
+        for i in range(dims[0]):
+            for j in range(dims[1]):
+                img_color[i, j] = classes[output[i, j]]
 
         filename = os.path.basename(file_path)
         name, file_extension = os.path.splitext(filename)
