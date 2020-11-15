@@ -7,11 +7,13 @@ from keras.preprocessing.image import load_img
 
 class Helper(Sequence):
     """
-    Helper to iterate over the data (as Numpy arrays).
-    Source: https://keras.io/examples/vision/oxford_pets_image_segmentation/
-            https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly
-            https://stackoverflow.com/questions/43884463/how-to-convert-rgb-image-to-one-hot-encoded-3d-array-based-on-color-using-numpy
-            https://stackoverflow.com/questions/54011487/typeerror-unsupported-operand-types-for-image-and-int
+    Helper to iterate over the data (as Numpy arrays)
+
+    Sources:
+        - https://keras.io/examples/vision/oxford_pets_image_segmentation/
+        - https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly
+        - https://stackoverflow.com/questions/43884463/how-to-convert-rgb-image-to-one-hot-encoded-3d-array-based-on-color-using-numpy
+        - https://stackoverflow.com/questions/54011487/typeerror-unsupported-operand-types-for-image-and-int
     """
     def __init__(self, batch_size, img_size, input_img_paths, target_img_paths):
         self.batch_size = batch_size

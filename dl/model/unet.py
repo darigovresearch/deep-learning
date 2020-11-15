@@ -90,7 +90,7 @@ class UNet:
 
         output_layer = Conv2D(filters=self.number_classes, kernel_size=(1, 1))(deconv_7)
         output_layer = BatchNormalization()(output_layer)
-        output_layer = Activation('sigmoid')(output_layer)
+        output_layer = Activation('softmax')(output_layer)
 
         model_obj = Model(self.inputs, output_layer, name='unet')
         model_obj.compile(optimizer=self.optimizer, loss=self.loss_fn, metrics=['accuracy'])

@@ -11,12 +11,18 @@ from os.path import basename
 
 class Poligonize:
     """
+    Perform poligonization [raster to vector] operations, despite the utils methods for it
     """
     def __init__(self):
         pass
 
     def create_geometry(self, corners, hierarchy, image):
         """
+
+
+        :param corners:
+        :param hierarchy: the hierarchy of contours found: sometimes, there is "holes" inside a polygon
+        :param image:
         """
         logging.info(">>>>>> Creating geometries...")
 
@@ -99,6 +105,16 @@ class Poligonize:
         return image_segmented
 
     def create_shapefile(self, segmented, complete_path_png, complete_path_vector, vector_type='ESRI Shapefile'):
+        """
+        Perform operations to read original image [remote sensing data], and from its metadata, create a new vector
+        file according to the classes specified in settings.py file
+
+        :param segmented: the image segmentation/classification result. A raster [JPG, PNG, TIFF, so on] version from
+        the inference operation
+        :param complete_path_png:
+        :param complete_path_vector:
+        :param vector_type: default value is ESRI Shapefile (most commom), but GeoJSON is accepted
+        """
         logging.info(">>>>>> Creating vector file...")
 
         filename = basename(complete_path_png)
@@ -146,6 +162,14 @@ class Poligonize:
         logging.info(">>>>>> Vector file of image {} created!".format(filename))
 
     def polygonize(self, segmented, image, output):
+        """
+        Turn a JPG, PNG images in a geographic format, such as ESRI Shapefile or GeoJSON. The image must to be
+        in the exact colors specified in settings.py [DL_PARAM['classes']]
+
+        :param segmented: the segmented multiclass image path
+        :param image: the original raster image path, where the geographic metadata is read and transfer to the output
+        :param output: the output path, where the new geographic format is saved
+        """
         logging.info(">>>> Initiating polygonization of the raster result...")
 
         ext = os.path.splitext(segmented)[1]

@@ -22,12 +22,18 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 def get_dl_model(network_type, load_param, is_pretrained, is_saved):
     """
-    Source: https://github.com/divamgupta/image-segmentation-keras
-    :param network_type:
-    :param load_param:
-    :param is_pretrained:
-    :param is_saved:
-    :return:
+    Setup input size and compile the model architecture, according to network_type
+
+    :param network_type: Deep Learning architecture: unet, deeplabv3, so on
+    :param load_param: The parameters from the network specified. The parameters are pre-stablished in settings.py file
+    :param is_pretrained: a boolean, if True, the model will be compiled with a pre-trained weights, also
+    stablished in settings.py file [output_checkpoints]
+    :param is_saved: a boolean, if True, the model after built, will be saved in a pre-stablished path,
+    set in settings.py file [save_model_dir]
+    :return: a compiled keras model
+
+    Source:
+    https://github.com/divamgupta/image-segmentation-keras
     """
     model_obj = None
 
@@ -52,12 +58,16 @@ def get_dl_model(network_type, load_param, is_pretrained, is_saved):
 
 def main(network_type, is_training, is_predicting):
     """
-    :param network_type:
-    :param is_training:
-    :param is_predicting:
+    Initiate the processing: execute training and predictions according to is_training and is_predicting variables
+    :param network_type: Deep Learning architecture: unet, deeplabv3, so on
+    :param is_training: a boolean, if True, the input samples are then loaded, the specified model is compiled and
+    the training is performed
+    :param is_predicting: a boolean, if True, the deep learning inferences is performed according
+    to the model specified
 
-    validation_steps and steps_per_epoch: https://stackoverflow.com/questions/51885739/
-                                          how-to-properly-set-steps-per-epoch-and-validation-steps-in-keras
+    Sources:
+        - validation_steps and steps_per_epoch: https://stackoverflow.com/questions/51885739/
+        how-to-properly-set-steps-per-epoch-and-validation-steps-in-keras
     """
     start_time = time.time()
     logging.info("Starting process...")
@@ -107,14 +117,16 @@ def main(network_type, is_training, is_predicting):
 
 if __name__ == '__main__':
     """
-    usage:
-        python main.py -model unet -train True -predict False -verbose True
-        python main.py -model unet -train False -predict True -verbose True
-        python main.py -model unet -train True -predict True -verbose True
+    Example:
+        > python main.py -model MODEL -train BOOLEAN -predict BOOLEAN -verbose BOOLEAN
+                
+    Usage:
+        > python main.py -model unet -train True -predict False -verbose True
+        > python main.py -model unet -train False -predict True -verbose True
+        > python main.py -model unet -train True -predict True -verbose True
     """
-    parser = argparse.ArgumentParser(
-        description='Make a stack composition from Sentinel-1 polarization bands, which enhances '
-                    'land-changes under the canopies')
+    parser = argparse.ArgumentParser(description='Integrate some of the main Deep Learning models for remote sensing '
+                                                 'image analysis and mapping')
     parser.add_argument('-model', action="store", dest='model', help='Deep Learning model name: unet, deeplabv3')
     parser.add_argument('-train', action="store", dest='train', help='Perform neural network training?')
     parser.add_argument('-predict', action="store", dest='predict', help='Perform neural network prediction?')

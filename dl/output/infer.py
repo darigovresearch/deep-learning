@@ -38,17 +38,24 @@ class Infer:
 
         return prediction_path
 
-    # def poligonize(self, output):
-    #     """
-    #     """
-    #     if isinstance(output, list):
-    #         for item in output:
-    #             poligonizer.Poligonize().polygonize(item, image, output)
-    #     else:
-    #         poligonizer.Poligonize().polygonize(output, image, output)
+    def poligonize(self, image, output):
+        """
+        Turn a JPG, PNG images in a geographic format, such as ESRI Shapefile or GeoJSON. The image must to be
+        in the exact colors specified in settings.py [DL_PARAM['classes']]
+
+        :param image: a raster path file
+        :param output: the output path file to save the respective geographic format
+        """
+        if isinstance(output, list):
+            for item in output:
+                poligonizer.Poligonize().polygonize(item, image, output)
+        else:
+            poligonizer.Poligonize().polygonize(output, image, output)
 
     def predict_deep_network(self, model, load_param):
         """
+        :param model:
+        :param load_param:
         """
         logging.info(">> Performing prediction...")
 
