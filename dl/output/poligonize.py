@@ -16,13 +16,15 @@ class Poligonize:
     def __init__(self):
         pass
 
-    def create_geometry(self, corners, hierarchy, image):
+    def _create_geometry(self, corners, hierarchy, image):
         """
+        Interpret the corners and its hierarchy from findContours openCV method, and convert it in a geographic
+        geometry, according to the image metadata
 
-
-        :param corners:
+        :param corners: the opencv findContours outcomes
         :param hierarchy: the hierarchy of contours found: sometimes, there is "holes" inside a polygon
-        :param image:
+        :param image: the correspondent geographic format [raster] of the segmented image
+        :return: the geographic vector features/geometries of the contours found in raster format
         """
         logging.info(">>>>>> Creating geometries...")
 
@@ -61,17 +63,23 @@ class Poligonize:
 
         return geom
 
-    def get_classes_gt(self, complete_path_png):
+    def get_classes_gt(self, segmented, classes):
         """
+        Read all pixels and check if there is more classes than the ones specified in classes dict
+
+        :param segmented: absolute path of the image segmentation/classification result. A raster
+                          [JPG, PNG, TIFF, so on] version from the inference operation
+        :param classes: the list of classes and respectively colors
+        :return: a list with all classes presented in the image (i.e. only if within classes dict as well)
         """
         logging.info(">>>>>> Checking classes presenting on images according to the ones of interest...")
 
-        image_segmented = cv2.imread(complete_path_png)
+        image_segmented = cv2.imread(segmented)
         image_segmented = cv2.cvtColor(image_segmented, cv2.COLOR_BGR2RGB)
         height, width, bands = image_segmented.shape
 
         gt_classes = []
-        for key, value in load_param['classes'].items():
+        for key, value in classes.items():
             for i in range(height):
                 for j in range(width):
                     if (image_segmented[i, j][0] == value[0]) and (image_segmented[i, j][1] == value[1]) and \
@@ -80,18 +88,24 @@ class Poligonize:
 
         return gt_classes
 
-    def get_image_by_class(self, complete_path_png, key):
+    def get_image_by_class(self, segmented, classes, key):
         """
-        :param complete_path_png:
-        :param key:
-        :return:
+        In some cases, the segmented image might present variations classes's color, which could led in a wrong reading
+        of the quantity of classes presented in the segmentation. Thus, According to the classes dict, the method
+        returns a new image, with a filtered color classes
+
+        :param segmented: absolute path of the image segmentation/classification result. A raster
+                          [JPG, PNG, TIFF, so on] version from the inference operation
+        :param classes: the list of classes and respectively colors
+        :param key: the string class name
+        :return: a new image, with a filtered color classes
         """
         logging.info(">>>>>> Spliting images by classes...")
 
-        image_segmented = cv2.imread(complete_path_png)
+        image_segmented = cv2.imread(segmented)
         image_segmented = cv2.cvtColor(image_segmented, cv2.COLOR_BGR2RGB)
 
-        value = load_param['classes'][key]
+        value = classes[key]
         height, width, bands = image_segmented.shape
 
         for i in range(height):
@@ -104,42 +118,44 @@ class Poligonize:
 
         return image_segmented
 
-    def create_shapefile(self, segmented, complete_path_png, complete_path_vector, vector_type='ESRI Shapefile'):
+    def create_shapefile(self, segmented, classes, original_image_path, output_vector_path, vector_type='ESRI Shapefile'):
         """
         Perform operations to read original image [remote sensing data], and from its metadata, create a new vector
         file according to the classes specified in settings.py file
 
-        :param segmented: the image segmentation/classification result. A raster [JPG, PNG, TIFF, so on] version from
-        the inference operation
-        :param complete_path_png:
-        :param complete_path_vector:
+        :param segmented: absolute path of the image segmentation/classification result. A raster
+                          [JPG, PNG, TIFF, so on] version from the inference operation
+        :param classes: the list of classes and respectively colors
+        :param original_image_path: the original raster image path, where the geographic metadata is
+                                    read and transfer to the output
+        :param output_vector_path: the output path, where the new geographic format is saved
         :param vector_type: default value is ESRI Shapefile (most commom), but GeoJSON is accepted
         """
         logging.info(">>>>>> Creating vector file...")
 
-        filename = basename(complete_path_png)
+        filename = basename(original_image_path)
         name = os.path.splitext(filename)[0]
 
-        image = gdal.Open(complete_path_png)
+        image = gdal.Open(original_image_path)
 
         driver = ogr.GetDriverByName(vector_type)
-        ds = driver.CreateDataSource(complete_path_vector)
+        ds = driver.CreateDataSource(output_vector_path)
         srs = osr.SpatialReference()
         srs.ImportFromWkt(image.GetProjection())
 
         _area = ogr.FieldDefn('area', ogr.OFTReal)
         _class = ogr.FieldDefn('class', ogr.OFTString)
 
-        gt_classes = self.get_classes_gt(segmented)
+        gt_classes = self.get_classes_gt(segmented, classes)
 
         classes_and_geometries = {}
         for k in range(len(gt_classes)):
-            image_segmented = self.get_image_by_class(segmented, gt_classes[k])
+            image_segmented = self.get_image_by_class(segmented, classes, gt_classes[k])
             image_segmented_ingray = cv2.cvtColor(image_segmented, cv2.COLOR_RGB2GRAY)
 
             thresh = cv2.threshold(image_segmented_ingray, 127, 255, 0)[1]
             im2, corners, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            geometries = self.create_geometry(corners, hierarchy, image)
+            geometries = self._create_geometry(corners, hierarchy, image)
 
             classes_and_geometries[gt_classes[k]] = geometries
 
@@ -161,14 +177,15 @@ class Poligonize:
 
         logging.info(">>>>>> Vector file of image {} created!".format(filename))
 
-    def polygonize(self, segmented, image, output):
+    def polygonize(self, segmented, classes, original_image_path, output_vector_path):
         """
         Turn a JPG, PNG images in a geographic format, such as ESRI Shapefile or GeoJSON. The image must to be
-        in the exact colors specified in settings.py [DL_PARAM['classes']]
+        in the exact colors specified in settings.py - DL_PARAM['classes']
 
         :param segmented: the segmented multiclass image path
-        :param image: the original raster image path, where the geographic metadata is read and transfer to the output
-        :param output: the output path, where the new geographic format is saved
+        :param classes: the list of classes and respectively colors
+        :param original_image_path: the original raster image path, where the geographic metadata is read and transfer to the output
+        :param output_vector_path: the output path, where the new geographic format is saved
         """
         logging.info(">>>> Initiating polygonization of the raster result...")
 
@@ -178,7 +195,7 @@ class Poligonize:
             logging.info(">>>>>> Image with no accept extension {}!".format(ext))
 
         if not os.path.isfile(segmented):
-            logging.info(">>>>>> There is no corresponding PNG image for {}!".format(image))
+            logging.info(">>>>>> There is no corresponding PNG image for {}!".format(original_image_path))
             return
 
-        self.create_shapefile(segmented, image, output)
+        self.create_shapefile(segmented, classes, original_image_path, output_vector_path, 'ESRI Shapefile')

@@ -38,24 +38,31 @@ class Infer:
 
         return prediction_path
 
-    def poligonize(self, image, output):
+    def poligonize(self, segmented, classes, original_images_path, output_vector_path):
         """
         Turn a JPG, PNG images in a geographic format, such as ESRI Shapefile or GeoJSON. The image must to be
         in the exact colors specified in settings.py [DL_PARAM['classes']]
 
-        :param image: a raster path file
-        :param output: the output path file to save the respective geographic format
+        :param segmented: the segmented image path
+
+        :param original_images_path: the path to the original images, certainly, with the geographic metadata
+        :param output_vector_path: the output path file to save the respective geographic format
         """
-        if isinstance(output, list):
-            for item in output:
-                poligonizer.Poligonize().polygonize(item, image, output)
+        if isinstance(segmented, list):
+            for item in segmented:
+                poligonizer.Poligonize().polygonize(item, classes, original_images_path, output_vector_path)
         else:
-            poligonizer.Poligonize().polygonize(output, image, output)
+            poligonizer.Poligonize().polygonize(segmented, classes, original_images_path, output_vector_path)
 
     def predict_deep_network(self, model, load_param):
         """
-        :param model:
-        :param load_param:
+        Initiate the process of inferences. The weight matrix from trained deep learning, which represents the
+        knowledge, is loaded and the images are then presented. Each one is processed (multiclass or not) and
+        submitted to the polygonization, where the raster is interpreted and a correspondent geographic
+        format is created
+
+        :param model: the compiled keras deep learning architecture
+        :param load_param: a dict with the keras deep learning architecture parameters
         """
         logging.info(">> Performing prediction...")
 
@@ -74,20 +81,27 @@ class Infer:
                                                         load_param['height_slice'],
                                                         load_param['image_prediction_tmp_slice_folder'])
 
-                    output_slices_list = []
+                    segmented_slices_list = []
                     for item in list_images:
-                        output = self.segment_image(model, item, load_param['color_classes'],
-                                                    load_param['output_prediction'])
-                        output_slices_list.append(output)
+                        segmented_image = self.segment_image(model, item, load_param['color_classes'],
+                                                             load_param['output_prediction'])
+                        segmented_slices_list.append(segmented_image)
 
-                    logging.info(">>>> Sewing results and poligonizing...")
-                    # self.poligonize(output_slices_list)
+                    logging.info(">>>> Sewing segmented image and polygonizing...")
+                    self.poligonize(segmented_slices_list,
+                                    load_param['classes'],
+                                    load_param['image_prediction_folder'],
+                                    load_param['output_prediction'])
 
                 else:
-                    output = self.segment_image(model, item, load_param['color_classes'],
-                                                load_param['output_prediction'])
-                    logging.info(">>>> Sewing results and poligonizing...")
-                    # self.poligonize(output)
+                    segmented_image = self.segment_image(model, item, load_param['color_classes'],
+                                                         load_param['output_prediction'])
+
+                    logging.info(">>>> Polygonizing segmented image...")
+                    self.poligonize(segmented_image,
+                                    load_param['classes'],
+                                    load_param['image_prediction_folder'],
+                                    load_param['output_prediction'])
             else:
                 logging.info(">>>> Image prediction fail: {}. Check filename format!".format(filename))
 

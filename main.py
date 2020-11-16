@@ -33,7 +33,7 @@ def get_dl_model(network_type, load_param, is_pretrained, is_saved):
     :return: a compiled keras model
 
     Source:
-    https://github.com/divamgupta/image-segmentation-keras
+        - https://github.com/divamgupta/image-segmentation-keras
     """
     model_obj = None
 
@@ -59,6 +59,7 @@ def get_dl_model(network_type, load_param, is_pretrained, is_saved):
 def main(network_type, is_training, is_predicting):
     """
     Initiate the processing: execute training and predictions according to is_training and is_predicting variables
+
     :param network_type: Deep Learning architecture: unet, deeplabv3, so on
     :param is_training: a boolean, if True, the input samples are then loaded, the specified model is compiled and
     the training is performed
@@ -79,26 +80,18 @@ def main(network_type, is_training, is_predicting):
 
         path_train_images = os.path.join(load_param['image_training_folder'], 'image')
         path_train_labels = os.path.join(load_param['image_training_folder'], 'label')
-        path_val_images = os.path.join(load_param['image_validation_folder'], 'image')
-        path_val_labels = os.path.join(load_param['image_validation_folder'], 'label')
-
         train_images = loader.Loader(path_train_images)
         train_labels = loader.Loader(path_train_labels)
-        val_images = loader.Loader(path_val_images)
-        val_labels = loader.Loader(path_val_labels)
 
         batch_size = load_param['batch_size']
         img_size = (load_param['input_size_w'], load_param['input_size_h'])
 
         train_generator_obj = helper.Helper(batch_size, img_size, train_images.get_list_images(),
                                             train_labels.get_list_images())
-        val_generator_obj = helper.Helper(batch_size, img_size, val_images.get_list_images(),
-                                          val_labels.get_list_images())
 
         history = dl_obj.get_model().fit(train_generator_obj,
                                          steps_per_epoch=train_generator_obj.__len__(),
-                                         validation_data=val_generator_obj,
-                                         validation_steps=val_generator_obj.__len__(),
+                                         validation_split=0.15,
                                          epochs=load_param['epochs'],
                                          callbacks=dl_obj.get_callbacks())
 
