@@ -16,6 +16,13 @@ class Infer:
 
     def segment_image(self, model, file_path, classes, output_path):
         """
+        According to the keras deep learning model, predict (pixelwise image segmentation) the file_path according
+        to the classes presented in classes. The outputs are then placed in output_path
+
+        :param model: the compiled keras deep learning architecture
+        :param file_path: absolute path to the image file
+        :param classes: the list of classes and respectively colors
+        :param output_path: the absolute path for predictions
         """
         image_full = cv2.imread(file_path)
         dims = image_full.shape
@@ -44,7 +51,7 @@ class Infer:
         in the exact colors specified in settings.py [DL_PARAM['classes']]
 
         :param segmented: the segmented image path
-
+        :param classes: the list of classes and respectively colors
         :param original_images_path: the path to the original images, certainly, with the geographic metadata
         :param output_vector_path: the output path file to save the respective geographic format
         """

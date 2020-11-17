@@ -9,13 +9,15 @@ from keras.losses import CategoricalCrossentropy
 from keras.callbacks import *
 from keras.layers import *
 
-from keras import backend
-
 
 class UNet:
     """
-    Source: https://github.com/usnistgov/semantic-segmentation-unet/blob/master/UNet/model.py
+    Python class intended for building the model UNet, mainly using Keras framework
+
+    Source:
+        - https://github.com/usnistgov/semantic-segmentation-unet/blob/master/UNet/model.py
     """
+
     def __init__(self, input_size, is_pretrained, is_saved):
         load_unet_parameters = settings.DL_PARAM['unet']
 
@@ -59,8 +61,11 @@ class UNet:
 
     def build_model(self):
         """
-        Source: https://github.com/usnistgov/semantic-segmentation-unet
-                https://stackoverflow.com/questions/53322488/implementing-u-net-for-multi-class-road-segmentation
+
+
+        Source:
+            - https://github.com/usnistgov/semantic-segmentation-unet
+            - https://stackoverflow.com/questions/53322488/implementing-u-net-for-multi-class-road-segmentation
         """
         logging.info(">>>> Settings up UNET model...")
 
@@ -100,10 +105,27 @@ class UNet:
         return model_obj
 
     def pool(self, tensor, pool_size):
+        """
+        Pooling layer setup. Build pooling layer according to the tensor and pool_size
+
+        :param tensor: the input to the pooling
+        :param pool_size: the dimension of the pooling
+        :return output: the resultant tensor after pooling
+        """
         output = MaxPooling2D(pool_size=pool_size)(tensor)
         return output
 
     def conv_block(self, tensor, n_filters, size=3, padding='same', initializer="he_normal"):
+        """
+        Convolution layers setup. Build convolutional layer according to the tensor and params
+
+        :param tensor: the input to the pooling
+        :param n_filters: the exactly number of filter
+        :param size: the squared kernel size. Default value is 3
+        :param padding: type of padding. Default value is same
+        :param initializer: type of the initializer. Default value is he_normal
+        :return conv: the resultant tensor after two consecutive convolutions
+        """
         conv = Conv2D(filters=n_filters, kernel_size=(size, size), padding=padding,
                       kernel_initializer=initializer)(tensor)
         conv = BatchNormalization(axis=1)(conv)
@@ -115,34 +137,72 @@ class UNet:
         return conv
 
     def deconv_block(self, tensor, n_filters, residual, size=3, stride=2, padding='same'):
+        """
+        Deconvolution layer setup. Build deconvolutional layer according to the tensor and params
+
+        :param tensor: the input to the pooling
+        :param n_filters: the exactly number of filter
+        :param residual:
+        :param size: the squared kernel size. Default value is 3
+        :param stride: type of the initializer. Default value is he_normal
+        :param padding: type of padding. Default value is same
+        :return deconv: the resultant tensor after deconvolution (transposition) operation
+        """
         deconv = Conv2DTranspose(n_filters, kernel_size=(size, size), strides=(stride, stride), padding=padding)(tensor)
         deconv = concatenate([deconv, residual], axis=3)
         deconv = self.conv_block(deconv, n_filters=n_filters)
         return deconv
 
     def get_model(self):
+        """
+        :return model: the respective compiled model
+        """
         return self.model
 
     def get_optimizer(self):
+        """
+        :return optimizer: the respective optimizer. Default is Adam
+        """
         return self.optimizer
 
     def get_learning_rate(self):
+        """
+        :return learning_rate: the respective optimizer's learning rate. Previously defined in settings.py
+        """
         return self.optimizer.learning_rate
 
     def get_batch_size(self):
+        """
+        :return batch_size: the respective model's batch_size. Previously defined in settings.py
+        """
         return self.batch_size
 
     def get_num_channels(self):
+        """
+        :return number_channels: the number of samples's bands
+        """
         return self.number_channels
 
     def get_num_classes(self):
+        """
+        :return number_classes: the respective number of classes. Previously defined in settings.py
+        """
         return self.number_classes
 
     def get_inputs(self):
+        """
+        :return inputs: the input's dimension. Previously defined in settings.py
+        """
         return self.inputs
 
     def get_loss(self):
+        """
+        :return loss_fn: the respective loss function
+        """
         return self.loss_fn
 
     def get_callbacks(self):
+        """
+        :return callbacks: the model's callback
+        """
         return self.callbacks

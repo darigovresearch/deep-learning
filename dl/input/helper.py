@@ -15,6 +15,7 @@ class Helper(Sequence):
         - https://stackoverflow.com/questions/43884463/how-to-convert-rgb-image-to-one-hot-encoded-3d-array-based-on-color-using-numpy
         - https://stackoverflow.com/questions/54011487/typeerror-unsupported-operand-types-for-image-and-int
     """
+
     def __init__(self, batch_size, img_size, input_img_paths, target_img_paths):
         self.batch_size = batch_size
         self.img_size = img_size
@@ -22,10 +23,16 @@ class Helper(Sequence):
         self.target_img_paths = target_img_paths
 
     def __len__(self):
+        """
+        :return: the right proportion of batch trainings, according to the total of images
+        """
         return len(self.target_img_paths) // self.batch_size
 
     def __getitem__(self, idx):
-        """Returns tuple (input, target) correspond to batch #idx."""
+        """
+        :param idx: batch index
+        :return: tuple (input, target) correspond to batch idx.
+        """
         i = idx * self.batch_size
         batch_input_img_paths = self.input_img_paths[i: i + self.batch_size]
         batch_target_img_paths = self.target_img_paths[i: i + self.batch_size]
