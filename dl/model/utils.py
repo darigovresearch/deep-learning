@@ -34,6 +34,7 @@ class DL:
         load_param = settings.DL_PARAM[network_type]
         
         train_datagen = ImageDataGenerator(**data_gen_args)
+        val_datagen = ImageDataGenerator(**data_gen_args)
 
         train_image_generator = train_datagen.flow_from_directory(
             load_param['image_training_folder'],
@@ -56,6 +57,28 @@ class DL:
             batch_size=load_param['batch_size'],
             shuffle=True)
 
-        train_generator = zip(train_image_generator, train_label_generator)
+        val_image_generator = val_datagen.flow_from_directory(
+            load_param['image_validation_folder'],
+            classes=['image'],
+            class_mode=load_param['class_mode'],
+            target_size=(load_param['input_size_w'],
+                         load_param['input_size_h']),
+            seed=load_param['seed'],
+            color_mode=load_param['color_mode'],
+            batch_size=load_param['batch_size'],
+            shuffle=True)
+        val_label_generator = val_datagen.flow_from_directory(
+            load_param['annotation_validation_folder'],
+            classes=['label'],
+            class_mode=load_param['class_mode'],
+            target_size=(load_param['input_size_w'],
+                         load_param['input_size_h']),
+            seed=load_param['seed'],
+            color_mode='grayscale',
+            batch_size=load_param['batch_size'],
+            shuffle=True)
 
-        return train_generator
+        train_generator = zip(train_image_generator, train_label_generator)
+        val_generator = zip(val_image_generator, val_label_generator)
+
+        return train_generator, val_generator
