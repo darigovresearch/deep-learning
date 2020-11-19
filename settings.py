@@ -10,6 +10,8 @@ DL_PARAM = {
     'unet': {
         'image_training_folder': os.path.join(DL_DATASET, 'training', 'all'),
         'annotation_training_folder': os.path.join(DL_DATASET, 'training', 'all'),
+        'image_validation_folder': os.path.join(DL_DATASET, 'validation', 'all'),
+        'annotation_validation_folder': os.path.join(DL_DATASET, 'validation', 'all'),
         'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'inference', 'png'),
         'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'inference', 'shp'),
         'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'weight'),
