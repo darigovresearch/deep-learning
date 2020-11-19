@@ -44,11 +44,12 @@ class Helper(Sequence):
 
         y = np.zeros((self.batch_size,) + self.img_size + (1,), dtype="uint8")
         for j, path in enumerate(batch_target_img_paths):
-            img = load_img(path, target_size=self.img_size, color_mode="grayscale")
+            # img = load_img(path, target_size=self.img_size, color_mode="grayscale")
+            img = load_img(path, target_size=self.img_size)
             y[j] = np.expand_dims(img, 2)
 
         # TODO: hardcoded number of classes
-        y = to_categorical(y.astype('float32'), num_classes=3)
+        # y = to_categorical(y.astype('float32'), num_classes=3)
 
         return x, y
 
