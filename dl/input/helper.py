@@ -42,7 +42,7 @@ class Helper(Sequence):
             img = load_img(path, target_size=self.img_size)
             x[j] = np.asarray(img) / 255
 
-        y = np.zeros((self.batch_size,) + self.img_size + (1,), dtype="uint8")
+        y = np.zeros((self.batch_size,) + self.img_size + (3,), dtype="uint8")
         for j, path in enumerate(batch_target_img_paths):
             # img = load_img(path, target_size=self.img_size, color_mode="grayscale")
             img = load_img(path, target_size=self.img_size)
