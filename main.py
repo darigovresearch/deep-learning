@@ -80,18 +80,26 @@ def main(network_type, is_training, is_predicting):
 
         path_train_images = os.path.join(load_param['image_training_folder'], 'image')
         path_train_labels = os.path.join(load_param['image_training_folder'], 'label')
+        path_val_images = os.path.join(load_param['image_validation_folder'], 'image')
+        path_val_labels = os.path.join(load_param['image_validation_folder'], 'label')
+
         train_images = loader.Loader(path_train_images)
         train_labels = loader.Loader(path_train_labels)
+        val_images = loader.Loader(path_val_images)
+        val_labels = loader.Loader(path_val_labels)
 
         batch_size = load_param['batch_size']
         img_size = (load_param['input_size_w'], load_param['input_size_h'])
 
         train_generator_obj = helper.Helper(batch_size, img_size, train_images.get_list_images(),
                                             train_labels.get_list_images())
+        val_generator_obj = helper.Helper(batch_size, img_size, val_images.get_list_images(),
+                                          val_labels.get_list_images())
 
         history = dl_obj.get_model().fit(train_generator_obj,
                                          steps_per_epoch=train_generator_obj.__len__(),
-                                         validation_split=0.15,
+                                         validation_data=val_generator_obj,
+                                         validation_steps=val_generator_obj.__len__(),
                                          epochs=load_param['epochs'],
                                          callbacks=dl_obj.get_callbacks())
 
