@@ -8,16 +8,16 @@ DL_DATASET = config('DL_DATASET')
 
 DL_PARAM = {
     'unet': {
-        'image_training_folder': os.path.join(DL_DATASET, 'training', 'all'),
-        'annotation_training_folder': os.path.join(DL_DATASET, 'training', 'all'),
-        'image_validation_folder': os.path.join(DL_DATASET, 'validation', 'all'),
-        'annotation_validation_folder': os.path.join(DL_DATASET, 'validation', 'all'),
+        'image_training_folder': os.path.join(DL_DATASET, 'samples', 'onehot', 'training'),
+        'annotation_training_folder': os.path.join(DL_DATASET, 'samples', 'onehot', 'training'),
+        'image_validation_folder': os.path.join(DL_DATASET, 'samples', 'onehot', 'validation'),
+        'annotation_validation_folder': os.path.join(DL_DATASET, 'samples', 'onehot', 'validation'),
         'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'inference', 'png'),
         'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'inference', 'shp'),
         'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'weight'),
         'output_history': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'history'),
-        'save_model_dir': os.path.join(DL_DATASET, 'training', 'all', 'model'),
-        'tensorboard_log_dir': os.path.join(DL_DATASET, 'training', 'all', 'log'),
+        'save_model_dir': os.path.join(DL_DATASET, 'samples', 'onehot', 'training', 'model'),
+        'tensorboard_log_dir': os.path.join(DL_DATASET, 'samples', 'onehot', 'training', 'log'),
         'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
         'image_prediction_tmp_slice_folder': os.path.join(DL_DATASET, 'tmp_slice'),
         'pretrained_weights': 'model-input256-256-batch16-drop05-epoch98.hdf5',
