@@ -60,9 +60,7 @@ pip install -r requirements.txt
 ```
 
 ## The `settings.py` file:
-This file centralized all constants variable used in the code, in particular, the constants that handle all the DL model. As we first introduce the [UNet](https://lmb.informatik.uni-freiburg.de/Publications/2015/RFB15a/) DL architecture, 
-
-Thus, the Python dictionary `DL_PARAM` splits all the values and parameters by model type. In this case, only the UNet architecture was implemented:
+This file centralized all constants variable used in the code, in particular, the constants that handle all the DL model. Thus, the Python dictionary `DL_PARAM` splits all the values and parameters by model type. In this case, only the UNet architecture was implemented:
 ```
 import os
 
@@ -98,43 +96,41 @@ in this way, if a new model is introduced to the code, a new key is add to this 
 ```
 DL_PARAM = {
     'unet': {
-        'image_training_folder': os.path.join(DL_DATASET, 'image'),
-        'annotation_training_folder': os.path.join(DL_DATASET, 'label'),
-        'output_prediction': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'inference'),
-        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'weight'),
-        'pretrained_weights': '',
-        'input_size_w': 128,
-        'input_size_h': 128,
-        'input_size_c': 3,
-        'batch_size': 16,
-        'filters': 64,
-        'color_mode': 'grayscale',
-        'seed': 1,
-        'epochs': 500,
-        'classes': {
-                "nut": [102, 153, 0],
-                "palm": [153, 255, 153],
-                'other': [0, 0, 0]
-        }
-    },    
-    'pspnet': {
-        'image_training_folder': os.path.join(DL_DATASET, 'image'),
-        'annotation_training_folder': os.path.join(DL_DATASET, 'label'),
-        'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'nut', 'inference'),
-        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'nut', 'weight'),
-        'pretrained_weights': '',
+        'image_training_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training'),
+        'annotation_training_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training'),
+        'image_validation_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'validation'),
+        'annotation_validation_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'validation'),
+        'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'inference', 'png'),
+        'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', '256', 'inference', 'shp'),
+        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'weight'),
+        'output_history': os.path.join(DL_DATASET, 'predictions', '256', 'history'),
+        'save_model_dir': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training', 'model'),
+        'tensorboard_log_dir': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training', 'log'),
+        'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
+        'image_prediction_tmp_slice_folder': os.path.join(DL_DATASET, 'tmp_slice'),
+        'pretrained_weights': 'model-input256-256-batch16-drop05-epoch98.hdf5',
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,
-        'batch_size': 2,
-        'filters': 128,
-        'color_mode': 'grayscale',
-        'seed': 2,
-        'epochs': 1500,
+        'batch_size': 16,
+        'learning_rate': 0.001,
+        'filters': 64,
+        'kernel_size': 3,
+        'deconv_kernel_size': 3,
+        'pooling_stride': 2,
+        'dropout_rate': 0.5,
+        'color_mode': 'rgb',
+        'class_mode': None,
+        'seed': 1,
+        'epochs': 100,
         'classes': {
-                "nut": [102, 153, 0],                
-                'other': [0, 0, 0]
-        }
+                "other": [0, 0, 0],
+                "nut": [102, 153, 0],
+                "palm": [153, 255, 153]
+        },
+        'color_classes': {0: [0, 0, 0], 1: [102, 153, 0], 2: [153, 255, 153]},
+        'width_slice': 1000,
+        'height_slice': 1000,
     }
 }
 ```
@@ -142,28 +138,25 @@ DL_PARAM = {
 ## The hierarchy of folders:
 It is very recommended to prepare the hierarchy of folders as described in this section. When the training samples are build, as described in [bioverse image-processing](https://github.com/Bioverse-Labs/image-processing), four main folders are created: one for raster, one for the annotation (i.e. ground-truth, label, reference images), one to save the predictions (i.e. inferences), and finally one to store the validation samples. Besides, in order to conduct multiple test, such as different dimensions and classes of training samples, subfolders are also created under each folder, such as:
 ```
-training/
-├── image/
-│   ├── :: imagens in PNG extension
-├── label/
-│   ├── :: annotation imagens in PNG extension
-├── predictions/
-│   ├── 128/
-│   │   ├── class-1/
-│   │   │   ├── inference/
-│   │   │   └── weight/
-│   │   └── class-2/
-│   │   │   ├── inference/
-│   │   │   └── weight/
-│   └── 256/
-│       ...
-└── validation/
-    ├── 128/
-    │   ├── class-1/
-    │   └── class-2/
-    └── 256/
-    │   ├── class-1/
-    │   └── class-2/
+samples
+│   └── classid
+│      ├── training
+│      │   ├── image
+|      │   |    :: imagens in TIF extension
+│      │   ├── label
+|      │   |    :: annotation in PNG extension
+│      │   ├── log
+│      │   └── model
+│      └── validation
+│          ├── image
+|            :: imagens in PNG extension
+│          └── label
+|            :: imagens in PNG extension
+├── predictions
+│   └── 256
+│       ├── history
+│       ├── inference
+│       └── weight
 ```
 
 This suggestion of folder hierarchy is not mandatory, just make sure the paths is correctly pointed in `settings.py` file.
@@ -258,7 +251,7 @@ Epoch 1/500
 This source-code is being released for specific applications, and for those who probably has similar needs. For this reason, we still have a lot to do in terms of unit tests, python conventions, optimization issues, refactoring, so on! So, Feel free to use and any recommendation or PRs will be totally welcome!
 
 ```
--- refactor docstring
+-- ~~refactor docstring~~
 -- include alternative to the set of dl models:
     --- pspnet
     --- deeplabv3+

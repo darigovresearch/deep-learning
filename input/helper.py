@@ -34,7 +34,7 @@ class Helper(Sequence):
         :return: tuple (input, target) correspond to batch idx.
         """
         # TODO: hardcoded is_onehot
-        is_onehot = False
+        is_classid = False
 
         i = idx * self.batch_size
         batch_input_img_paths = self.input_img_paths[i: i + self.batch_size]
@@ -45,7 +45,7 @@ class Helper(Sequence):
             img = load_img(path, target_size=self.img_size)
             x[j] = np.asarray(img) / 255
 
-        if is_onehot is True:
+        if is_classid is True:
             y = np.zeros((self.batch_size,) + self.img_size + (1,), dtype="uint8")
             for j, path in enumerate(batch_target_img_paths):
                 img = load_img(path, target_size=self.img_size, color_mode="grayscale")

@@ -4,9 +4,9 @@ import imageio
 import cv2
 import numpy as np
 
-import dl.input.loader as loader
-import dl.output.slicer as slicer
-import dl.output.poligonize as poligonizer
+import input.loader as loader
+import output.slicer as slicer
+import output.poligonize as poligonizer
 import settings
 
 
