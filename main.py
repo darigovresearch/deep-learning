@@ -4,14 +4,11 @@ import time
 import json
 import argparse
 import settings
-import numpy as np
 
 from datetime import datetime
-from dl.output import infer
-from dl.input import helper, loader
-from dl.model import utils
+from output import infer
+from input import loader, helper
 from dl.model import unet
-
 from coloredlogs import ColoredFormatter
 
 import sys
@@ -80,42 +77,28 @@ def main(network_type, is_training, is_predicting):
     if eval(is_training):
         dl_obj = get_dl_model(network_type, load_param, False, False)
 
-        # path_train_images = os.path.join(load_param['image_training_folder'], 'image')
-        # path_train_labels = os.path.join(load_param['image_training_folder'], 'label')
-        # path_val_images = os.path.join(load_param['image_validation_folder'], 'image')
-        # path_val_labels = os.path.join(load_param['image_validation_folder'], 'label')
-        #
-        # train_images = loader.Loader(path_train_images)
-        # train_labels = loader.Loader(path_train_labels)
-        # val_images = loader.Loader(path_val_images)
-        # val_labels = loader.Loader(path_val_labels)
+        path_train_images = os.path.join(load_param['image_training_folder'], 'image')
+        path_train_labels = os.path.join(load_param['image_training_folder'], 'label')
+        path_val_images = os.path.join(load_param['image_validation_folder'], 'image')
+        path_val_labels = os.path.join(load_param['image_validation_folder'], 'label')
 
-        # batch_size = load_param['batch_size']
-        # img_size = (load_param['input_size_w'], load_param['input_size_h'])
-        #
-        # train_generator_obj = helper.Helper(batch_size, img_size, train_images.get_list_images(),
-        #                                     train_labels.get_list_images())
-        # val_generator_obj = helper.Helper(batch_size, img_size, val_images.get_list_images(),
-        #                                   val_labels.get_list_images())
-        #
-        # history = dl_obj.get_model().fit(train_generator_obj,
-        #                                  steps_per_epoch=train_generator_obj.__len__(),
-        #                                  validation_data=val_generator_obj,
-        #                                  validation_steps=val_generator_obj.__len__(),
-        #                                  epochs=load_param['epochs'],
-        #                                  callbacks=dl_obj.get_callbacks())
+        train_images = loader.Loader(path_train_images)
+        train_labels = loader.Loader(path_train_labels)
+        val_images = loader.Loader(path_val_images)
+        val_labels = loader.Loader(path_val_labels)
 
-        path_train_samples = os.path.join(load_param['image_training_folder'], 'image')
-        path_val_samples = os.path.join(load_param['image_validation_folder'], 'image')
-        num_train_samples = len(os.listdir(path_train_samples))
-        num_val_samples = len(os.listdir(path_val_samples))
         batch_size = load_param['batch_size']
+        img_size = (load_param['input_size_w'], load_param['input_size_h'])
 
-        train_generator_obj, val_generator_obj = utils.DL().training_generator(network_type, True)
+        train_generator_obj = helper.Helper(batch_size, img_size, train_images.get_list_images(),
+                                            train_labels.get_list_images())
+        val_generator_obj = helper.Helper(batch_size, img_size, val_images.get_list_images(),
+                                          val_labels.get_list_images())
+
         history = dl_obj.get_model().fit(train_generator_obj,
-                                         steps_per_epoch=np.ceil(num_train_samples / batch_size),
+                                         steps_per_epoch=train_generator_obj.__len__(),
                                          validation_data=val_generator_obj,
-                                         validation_steps=int(num_val_samples / batch_size),
+                                         validation_steps=val_generator_obj.__len__(),
                                          epochs=load_param['epochs'],
                                          callbacks=dl_obj.get_callbacks())
 

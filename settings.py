@@ -6,18 +6,20 @@ VALID_ENTRIES_EXTENSION = (".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".t
 VALID_PREDICTION_EXTENSION = (".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".tiff", ".TIF", ".TIFF")
 DL_DATASET = config('DL_DATASET')
 
+LABEL_TYPE = 'rgb'
+
 DL_PARAM = {
     'unet': {
-        'image_training_folder': os.path.join(DL_DATASET, 'samples', 'onehot', 'training'),
-        'annotation_training_folder': os.path.join(DL_DATASET, 'samples', 'onehot', 'training'),
-        'image_validation_folder': os.path.join(DL_DATASET, 'samples', 'onehot', 'validation'),
-        'annotation_validation_folder': os.path.join(DL_DATASET, 'samples', 'onehot', 'validation'),
+        'image_training_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training'),
+        'annotation_training_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training'),
+        'image_validation_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'validation'),
+        'annotation_validation_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'validation'),
         'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'inference', 'png'),
-        'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'inference', 'shp'),
-        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'weight'),
-        'output_history': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'history'),
-        'save_model_dir': os.path.join(DL_DATASET, 'samples', 'onehot', 'training', 'model'),
-        'tensorboard_log_dir': os.path.join(DL_DATASET, 'samples', 'onehot', 'training', 'log'),
+        'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', '256', 'inference', 'shp'),
+        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'weight'),
+        'output_history': os.path.join(DL_DATASET, 'predictions', '256', 'history'),
+        'save_model_dir': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training', 'model'),
+        'tensorboard_log_dir': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training', 'log'),
         'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
         'image_prediction_tmp_slice_folder': os.path.join(DL_DATASET, 'tmp_slice'),
         'pretrained_weights': 'model-input256-256-batch16-drop05-epoch98.hdf5',

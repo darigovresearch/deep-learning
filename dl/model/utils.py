@@ -19,7 +19,7 @@ class DL:
         ** Note:
             This procedure seems not to work with multiclass image segmentation. The images is all empty,
             there is a huge] misunderstanding about labeling type required for this task (i.e. should the label be
-            built with class id, onehot-encoded, or rgb??). Nothing really clear in Keras documentation.
+            built with class id, onehot-encoded, or rgb??). Nothing really clear in Keras documentation.rst.
 
         :param network_type: the deep learning architecture's name
         :param is_augment: if True, the augmentation transformations are applied

@@ -5,7 +5,7 @@ import settings
 from datetime import datetime
 from keras.models import Model
 from keras.optimizers import Adam
-from keras.losses import SparseCategoricalCrossentropy
+from keras.losses import CategoricalCrossentropy
 from keras.callbacks import *
 from keras.layers import *
 
@@ -17,7 +17,6 @@ class UNet:
     Source:
         - https://github.com/usnistgov/semantic-segmentation-unet/blob/master/UNet/model.py
     """
-
     def __init__(self, input_size, is_pretrained, is_saved):
         load_unet_parameters = settings.DL_PARAM['unet']
 
@@ -33,7 +32,7 @@ class UNet:
 
         self.inputs = Input(shape=input_size)
 
-        self.loss_fn = SparseCategoricalCrossentropy(from_logits=True)
+        self.loss_fn = CategoricalCrossentropy(from_logits=True)
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
         suffix = "model-input" + str(input_size[0]) + "-" + str(input_size[1]) + "-batch" + \
@@ -61,7 +60,9 @@ class UNet:
 
     def build_model(self):
         """
-
+        According to the UNet deep architecture presented in https://lmb.informatik.uni-freiburg.de/
+        Publications/2015/RFB15a/, the method returns the exact model based on input dimensions and other parameters
+        set in settings.py
 
         Source:
             - https://github.com/usnistgov/semantic-segmentation-unet
