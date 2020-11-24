@@ -9,6 +9,8 @@
         <img src="https://img.shields.io/github/forks/Bioverse-Labs/deep-learning" /></a>
     <a href="https://github.com/Bioverse-Labs/deep-learning/LICENCE.md" alt="Licence">
         <img src="https://img.shields.io/github/license/Bioverse-Labs/deep-learning" /></a>
+    <a href='https://bioverse-dl.readthedocs.io/en/latest/?badge=latest'>
+        <img src='https://readthedocs.org/projects/bioverse-dl/badge/?version=latest' alt='Documentation Status' /></a>
     <a href="https://twitter.com/BioverseLabs" alt="Twitter">
         <img src="https://img.shields.io/twitter/follow/BioverseLabs?label=Follow&style=social" /></a>
 </p>
