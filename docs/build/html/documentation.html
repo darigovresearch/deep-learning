@@ -1,0 +1,672 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Documentation &mdash; Bioverse DL 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Demo and Examples" href="demo.html" />
+    <link rel="prev" title="Installation" href="installing.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/bioverse-white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Project documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-main">Main</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-dl.model.unet">DL models [UNet]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dl-model-deeplabv3">DL model [DeepLabv3+]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-dl.model.utils">DL model [utils]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-input.helper">Input helper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-input.loader">Input loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-output.infer">Output inferences</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-output.poligonize">Output poligonization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-output.slicer">Output slicer</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Demo and examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="demo.html">Demo and Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">TODO list</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">TODO list</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Bioverse DL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/documentation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="documentation">
+<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-main">
+<span id="main"></span><h2>Main<a class="headerlink" href="#module-main" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="main.get_dl_model">
+<code class="sig-prename descclassname">main.</code><code class="sig-name descname">get_dl_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">network_type</span></em>, <em class="sig-param"><span class="n">load_param</span></em>, <em class="sig-param"><span class="n">is_pretrained</span></em>, <em class="sig-param"><span class="n">is_saved</span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.get_dl_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup input size and compile the model architecture, according to network_type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>network_type</strong> – Deep Learning architecture: unet, deeplabv3, so on</p></li>
+<li><p><strong>load_param</strong> – The parameters from the network specified. The parameters are pre-stablished in settings.py file</p></li>
+<li><p><strong>is_pretrained</strong> – a boolean, if True, the model will be compiled with a pre-trained weights, also</p></li>
+</ul>
+</dd>
+</dl>
+<p>stablished in settings.py file [output_checkpoints]
+:param is_saved: a boolean, if True, the model after built, will be saved in a pre-stablished path,
+set in settings.py file [save_model_dir]
+:return: a compiled keras model</p>
+<dl class="simple">
+<dt>Source:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="https://github.com/divamgupta/image-segmentation-keras">https://github.com/divamgupta/image-segmentation-keras</a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="main.main">
+<code class="sig-prename descclassname">main.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">network_type</span></em>, <em class="sig-param"><span class="n">is_training</span></em>, <em class="sig-param"><span class="n">is_predicting</span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiate the processing: execute training and predictions according to is_training and is_predicting variables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>network_type</strong> – Deep Learning architecture: unet, deeplabv3, so on</p></li>
+<li><p><strong>is_training</strong> – a boolean, if True, the input samples are then loaded, the specified model is compiled and</p></li>
+</ul>
+</dd>
+</dl>
+<p>the training is performed
+:param is_predicting: a boolean, if True, the deep learning inferences is performed according
+to the model specified</p>
+<dl>
+<dt>Sources:</dt><dd><ul class="simple">
+<li><p>validation_steps and steps_per_epoch: <a class="reference external" href="https://stackoverflow.com/questions/51885739/">https://stackoverflow.com/questions/51885739/</a></p></li>
+</ul>
+<p>how-to-properly-set-steps-per-epoch-and-validation-steps-in-keras</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dl.model.unet">
+<span id="dl-models-unet"></span><h2>DL models [UNet]<a class="headerlink" href="#module-dl.model.unet" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="dl.model.unet.UNet">
+<em class="property">class </em><code class="sig-prename descclassname">dl.model.unet.</code><code class="sig-name descname">UNet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_size</span></em>, <em class="sig-param"><span class="n">is_pretrained</span></em>, <em class="sig-param"><span class="n">is_saved</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Python class intended for building the model UNet, mainly using Keras framework</p>
+<dl class="simple">
+<dt>Source:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="https://github.com/usnistgov/semantic-segmentation-unet/blob/master/UNet/model.py">https://github.com/usnistgov/semantic-segmentation-unet/blob/master/UNet/model.py</a></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dl.model.unet.UNet.build_model">
+<code class="sig-name descname">build_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.build_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>According to the UNet deep architecture presented in <a class="reference external" href="https://lmb.informatik.uni-freiburg.de/">https://lmb.informatik.uni-freiburg.de/</a>
+Publications/2015/RFB15a/, the method returns the exact model based on input dimensions and other parameters
+set in settings.py</p>
+<dl class="simple">
+<dt>Source:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="https://github.com/usnistgov/semantic-segmentation-unet">https://github.com/usnistgov/semantic-segmentation-unet</a></p></li>
+<li><p><a class="reference external" href="https://stackoverflow.com/questions/53322488/implementing-u-net-for-multi-class-road-segmentation">https://stackoverflow.com/questions/53322488/implementing-u-net-for-multi-class-road-segmentation</a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.conv_block">
+<code class="sig-name descname">conv_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="n">n_filters</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">padding</span><span class="o">=</span><span class="default_value">'same'</span></em>, <em class="sig-param"><span class="n">initializer</span><span class="o">=</span><span class="default_value">'he_normal'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.conv_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convolution layers setup. Build convolutional layer according to the tensor and params</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – the input to the pooling</p></li>
+<li><p><strong>n_filters</strong> – the exactly number of filter</p></li>
+<li><p><strong>size</strong> – the squared kernel size. Default value is 3</p></li>
+<li><p><strong>padding</strong> – type of padding. Default value is same</p></li>
+<li><p><strong>initializer</strong> – type of the initializer. Default value is he_normal</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return conv</dt>
+<dd class="field-even"><p>the resultant tensor after two consecutive convolutions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.deconv_block">
+<code class="sig-name descname">deconv_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="n">n_filters</span></em>, <em class="sig-param"><span class="n">residual</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">stride</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">padding</span><span class="o">=</span><span class="default_value">'same'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.deconv_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deconvolution layer setup. Build deconvolutional layer according to the tensor and params</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – the input to the pooling</p></li>
+<li><p><strong>n_filters</strong> – the exactly number of filter</p></li>
+<li><p><strong>residual</strong> – </p></li>
+<li><p><strong>size</strong> – the squared kernel size. Default value is 3</p></li>
+<li><p><strong>stride</strong> – type of the initializer. Default value is he_normal</p></li>
+<li><p><strong>padding</strong> – type of padding. Default value is same</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return deconv</dt>
+<dd class="field-even"><p>the resultant tensor after deconvolution (transposition) operation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.get_batch_size">
+<code class="sig-name descname">get_batch_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.get_batch_size" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return batch_size</dt>
+<dd class="field-odd"><p>the respective model’s batch_size. Previously defined in settings.py</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.get_callbacks">
+<code class="sig-name descname">get_callbacks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.get_callbacks" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return callbacks</dt>
+<dd class="field-odd"><p>the model’s callback</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.get_inputs">
+<code class="sig-name descname">get_inputs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.get_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return inputs</dt>
+<dd class="field-odd"><p>the input’s dimension. Previously defined in settings.py</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.get_learning_rate">
+<code class="sig-name descname">get_learning_rate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.get_learning_rate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return learning_rate</dt>
+<dd class="field-odd"><p>the respective optimizer’s learning rate. Previously defined in settings.py</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.get_loss">
+<code class="sig-name descname">get_loss</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.get_loss" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return loss_fn</dt>
+<dd class="field-odd"><p>the respective loss function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.get_model">
+<code class="sig-name descname">get_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.get_model" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return model</dt>
+<dd class="field-odd"><p>the respective compiled model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.get_num_channels">
+<code class="sig-name descname">get_num_channels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.get_num_channels" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return number_channels</dt>
+<dd class="field-odd"><p>the number of samples’s bands</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.get_num_classes">
+<code class="sig-name descname">get_num_classes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.get_num_classes" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return number_classes</dt>
+<dd class="field-odd"><p>the respective number of classes. Previously defined in settings.py</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.get_optimizer">
+<code class="sig-name descname">get_optimizer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.get_optimizer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return optimizer</dt>
+<dd class="field-odd"><p>the respective optimizer. Default is Adam</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dl.model.unet.UNet.pool">
+<code class="sig-name descname">pool</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="n">pool_size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pooling layer setup. Build pooling layer according to the tensor and pool_size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – the input to the pooling</p></li>
+<li><p><strong>pool_size</strong> – the dimension of the pooling</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return output</dt>
+<dd class="field-even"><p>the resultant tensor after pooling</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="dl-model-deeplabv3">
+<h2>DL model [DeepLabv3+]<a class="headerlink" href="#dl-model-deeplabv3" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dl.model.utils">
+<span id="dl-model-utils"></span><h2>DL model [utils]<a class="headerlink" href="#module-dl.model.utils" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-input.helper">
+<span id="input-helper"></span><h2>Input helper<a class="headerlink" href="#module-input.helper" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="input.helper.Helper">
+<em class="property">class </em><code class="sig-prename descclassname">input.helper.</code><code class="sig-name descname">Helper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em>, <em class="sig-param"><span class="n">img_size</span></em>, <em class="sig-param"><span class="n">input_img_paths</span></em>, <em class="sig-param"><span class="n">target_img_paths</span></em><span class="sig-paren">)</span><a class="headerlink" href="#input.helper.Helper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper to iterate over the data (as Numpy arrays)</p>
+<dl class="simple">
+<dt>Sources:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="https://keras.io/examples/vision/oxford_pets_image_segmentation/">https://keras.io/examples/vision/oxford_pets_image_segmentation/</a></p></li>
+<li><p><a class="reference external" href="https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly">https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly</a></p></li>
+<li><p><a class="reference external" href="https://stackoverflow.com/questions/43884463/how-to-convert-rgb-image-to-one-hot-encoded-3d-array-based-on-color-using-numpy">https://stackoverflow.com/questions/43884463/how-to-convert-rgb-image-to-one-hot-encoded-3d-array-based-on-color-using-numpy</a></p></li>
+<li><p><a class="reference external" href="https://stackoverflow.com/questions/54011487/typeerror-unsupported-operand-types-for-image-and-int">https://stackoverflow.com/questions/54011487/typeerror-unsupported-operand-types-for-image-and-int</a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-input.loader">
+<span id="input-loader"></span><h2>Input loader<a class="headerlink" href="#module-input.loader" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="input.loader.Loader">
+<em class="property">class </em><code class="sig-prename descclassname">input.loader.</code><code class="sig-name descname">Loader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dir</span></em><span class="sig-paren">)</span><a class="headerlink" href="#input.loader.Loader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image training and validation loader</p>
+<dl class="simple">
+<dt>Source:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="https://keras.io/examples/vision/oxford_pets_image_segmentation/">https://keras.io/examples/vision/oxford_pets_image_segmentation/</a></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="input.loader.Loader.get_list_images">
+<code class="sig-name descname">get_list_images</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#input.loader.Loader.get_list_images" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return list_image</dt>
+<dd class="field-odd"><p>return the list of absolute path to the images</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="input.loader.Loader.list_entries">
+<code class="sig-name descname">list_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em><span class="sig-paren">)</span><a class="headerlink" href="#input.loader.Loader.list_entries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image training and validation loader. List the entries</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>directory</strong> – </p>
+</dd>
+<dt class="field-even">Return input_img_paths</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-output.infer">
+<span id="output-inferences"></span><h2>Output inferences<a class="headerlink" href="#module-output.infer" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-output.poligonize">
+<span id="output-poligonization"></span><h2>Output poligonization<a class="headerlink" href="#module-output.poligonize" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="output.poligonize.Poligonize">
+<em class="property">class </em><code class="sig-prename descclassname">output.poligonize.</code><code class="sig-name descname">Poligonize</code><a class="headerlink" href="#output.poligonize.Poligonize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform poligonization [raster to vector] operations, despite the utils methods for it</p>
+<dl class="py method">
+<dt id="output.poligonize.Poligonize.create_shapefile">
+<code class="sig-name descname">create_shapefile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">segmented</span></em>, <em class="sig-param"><span class="n">classes</span></em>, <em class="sig-param"><span class="n">original_image_path</span></em>, <em class="sig-param"><span class="n">output_vector_path</span></em>, <em class="sig-param"><span class="n">vector_type</span><span class="o">=</span><span class="default_value">'ESRI Shapefile'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.poligonize.Poligonize.create_shapefile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform operations to read original image [remote sensing data], and from its metadata, create a new vector
+file according to the classes specified in settings.py file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>segmented</strong> – absolute path of the image segmentation/classification result. A raster
+[JPG, PNG, TIFF, so on] version from the inference operation</p></li>
+<li><p><strong>classes</strong> – the list of classes and respectively colors</p></li>
+<li><p><strong>original_image_path</strong> – the original raster image path, where the geographic metadata is
+read and transfer to the output</p></li>
+<li><p><strong>output_vector_path</strong> – the output path, where the new geographic format is saved</p></li>
+<li><p><strong>vector_type</strong> – default value is ESRI Shapefile (most commom), but GeoJSON is accepted</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="output.poligonize.Poligonize.get_classes_gt">
+<code class="sig-name descname">get_classes_gt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">segmented</span></em>, <em class="sig-param"><span class="n">classes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.poligonize.Poligonize.get_classes_gt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read all pixels and check if there is more classes than the ones specified in classes dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>segmented</strong> – absolute path of the image segmentation/classification result. A raster
+[JPG, PNG, TIFF, so on] version from the inference operation</p></li>
+<li><p><strong>classes</strong> – the list of classes and respectively colors</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list with all classes presented in the image (i.e. only if within classes dict as well)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="output.poligonize.Poligonize.get_image_by_class">
+<code class="sig-name descname">get_image_by_class</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">segmented</span></em>, <em class="sig-param"><span class="n">classes</span></em>, <em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.poligonize.Poligonize.get_image_by_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>In some cases, the segmented image might present variations classes’s color, which could led in a wrong reading
+of the quantity of classes presented in the segmentation. Thus, According to the classes dict, the method
+returns a new image, with a filtered color classes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>segmented</strong> – absolute path of the image segmentation/classification result. A raster
+[JPG, PNG, TIFF, so on] version from the inference operation</p></li>
+<li><p><strong>classes</strong> – the list of classes and respectively colors</p></li>
+<li><p><strong>key</strong> – the string class name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new image, with a filtered color classes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="output.poligonize.Poligonize.polygonize">
+<code class="sig-name descname">polygonize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">segmented</span></em>, <em class="sig-param"><span class="n">classes</span></em>, <em class="sig-param"><span class="n">original_image_path</span></em>, <em class="sig-param"><span class="n">output_vector_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.poligonize.Poligonize.polygonize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a JPG, PNG images in a geographic format, such as ESRI Shapefile or GeoJSON. The image must to be
+in the exact colors specified in settings.py - DL_PARAM[‘classes’]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>segmented</strong> – the segmented multiclass image path</p></li>
+<li><p><strong>classes</strong> – the list of classes and respectively colors</p></li>
+<li><p><strong>original_image_path</strong> – the original raster image path, where the geographic metadata is read and transfer to the output</p></li>
+<li><p><strong>output_vector_path</strong> – the output path, where the new geographic format is saved</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-output.slicer">
+<span id="output-slicer"></span><h2>Output slicer<a class="headerlink" href="#module-output.slicer" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="output.slicer.Slicer">
+<em class="property">class </em><code class="sig-prename descclassname">output.slicer.</code><code class="sig-name descname">Slicer</code><a class="headerlink" href="#output.slicer.Slicer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="output.slicer.Slicer.flush_tmps">
+<code class="sig-name descname">flush_tmps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">paths</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.slicer.Slicer.flush_tmps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all files in paths from the filesystem</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>paths</strong> – list of absolute paths to be removed from filesystem</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="output.slicer.Slicer.merge_images">
+<code class="sig-name descname">merge_images</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">paths</span></em>, <em class="sig-param"><span class="n">max_width</span></em>, <em class="sig-param"><span class="n">max_height</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.slicer.Slicer.merge_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge the result of each tile in a single image [reverse operation of slice method]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>paths</strong> – list of absolute paths</p></li>
+<li><p><strong>max_width</strong> – the desired tile width</p></li>
+<li><p><strong>max_height</strong> – the desired tile height</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return new_im</dt>
+<dd class="field-even"><p>the merged image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="output.slicer.Slicer.slice">
+<code class="sig-name descname">slice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">output_folder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.slicer.Slicer.slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open the image file, and crop it equally with dimensions of width x height, placing it in output_folder.
+The remaining borders is also cropped and saved in the folder</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> – absolute image path [oversized image]</p></li>
+<li><p><strong>width</strong> – the desired tile width</p></li>
+<li><p><strong>height</strong> – the desired tile height</p></li>
+<li><p><strong>output_folder</strong> – the destination folder of the tiles/slices</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return paths</dt>
+<dd class="field-even"><p>a list of absolute paths, regarding each tile cropped</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="demo.html" class="btn btn-neutral float-right" title="Demo and Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installing.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Rodolfo Lotte
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

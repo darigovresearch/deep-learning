@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Demo and Examples &mdash; Bioverse DL 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TODO list" href="todo.html" />
+    <link rel="prev" title="Documentation" href="documentation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/bioverse-white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Project documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Demo and examples</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Demo and Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#training-the-model">Training the model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#predicting-with-an-existent-weight">Predicting with an existent weight</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">TODO list</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">TODO list</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Bioverse DL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Demo and Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/demo.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="demo-and-examples">
+<h1>Demo and Examples<a class="headerlink" href="#demo-and-examples" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="training-the-model">
+<h3>Training the model<a class="headerlink" href="#training-the-model" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python main.py -model unet -train True -predict False -verbose True
+</pre></div>
+</div>
+<p>the runtime logging will print something like (note that all CUDA libraries must to be all loaded correctly, otherwise, it will not be registered and then CPU is used):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>.venv<span class="o">)</span> user@user-machine:~/deep-learning$ python main.py -model unet -train True -predict False -verbose True
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:31.621367: I tensorflow/stream_executor/platform/default/dso_loader.cc:48<span class="o">]</span> Successfully opened dynamic library libcudart.so.10.1
+<span class="o">[</span><span class="m">2020</span>-09-23 <span class="m">20</span>:43:42<span class="o">]</span> <span class="o">{</span>main.py        :63  <span class="o">}</span> INFO : Starting process...
+<span class="o">[</span><span class="m">2020</span>-09-23 <span class="m">20</span>:43:42<span class="o">]</span> <span class="o">{</span>main.py        :39  <span class="o">}</span> INFO : &gt;&gt; UNET model selected...
+<span class="o">[</span><span class="m">2020</span>-09-23 <span class="m">20</span>:43:42<span class="o">]</span> <span class="o">{</span>unet.py        :19  <span class="o">}</span> INFO : &gt;&gt;&gt;&gt; Settings up UNET model...
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:43.281992: I tensorflow/stream_executor/platform/default/dso_loader.cc:48<span class="o">]</span> Successfully opened dynamic library libcuda.so.1
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:43.654774: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:982<span class="o">]</span> successful NUMA node <span class="nb">read</span> from SysFS had negative value <span class="o">(</span>-1<span class="o">)</span>, but there must be at least one NUMA node, so returning NUMA node zero
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:43.655488: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716<span class="o">]</span> Found device <span class="m">0</span> with properties:
+pciBusID: <span class="m">0000</span>:00:04.0 name: Tesla P4 computeCapability: <span class="m">6</span>.1
+coreClock: <span class="m">1</span>.1135GHz coreCount: <span class="m">20</span> deviceMemorySize: <span class="m">7</span>.43GiB deviceMemoryBandwidth: <span class="m">178</span>.99GiB/s
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:43.655531: I tensorflow/stream_executor/platform/default/dso_loader.cc:48<span class="o">]</span> Successfully opened dynamic library libcudart.so.10.1
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:43.655713: W tensorflow/stream_executor/platform/default/dso_loader.cc:59<span class="o">]</span> Could not load dynamic library <span class="s1">&#39;libcublas.so.10&#39;</span><span class="p">;</span> dlerror: libcublas.so.10: cannot open shared object file: No such file or directory
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:44.191179: I tensorflow/stream_executor/platform/default/dso_loader.cc:48<span class="o">]</span> Successfully opened dynamic library libcufft.so.10
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:44.398087: I tensorflow/stream_executor/platform/default/dso_loader.cc:48<span class="o">]</span> Successfully opened dynamic library libcurand.so.10
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:45.234487: I tensorflow/stream_executor/platform/default/dso_loader.cc:48<span class="o">]</span> Successfully opened dynamic library libcusolver.so.10
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:45.458019: I tensorflow/stream_executor/platform/default/dso_loader.cc:48<span class="o">]</span> Successfully opened dynamic library libcusparse.so.10
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:46.809363: I tensorflow/stream_executor/platform/default/dso_loader.cc:48<span class="o">]</span> Successfully opened dynamic library libcudnn.so.7
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:46.809421: W tensorflow/core/common_runtime/gpu/gpu_device.cc:1753<span class="o">]</span> Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly <span class="k">if</span> you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu <span class="k">for</span> how to download and setup the required libraries <span class="k">for</span> your platform.
+Skipping registering GPU devices...
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:46.809732: I tensorflow/core/platform/cpu_feature_guard.cc:142<span class="o">]</span> This TensorFlow binary is optimized with oneAPI Deep Neural Network Library <span class="o">(</span>oneDNN<span class="o">)</span>to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To <span class="nb">enable</span> them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:47.219185: I tensorflow/core/platform/profile_utils/cpu_utils.cc:104<span class="o">]</span> CPU Frequency: <span class="m">2300000000</span> Hz
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:47.220090: I tensorflow/compiler/xla/service/service.cc:168<span class="o">]</span> XLA service 0x27b8e30 initialized <span class="k">for</span> platform Host <span class="o">(</span>this does not guarantee that XLA will be used<span class="o">)</span>. Devices:
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:47.220121: I tensorflow/compiler/xla/service/service.cc:176<span class="o">]</span>   StreamExecutor device <span class="o">(</span><span class="m">0</span><span class="o">)</span>: Host, Default Version
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:47.237334: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1257<span class="o">]</span> Device interconnect StreamExecutor with strength <span class="m">1</span> edge matrix:
+<span class="m">2020</span>-09-23 <span class="m">20</span>:43:47.237365: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1263<span class="o">]</span>
+<span class="o">[</span><span class="m">2020</span>-09-23 <span class="m">20</span>:43:48<span class="o">]</span> <span class="o">{</span>unet.py        :74  <span class="o">}</span> INFO : &gt;&gt;&gt;&gt; Done!
+Found <span class="m">2636</span> images belonging to <span class="m">1</span> classes.
+Found <span class="m">2636</span> images belonging to <span class="m">1</span> classes.
+Epoch <span class="m">1</span>/500
+ <span class="m">4</span>/50 <span class="o">[=</span>&gt;............................<span class="o">]</span> - ETA: <span class="m">2</span>:40 - loss: <span class="m">0</span>.6931 - accuracy: <span class="m">0</span>.8943
+...
+</pre></div>
+</div>
+</div>
+<div class="section" id="predicting-with-an-existent-weight">
+<h3>Predicting with an existent weight<a class="headerlink" href="#predicting-with-an-existent-weight" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="todo.html" class="btn btn-neutral float-right" title="TODO list" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="documentation.html" class="btn btn-neutral float-left" title="Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Rodolfo Lotte
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

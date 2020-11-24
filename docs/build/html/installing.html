@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation &mdash; Bioverse DL 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Documentation" href="documentation.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/bioverse-white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Project documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-of-project-environment">Configuration of Project Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-python-and-virtual-environment-linux-distribution">Setting Python and virtual environment (Linux distribution)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#preparing-your-env-file">Preparing your <cite>.env</cite> file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installing-requirements-txt">Installing <cite>requirements.txt</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-settings-py-file">The <cite>settings.py</cite> file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-hierarchy-of-folders">The hierarchy of folders</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#nvidia-s-driver-and-cuda-for-ubuntu-20-4">NVIDIA’s driver and CUDA for Ubuntu 20.4</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Demo and examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="demo.html">Demo and Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">TODO list</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">TODO list</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Bioverse DL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Installation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/installing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="configuration-of-project-environment">
+<h2>Configuration of Project Environment<a class="headerlink" href="#configuration-of-project-environment" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="setting-python-and-virtual-environment-linux-distribution">
+<h3>Setting Python and virtual environment (Linux distribution)<a class="headerlink" href="#setting-python-and-virtual-environment-linux-distribution" title="Permalink to this headline">¶</a></h3>
+<p>First of all, check if you have installed the libraries needed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt-get install python3-env
+</pre></div>
+</div>
+<p>then, in the</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m venv .venv
+</pre></div>
+</div>
+<p>and activates it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> .venv/bin/activate
+</pre></div>
+</div>
+<p>as soon you have it done, you are ready to install the requirements.</p>
+</div>
+<div class="section" id="preparing-your-env-file">
+<h3>Preparing your <cite>.env</cite> file<a class="headerlink" href="#preparing-your-env-file" title="Permalink to this headline">¶</a></h3>
+<p>This library uses decoupling, which demands you to set up variables that is only presented locally, for instance, the path you want to save something, or the resources of your project. In summary, your environment variables. So, copy a paste the file <code class="docutils literal notranslate"><span class="pre">.env-example</span></code> and rename it to <code class="docutils literal notranslate"><span class="pre">.env</span></code>. Afterwards, just fill out each of the variables content within the file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DL_DATASET</span><span class="o">=</span><span class="n">PATH_TO_TRAINING_FOLDER</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="installing-requirements-txt">
+<h3>Installing <cite>requirements.txt</cite><a class="headerlink" href="#installing-requirements-txt" title="Permalink to this headline">¶</a></h3>
+<p>If you do not intent to use GPU, there is no need to install support to it. So, in requirements file, make sure to set <code class="docutils literal notranslate"><span class="pre">tensorflow-gpu</span></code> to only <code class="docutils literal notranslate"><span class="pre">tensorflow</span></code>. If everything is correct, and you <strong>virtualenv</strong> is activated, execute:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -r requirements.txt
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-settings-py-file">
+<h3>The <cite>settings.py</cite> file<a class="headerlink" href="#the-settings-py-file" title="Permalink to this headline">¶</a></h3>
+<p>This file centralized all constants variable used in the code, in particular, the constants that handle all the DL model. Thus, the Python dictionary <code class="docutils literal notranslate"><span class="pre">DL_PARAM</span></code> splits all the values and parameters by model type. In this case, only the UNet architecture was implemented:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">decouple</span> <span class="kn">import</span> <span class="n">config</span>
+
+<span class="n">DL_DATASET</span> <span class="o">=</span> <span class="n">config</span><span class="p">(</span><span class="s1">&#39;DL_DATASET&#39;</span><span class="p">)</span>
+
+<span class="n">DL_PARAM</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;unet&#39;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="n">PARAMS</span> <span class="n">OF</span> <span class="n">UNET</span>
+         <span class="p">},</span>
+    <span class="s1">&#39;deeplabv3&#39;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="n">PARAMS</span> <span class="n">OF</span> <span class="n">DEEPLABV3</span><span class="o">+</span>
+         <span class="p">}</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>in this way, if a new model is introduced to the code, a new key is add to this dictionary with its respective name, then, it will automatically load all the parameters according to the type of mode the user choose in the <code class="docutils literal notranslate"><span class="pre">-model</span></code> command-line option. For instance, if a <a class="reference external" href="https://arxiv.org/abs/1612.01105v2">PSPNet</a> is included:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DL_PARAM</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;unet&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;image_training_folder&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;samples&#39;</span><span class="p">,</span> <span class="n">LABEL_TYPE</span><span class="p">,</span> <span class="s1">&#39;training&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;annotation_training_folder&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;samples&#39;</span><span class="p">,</span> <span class="n">LABEL_TYPE</span><span class="p">,</span> <span class="s1">&#39;training&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;image_validation_folder&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;samples&#39;</span><span class="p">,</span> <span class="n">LABEL_TYPE</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;annotation_validation_folder&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;samples&#39;</span><span class="p">,</span> <span class="n">LABEL_TYPE</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;output_prediction&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;predictions&#39;</span><span class="p">,</span> <span class="s1">&#39;256&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;inference&#39;</span><span class="p">,</span> <span class="s1">&#39;png&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;output_prediction_shp&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;predictions&#39;</span><span class="p">,</span> <span class="s1">&#39;256&#39;</span><span class="p">,</span> <span class="s1">&#39;inference&#39;</span><span class="p">,</span> <span class="s1">&#39;shp&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;output_checkpoints&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;predictions&#39;</span><span class="p">,</span> <span class="s1">&#39;256&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;output_history&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;predictions&#39;</span><span class="p">,</span> <span class="s1">&#39;256&#39;</span><span class="p">,</span> <span class="s1">&#39;history&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;save_model_dir&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;samples&#39;</span><span class="p">,</span> <span class="n">LABEL_TYPE</span><span class="p">,</span> <span class="s1">&#39;training&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;tensorboard_log_dir&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;samples&#39;</span><span class="p">,</span> <span class="n">LABEL_TYPE</span><span class="p">,</span> <span class="s1">&#39;training&#39;</span><span class="p">,</span> <span class="s1">&#39;log&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;image_prediction_folder&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;image_prediction_tmp_slice_folder&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DL_DATASET</span><span class="p">,</span> <span class="s1">&#39;tmp_slice&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;pretrained_weights&#39;</span><span class="p">:</span> <span class="s1">&#39;model-input256-256-batch16-drop05-epoch98.hdf5&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;input_size_w&#39;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+        <span class="s1">&#39;input_size_h&#39;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+        <span class="s1">&#39;input_size_c&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s1">&#39;batch_size&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="s1">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+        <span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+        <span class="s1">&#39;kernel_size&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s1">&#39;deconv_kernel_size&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s1">&#39;pooling_stride&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s1">&#39;dropout_rate&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="s1">&#39;color_mode&#39;</span><span class="p">:</span> <span class="s1">&#39;rgb&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;class_mode&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;epochs&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="s1">&#39;classes&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;other&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;nut&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">102</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;palm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">153</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">153</span><span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;color_classes&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="mi">102</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">:</span> <span class="p">[</span><span class="mi">153</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">153</span><span class="p">]},</span>
+        <span class="s1">&#39;width_slice&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s1">&#39;height_slice&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-hierarchy-of-folders">
+<h3>The hierarchy of folders<a class="headerlink" href="#the-hierarchy-of-folders" title="Permalink to this headline">¶</a></h3>
+<p>It is very recommended to prepare the hierarchy of folders as described in this section. When the training samples are build (as described in <a class="reference external" href="https://github.com/Bioverse-Labs/image-processing">bioverse image-processing module</a>), four main folders are created: one for raster, one for the annotation (i.e. ground-truth, label, reference images), one to save the predictions (i.e. inferences), and finally one to store the validation samples. Besides, in order to conduct multiple test, such as different dimensions and classes of training samples, subfolders are also created under each folder, such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>samples
+│   └── classid
+│      ├── training
+│      │   ├── image
+|      │   |    :: images in TIF extension
+│      │   ├── label
+|      │   |    :: annotation in PNG extension
+│      │   ├── log
+│      │   └── model
+│      └── validation
+│          ├── image
+|            :: images in TIF extension
+│          └── label
+|            :: annotation in PNG extension
+├── predictions
+│   └── 256
+│       ├── history
+│       ├── inference
+│       └── weight
+</pre></div>
+</div>
+<p>This suggestion of folder hierarchy is not mandatory, just make sure the paths is correctly pointed in <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> file.</p>
+</div>
+</div>
+<div class="section" id="nvidia-s-driver-and-cuda-for-ubuntu-20-4">
+<h2>NVIDIA’s driver and CUDA for Ubuntu 20.4<a class="headerlink" href="#nvidia-s-driver-and-cuda-for-ubuntu-20-4" title="Permalink to this headline">¶</a></h2>
+<p>For most of the processing and research approaching Deep Learning (DL) methodologies, a certain computational power is needed. Recently, the use of GPUs has expanded the horizon of heavy machine learning processing such as the DL demands.</p>
+<p>TensorFlow GPU support requires an assortment of drivers and libraries. To simplify installation and avoid library conflicts, the TensorFlow recommends the use of a <a class="reference external" href="https://www.tensorflow.org/install/docker">TensorFlow Docker Image</a>, which incorporates all the setups needed to this kind of procedure. For more details, please, access the <a class="reference external" href="https://www.tensorflow.org/install/gpu">TensorFlow official page</a>.</p>
+<p>Considering not using a Docker image, there are many tutorials in how to install your NVIDIA’s driver and CUDA toolkit, such as described in <a class="reference external" href="https://cloud.google.com/compute/docs/gpus/install-drivers-gpu#ubuntu-driver-steps">Google Cloud</a>, <a class="reference external" href="https://developer.nvidia.com/cuda-downloads">NVIDIA Dev</a>, or even a particular pages. The way presented here, could vary in your need. So, if you want to prepare your environment based in a complete different OS or architecture, just follow the right steps in the provider website, and make sure to have all the cuda libraries listed in <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code>.</p>
+<p>So, for Linux OS, x86_64 arch, Tensorflow 2.1+, and Ubuntu LTS 20.04, first, it is necessary to install all software requirements, which includes:</p>
+<p>NVIDIA® GPU drivers — CUDA® 10.1 requires 418.x or higher.
+CUDA® Toolkit — TensorFlow supports CUDA® 10.1 (TensorFlow &gt;= 2.1.0)
+CUPTI ships with the CUDA® Toolkit.
+cuDNN SDK 7.6
+(Optional) TensorRT 6.0 to improve latency and throughput for inference on some models.
+to install CUDA® 10 (TensorFlow &gt;= 1.13.0) on Ubuntu 16.04 and 18.04. These instructions may work for other Debian-based distros.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+wget https://developer.download.nvidia.com/compute/cuda/11.0.3/local_installers/cuda-repo-ubuntu2004-11-0-local_11.0.3-450.51.06-1_amd64.deb
+sudo dpkg -i cuda-repo-ubuntu2004-11-0-local_11.0.3-450.51.06-1_amd64.deb
+sudo apt-key add /var/cuda-repo-ubuntu2004-11-0-local/7fa2af80.pub
+sudo apt-get update
+sudo apt-get -y install cuda
+</pre></div>
+</div>
+<p>then, reboot the system.</p>
+<p>As mentioned before, TensorFlow will seek for some of the CUDA libraries during training. As reported by many users, is possible that some of them is installed in different location in your filesystem. To guarantee your <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> is pointing out to the right folder, add the</p>
+<p>If you followed all steps and have it installed properly, then, the final steps is So, add the following lines to your <code class="docutils literal notranslate"><span class="pre">~\.bashrc</span></code> file using nano or any other editor (check the version to replace on XXX):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda-XXX/bin<span class="si">${</span><span class="nv">PATH</span><span class="p">:+:</span><span class="si">${</span><span class="nv">PATH</span><span class="si">}}</span>
+<span class="nb">export</span> <span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-XXX/lib64<span class="si">${</span><span class="nv">LD_LIBRARY_PATH</span><span class="p">:+:</span><span class="si">${</span><span class="nv">LD_LIBRARY_PATH</span><span class="si">}}</span>
+</pre></div>
+</div>
+<p>right after, updated it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> ~/.bashrc
+</pre></div>
+</div>
+<p>If you followed all steps and have it installed properly, you are ready to train your model!</p>
+<p>For more details, follow the issue reported <a class="reference external" href="https://askubuntu.com/questions/1145946/tensorflow-wont-import-with-sudo-python3">here</a>  and <a class="reference external" href="https://stackoverflow.com/questions/60208936/cannot-dlopen-some-gpu-libraries-skipping-registering-gpu-devices">here</a>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="documentation.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Rodolfo Lotte
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
