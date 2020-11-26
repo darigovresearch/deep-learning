@@ -6,7 +6,7 @@ VALID_ENTRIES_EXTENSION = (".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".t
 VALID_PREDICTION_EXTENSION = (".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".tiff", ".TIF", ".TIFF")
 DL_DATASET = config('DL_DATASET')
 
-LABEL_TYPE = 'rgb'
+LABEL_TYPE = 'classid'
 
 DL_PARAM = {
     'unet': {
