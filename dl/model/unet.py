@@ -32,7 +32,7 @@ class UNet:
 
         self.inputs = Input(shape=input_size)
 
-        self.loss_fn = CategoricalCrossentropy(from_logits=True)
+        self.loss_fn = CategoricalCrossentropy(from_logits=False)
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
         suffix = "model-input" + str(input_size[0]) + "-" + str(input_size[1]) + "-batch" + \
