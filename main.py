@@ -75,7 +75,7 @@ def main(network_type, is_training, is_predicting):
     load_param = settings.DL_PARAM[network_type]
 
     if eval(is_training):
-        dl_obj = get_dl_model(network_type, load_param, False, False)
+        dl_obj = get_dl_model(network_type, load_param, True, False)
 
         path_train_images = os.path.join(load_param['image_training_folder'], 'image')
         path_train_labels = os.path.join(load_param['image_training_folder'], 'label')
