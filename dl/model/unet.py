@@ -5,7 +5,7 @@ import settings
 from datetime import datetime
 from keras.models import Model
 from keras.optimizers import Adam
-from keras.losses import SparseCategoricalCrossentropy
+from keras.losses import CategoricalCrossentropy
 from keras.callbacks import *
 from keras.layers import *
 
@@ -32,7 +32,7 @@ class UNet:
 
         self.inputs = Input(shape=input_size)
 
-        self.loss_fn = SparseCategoricalCrossentropy(from_logits=False)
+        self.loss_fn = CategoricalCrossentropy(from_logits=False)
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
         suffix = "model-input" + str(input_size[0]) + "-" + str(input_size[1]) + "-batch" + \
@@ -40,7 +40,7 @@ class UNet:
                  str(load_unet_parameters['dropout_rate']).replace(".", "") + "-epoch" + "{epoch:02d}.hdf5"
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], suffix)
         self.callbacks = [
-            EarlyStopping(mode='max', monitor='accuracy', patience=20),
+            EarlyStopping(mode='max', monitor='accuracy', patience=30),
             ModelCheckpoint(filepath=filepath, monitor='accuracy', save_best_only=True,
                             save_weights_only='True', mode='max', verbose=1),
             TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),

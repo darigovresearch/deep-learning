@@ -104,11 +104,11 @@ class Infer:
                     segmented_image = self.segment_image(model, item, load_param['color_classes'],
                                                          load_param['output_prediction'])
 
-                    logging.info(">>>> Polygonizing segmented image...")
-                    self.poligonize(segmented_image,
-                                    load_param['classes'],
-                                    load_param['image_prediction_folder'],
-                                    load_param['output_prediction'])
+                    # logging.info(">>>> Polygonizing segmented image...")
+                    # self.poligonize(segmented_image,
+                    #                 load_param['classes'],
+                    #                 load_param['image_prediction_folder'],
+                    #                 load_param['output_prediction'])
             else:
                 logging.info(">>>> Image prediction fail: {}. Check filename format!".format(filename))
 

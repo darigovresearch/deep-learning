@@ -1,6 +1,4 @@
-sudo apt-get install libgdal-dev
-sudo apt-get install gdal-bin
-sudo apt-get install python-gdal
+sudo apt-get install libgdal-dev gdal-bin python-gdal
 
 then, in virtual environment, run:
 
