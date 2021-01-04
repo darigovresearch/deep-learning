@@ -2,8 +2,10 @@ import os
 import logging
 import time
 import json
+import random
 import argparse
 import settings
+import tensorflow as tf
 
 from datetime import datetime
 from output import infer
@@ -17,6 +19,9 @@ if sys.version_info[0] < 3:
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(gpus[0], True)
 
 
 def get_dl_model(network_type, load_param, is_pretrained, is_saved):
@@ -75,32 +80,39 @@ def main(network_type, is_training, is_predicting):
     load_param = settings.DL_PARAM[network_type]
 
     if eval(is_training):
-        dl_obj = get_dl_model(network_type, load_param, True, False)
-
-        path_train_images = os.path.join(load_param['image_training_folder'], 'image')
-        path_train_labels = os.path.join(load_param['image_training_folder'], 'label')
-        path_val_images = os.path.join(load_param['image_validation_folder'], 'image')
-        path_val_labels = os.path.join(load_param['image_validation_folder'], 'label')
-
-        train_images = loader.Loader(path_train_images)
-        train_labels = loader.Loader(path_train_labels)
-        val_images = loader.Loader(path_val_images)
-        val_labels = loader.Loader(path_val_labels)
-
         batch_size = load_param['batch_size']
         img_size = (load_param['input_size_w'], load_param['input_size_h'])
 
-        train_generator_obj = helper.Helper(batch_size, img_size, train_images.get_list_images(),
-                                            train_labels.get_list_images())
-        val_generator_obj = helper.Helper(batch_size, img_size, val_images.get_list_images(),
-                                          val_labels.get_list_images())
+        tf.keras.backend.clear_session()
+        dl_obj = get_dl_model(network_type, load_param, False, True)
+        dl_obj.get_model().summary()
+
+        logging.info(">> Loading input datasets...")
+
+        path_train_images = os.path.join(load_param['image_training_folder'], 'image')
+        path_train_labels = os.path.join(load_param['image_training_folder'], 'label')
+        train_images = loader.Loader(path_train_images)
+        train_labels = loader.Loader(path_train_labels)
+        train_images = train_images.get_list_images()
+        train_labels = train_labels.get_list_images()
+        random.shuffle(train_images)
+        random.shuffle(train_labels)
+
+        percent_val = int(len(train_images) * settings.VALIDATION_SPLIT)
+        val_images = train_images[-percent_val:]
+        val_labels = train_labels[-percent_val:]
+
+        train_generator_obj = helper.Helper(batch_size, img_size, train_images, train_labels)
+        val_generator_obj = helper.Helper(batch_size, img_size, val_images, val_labels)
+
+        dl_obj.get_model().compile(optimizer=dl_obj.get_optimizer(), loss=dl_obj.get_loss(), metrics=['accuracy'])
 
         history = dl_obj.get_model().fit(train_generator_obj,
-                                         steps_per_epoch=train_generator_obj.__len__(),
-                                         validation_data=val_generator_obj,
-                                         validation_steps=val_generator_obj.__len__(),
                                          epochs=load_param['epochs'],
-                                         callbacks=dl_obj.get_callbacks())
+                                         validation_data=val_generator_obj,
+                                         callbacks=dl_obj.get_callbacks(),
+                                         steps_per_epoch=train_generator_obj.__len__(),
+                                         validation_steps=val_generator_obj.__len__())
 
         timestamp = datetime.now().strftime("%d-%b-%Y-%H-%M")
         history_file = os.path.join(load_param['output_history'], "history-" + str(timestamp) + ".json")

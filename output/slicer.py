@@ -41,18 +41,21 @@ class Slicer:
         paths = []
         rows = ds.RasterXSize
         cols = ds.RasterYSize
+        datatype = ds.GetRasterBand(1).DataType
+
         gdal.UseExceptions()
         for j in range(0, cols, height):
             for i in range(0, rows, width):
                 try:
                     output_file = os.path.join(output_folder, name + "_" + "{:05d}".format(cont) + file_extension)
                     gdal.Translate(output_file, ds, format='GTIFF', srcWin=[i, j, width, height],
-                                   outputType=gdal.GDT_UInt16, options=['TILED=YES'])
+                                   outputType=datatype, options=['TILED=YES'])
 
                     paths.append(output_file)
                     cont += 1
                 except RuntimeError:
-                    logging.info(">>>>>> Something went wrong during image slicing...")
+                    logging.warning(">>>>>> Something went wrong during image slicing...")
+
         return paths
 
     def flush_tmps(self, paths):

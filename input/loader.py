@@ -21,12 +21,11 @@ class Loader:
         :param directory: 
         :return input_img_paths: list
         """
-        logging.info(">> Loading input datasets...")
         input_img_paths = sorted(
             [
                 os.path.join(directory, fname)
                 for fname in os.listdir(directory)
-                if fname.endswith(settings.VALID_ENTRIES_EXTENSION)
+                if fname.endswith(settings.VALID_ENTRIES_EXTENSION) and not fname.startswith(".")
             ]
         )
 

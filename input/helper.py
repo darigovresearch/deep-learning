@@ -1,9 +1,9 @@
 import numpy as np
 import settings
 
-from keras.utils import Sequence
+from tensorflow.keras.utils import Sequence
 from keras.utils import to_categorical
-from keras.preprocessing.image import load_img
+from tensorflow.keras.preprocessing.image import load_img
 
 
 class Helper(Sequence):
@@ -40,22 +40,19 @@ class Helper(Sequence):
 
         x = np.zeros((self.batch_size,) + self.img_size + (3,), dtype="float32")
         for j, path in enumerate(batch_input_img_paths):
-            img = load_img(path, target_size=self.img_size)
-            x[j] = np.asarray(img) / 255
+            x[j] = load_img(path, target_size=self.img_size)
 
-        if settings.LABEL_TYPE == 'classid':
-            y = np.zeros((self.batch_size,) + self.img_size + (1,), dtype="uint8")
-            for j, path in enumerate(batch_target_img_paths):
-                img = load_img(path, target_size=self.img_size, color_mode="grayscale")
-                y[j] = np.expand_dims(img, 2)
-
-            # TODO: hardcoded number of classes
-            y = to_categorical(y.astype('float32'), num_classes=3)
-        elif settings.LABEL_TYPE == 'rgb':
+        if settings.LABEL_TYPE == 'rgb':
             y = np.zeros((self.batch_size,) + self.img_size + (3,), dtype="uint8")
             for j, path in enumerate(batch_target_img_paths):
                 img = load_img(path, target_size=self.img_size)
                 y[j] = img
+        else:
+            y = np.zeros((self.batch_size,) + self.img_size + (1,), dtype="uint8")
+            for j, path in enumerate(batch_target_img_paths):
+                img = load_img(path, target_size=self.img_size, color_mode="grayscale")
+                y[j] = np.expand_dims(img, 2)
+                y[j] -= 1
         return x, y
 
 
