@@ -2,129 +2,88 @@ import os
 import logging
 import imageio
 import cv2
+import gdal
+import shutil
 import numpy as np
 import input.loader as loader
 import output.slicer as slicer
 import output.poligonize as poligonizer
 import settings
 
+from utils import utils
 from tensorflow.keras.preprocessing import image
+from tensorflow.keras.preprocessing.image import load_img
 
 
 class Infer:
     def __init__(self):
         pass
 
-    def save_prediction(self, file_path, output_path, prediction, classes):
+    def segment_image(self, image_path, prediction, classes, output_path):
         """
+        Create a new RGB image, drawing the predictions based on classes's colors
+        :param image_path:
+        :param prediction:
+        :param classes:
+        :param output_path:
+        :return prediction_path:
         """
+        output = np.argmax(prediction, axis=-1)
+        output = np.reshape(output, (256, 256))
+
         img_color = np.zeros((256, 256, 3), dtype='uint8')
         for i in range(256):
             for j in range(256):
-                img_color[i, j] = classes[prediction[i, j]]
+                idx = output[i, j]
+                img_color[i, j] = classes[idx]
 
-        filename = os.path.basename(file_path)
+        filename = os.path.basename(image_path)
         name, file_extension = os.path.splitext(filename)
         prediction_path = os.path.join(output_path, name + '.png')
         imageio.imwrite(prediction_path, img_color)
-
         return prediction_path
 
-    def segment_image(self, predicts, classes):
-        """
-        According to the keras deep learning model, predict (pixelwise image segmentation) the file_path according
-        to the classes presented in classes. The outputs are then placed in output_path
-
-        :param predicts:
-        :param classes: the list of classes and respectively colors
-        """
-        predictions_painted_list = []
-
-        for pred in predicts:
-            output = np.argmax(pred, axis=-1)
-            output = np.expand_dims(output, axis=-1)
-
-            img_color = np.zeros((256, 256, 3), dtype='uint8')
-            for i in range(256):
-                for j in range(256):
-                    img_color[i, j] = classes[output[i, j][0]]
-            predictions_painted_list.append(img_color)
-
-        return predictions_painted_list
-
-    def poligonize(self, segmented, classes, original_images_path, output_vector_path):
+    def poligonize(self, segmented_image_path, classes, original_images_path, output_vector_path):
         """
         Turn a JPG, PNG images in a geographic format, such as ESRI Shapefile or GeoJSON. The image must to be
         in the exact colors specified in settings.py [DL_PARAM['classes']]
 
-        :param segmented: the segmented image path
+        :param segmented_image_path: the segmented image path, which could be a list or not
         :param classes: the list of classes and respectively colors
         :param original_images_path: the path to the original images, certainly, with the geographic metadata
         :param output_vector_path: the output path file to save the respective geographic format
         """
-        if isinstance(segmented, list):
-            for item in segmented:
+        if isinstance(segmented_image_path, list):
+            for item in segmented_image_path:
                 poligonizer.Poligonize().polygonize(item, classes, original_images_path, output_vector_path)
         else:
-            poligonizer.Poligonize().polygonize(segmented, classes, original_images_path, output_vector_path)
+            poligonizer.Poligonize().polygonize(segmented_image_path, classes, original_images_path, output_vector_path)
 
-    def display_mask(self, file, prediction, classes, output_path):
-        """Quick utility to display a model's prediction."""
-        mask = np.argmax(prediction, axis=-1)
-        mask = np.expand_dims(mask, axis=-1)
+    def check_image_format(self, image_path):
+        """
+        Based on file extensions, this method determines if it could be treat as a geographic format or not
 
-        self.save_prediction(file, output_path, mask, classes)
+        :param image_path: absolute path to the original raster image
+        :return dims, is_geographic_format: the dimension size of the respective image, and a boolean,
+        if it is a geographic format or not
+        """
+        is_geographic_format = False
 
-    def make_prediction_and_save(self, model, load_param):
-        logging.info(">> Performing prediction...")
+        filename = os.path.basename(image_path)
+        if filename.endswith(settings.GEOGRAPHIC_ACCEPT_EXTENSION):
+            ds = gdal.Open(image_path)
+            if ds is None:
+                logging.info(">>>>>> Could not open image file. Check it and try again!")
+                return
+            dims = ds.RasterXSize, ds.RasterYSize
+            is_geographic_format = True
+        elif filename.endswith(settings.NON_GEOGRAPHIC_ACCEPT_EXTENSION):
+            image_full = cv2.imread(image_path)
+            dims = image_full.shape
+        else:
+            return None, None
 
-        path_val_images = os.path.join(load_param['image_validation_folder'], 'image')
-        path_val_labels = os.path.join(load_param['image_validation_folder'], 'label')
-
-        logging.info(">> Loading validation's image datasets...")
-        val_images = loader.Loader(path_val_images)
-
-        logging.info(">> Loading validation's label datasets...")
-        val_labels = loader.Loader(path_val_labels)
-        # val_generator_obj = helper.Helper(16, (256, 256), val_images.get_list_images(),
-        #                                   val_labels.get_list_images())
-
-        # val_preds = model.get_model().predict(val_generator_obj)
-
-        list_of_prediction_files = val_images.get_list_images()
-        for item in list_of_prediction_files:
-            x = cv2.imread(item, cv2.IMREAD_COLOR)
-            x = cv2.resize(x, (256, 256))
-            x = x / 255.0
-            x = x.astype(np.float32)
-
-            ## Prediction
-            img = image.load_img(item, target_size=(256, 256))
-            p = model.get_model().predict(np.expand_dims(x, axis=0))[0]
-            p = np.argmax(p, axis=-1)
-            p = np.expand_dims(p, axis=-1)
-            # p = p * (255 / 3)
-            # p = p.astype(np.int32)
-            # p = np.concatenate([p, p, p], axis=2)
-
-            # x = x * 255.0
-            # x = x.astype(np.int32)
-
-            # h, w, _ = x.shape
-            # line = np.ones((h, 5, 3)) * 255
-
-            # final_image = np.concatenate([x, line, p], axis=1)
-
-            filename = os.path.basename(item)
-            name, file_extension = os.path.splitext(filename)
-            prediction_path = os.path.join(load_param['output_prediction'], name + '.png')
-
-            cv2.imwrite(prediction_path, p)
-
-            # self.display_mask(list_of_prediction_files[i],
-            #                   item,
-            #                   load_param['color_classes'],
-            #                   load_param['output_prediction'])
+        return dims, is_geographic_format
 
     def predict_deep_network(self, model, load_param):
         """
@@ -138,48 +97,72 @@ class Infer:
         """
         logging.info(">> Performing prediction...")
 
-        path_val_images = os.path.join(load_param['image_validation_folder'], 'image')
+        path_val_images = os.path.join(load_param['image_prediction_folder'])
         pred_images = loader.Loader(path_val_images)
-
-        # pred_images = loader.Loader(load_param['image_prediction_folder'])
 
         for item in pred_images.get_list_images():
             filename = os.path.basename(item)
+            name = os.path.splitext(filename)[0]
+            complete_path = os.path.join(path_val_images, item)
+            dims, is_geographic_file = self.check_image_format(complete_path)
 
-            if filename.endswith(settings.VALID_PREDICTION_EXTENSION):
-                image_full = cv2.imread(item)
-                dims = image_full.shape
+            if dims is None or is_geographic_file is None:
+                logging.warning(">>>>>> The filename {} does not match any accepted extension. "
+                                "Check it and try again!".format(filename))
+                return
 
-                if dims[0] > load_param['width_slice'] or dims[1] > load_param['height_slice']:
-                    logging.info(">>>> Image {} is bigger than the required dimension! Cropping and predicting...")
-                    list_images = slicer.Slicer().slice(image_full, load_param['width_slice'],
-                                                        load_param['height_slice'],
-                                                        load_param['image_prediction_tmp_slice_folder'])
+            if dims[0] > load_param['width_slice'] or dims[1] > load_param['height_slice']:
+                logging.info(">>>> Image {} is bigger than the required dimension! "
+                             "Cropping and predicting...".format(filename))
 
-                    segmented_slices_list = []
-                    for slice_item in list_images:
-                        segmented_image = self.segment_image(model, slice_item, load_param['color_classes'],
-                                                             load_param['output_prediction'])
-                        segmented_slices_list.append(segmented_image)
-
-                    logging.info(">>>> Sewing segmented image and polygonizing...")
-                    self.poligonize(segmented_slices_list,
-                                    load_param['classes'],
-                                    load_param['image_prediction_folder'],
-                                    load_param['output_prediction'])
-
+                if is_geographic_file is True:
+                    list_images = slicer.Slicer().slice_geographic(complete_path, load_param['width_slice'],
+                                                                   load_param['height_slice'],
+                                                                   load_param['tmp_slices'])
                 else:
-                    segmented_image = self.segment_image(model, item, load_param['color_classes'],
-                                                         load_param['output_prediction'])
+                    list_images = slicer.Slicer().slice_bitmap(complete_path, load_param['width_slice'],
+                                                               load_param['height_slice'],
+                                                               load_param['tmp_slices'])
 
-                    # logging.info(">>>> Polygonizing segmented image...")
-                    # self.poligonize(segmented_image,
-                    #                 load_param['classes'],
-                    #                 load_param['image_prediction_folder'],
-                    #                 load_param['output_prediction'])
+                logging.info(">>>> Loading slices and predicting...")
+
+                prediction_path_list = []
+                for path in list_images:
+                    images_array = load_img(path, target_size=(256, 256))
+                    images_array = image.img_to_array(images_array)
+                    images_array = np.expand_dims(images_array, axis=0)
+
+                    prediction = model.get_model().predict(images_array)
+                    prediction_path_list.append(self.segment_image(path, prediction, load_param['color_classes'],
+                                                                   load_param['tmp_slices_predictions']))
+
+                logging.info(">>>> Merging {} predictions in image with {} x {}...".format(len(prediction_path_list),
+                                                                                           dims[0], dims[1]))
+                complete_path_to_merged_prediction = os.path.join(load_param['output_prediction'], name + ".png")
+                slicer.Slicer().merge_images(prediction_path_list, dims[0], dims[1], complete_path_to_merged_prediction)
+
+                if is_geographic_file is True:
+                    logging.info(">>>> Polygonizing segmented image...")
+                    self.poligonize(complete_path_to_merged_prediction,
+                                    load_param['classes'],
+                                    complete_path,
+                                    load_param['output_prediction_shp'])
+
+                    utils.Utils().flush_files(load_param['tmp_slices'])
+                    utils.Utils().flush_files(load_param['tmp_slices_predictions'])
             else:
-                logging.info(">>>> Image prediction fail: {}. Check filename format!".format(filename))
+                image_to_predict = load_img(complete_path, target_size=(256, 256))
+                images_array = image.img_to_array(image_to_predict)
+                images_array = np.expand_dims(images_array, axis=0)
 
-            # TODO:
-            #  2. merge the prediction if it was sliced
-            #  3. poligonize the merged prediction image
+                prediction = model.get_model().predict(images_array)
+
+                prediction_path = self.segment_image(complete_path, prediction, load_param['color_classes'],
+                                                     load_param['tmp_slices_predictions'])
+
+                if is_geographic_file is True:
+                    logging.info(">>>> Polygonizing segmented image...")
+                    self.poligonize(prediction_path,
+                                    load_param['classes'],
+                                    complete_path,
+                                    load_param['output_prediction_shp'])

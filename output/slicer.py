@@ -1,6 +1,7 @@
 import logging
 import os
 import gdal
+import settings
 
 from os.path import basename
 from PIL import Image
@@ -12,7 +13,41 @@ class Slicer:
     def __init__(self):
         pass
 
-    def slice(self, file, width, height, output_folder):
+    def slice_bitmap(self, file, width, height, output_folder):
+        """
+        Open the non-geographic image file, and crop it equally with dimensions of width x height, placing
+        it in output_folder. The remaining borders is also cropped and saved in the folder
+
+        :param file: absolute image path [oversized image]
+        :param width: the desired tile width
+        :param height: the desired tile height
+        :param output_folder: the destination folder of the tiles/slices
+        :return paths: a list of absolute paths, regarding each tile cropped
+        """
+        logging.info(">>>> Slicing image " + file + "...")
+
+        filename = basename(file)
+        name, file_extension = os.path.splitext(filename)
+
+        if not os.path.isfile(file):
+            logging.info(">>>>>> Image {} does not exist. Check it and try again!".format(filename))
+            return
+
+        image = Image.open(file)
+        cols, rows = image.size
+
+        cont = 0
+        paths = []
+        for j in range(0, cols, height):
+            for i in range(0, rows, width):
+                output_file = os.path.join(output_folder, name + "_" + "{:05d}".format(cont) + file_extension)
+                image.crop((i, j, i + width, j + height)).save(output_file)
+
+                paths.append(output_file)
+                cont += 1
+        return paths
+
+    def slice_geographic(self, file, width, height, output_folder):
         """
         Open the image file, and crop it equally with dimensions of width x height, placing it in output_folder.
         The remaining borders is also cropped and saved in the folder
@@ -38,50 +73,42 @@ class Slicer:
             return
 
         cont = 0
-        paths = []
         rows = ds.RasterXSize
         cols = ds.RasterYSize
         datatype = ds.GetRasterBand(1).DataType
 
+        paths = []
         gdal.UseExceptions()
         for j in range(0, cols, height):
             for i in range(0, rows, width):
                 try:
                     output_file = os.path.join(output_folder, name + "_" + "{:05d}".format(cont) + file_extension)
                     gdal.Translate(output_file, ds, format='GTIFF', srcWin=[i, j, width, height],
-                                   outputType=datatype, options=['TILED=YES'])
+                                   outputType=datatype, options=['-eco', '-epo',
+                                                                 '-b', settings.RASTER_TILES_COMPOSITION[0],
+                                                                 '-b', settings.RASTER_TILES_COMPOSITION[1],
+                                                                 '-b', settings.RASTER_TILES_COMPOSITION[2]])
 
                     paths.append(output_file)
                     cont += 1
                 except RuntimeError:
                     logging.warning(">>>>>> Something went wrong during image slicing...")
-
         return paths
 
-    def flush_tmps(self, paths):
-        """
-        Remove all files in paths from the filesystem
-
-        :param paths: list of absolute paths to be removed from filesystem
-        """
-        for item in paths:
-            if os.path.isfile(item):
-                os.remove(item)
-
-    def merge_images(self, paths, max_width, max_height):
+    def merge_images(self, paths, max_width, max_height, complete_path_to_merged_prediction):
         """
         Merge the result of each tile in a single image [reverse operation of slice method]
 
         :param paths: list of absolute paths
         :param max_width: the desired tile width
         :param max_height: the desired tile height
-        :return new_im: the merged image
+        :param complete_path_to_merged_prediction:
         """
-        x = 0
-        y = 0
         new_im = Image.new('RGB', (max_width, max_height))
 
-        for index, file in enumerate(paths):
+        x = 0
+        y = 0
+        for file in paths:
             img = Image.open(file)
             width, height = img.size
             img.thumbnail((width, height), Image.ANTIALIAS)
@@ -92,4 +119,5 @@ class Slicer:
                 y += height
             else:
                 x += width
-        return new_im
+
+        new_im.save(complete_path_to_merged_prediction)

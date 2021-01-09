@@ -20,8 +20,8 @@ if sys.version_info[0] < 3:
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_memory_growth(gpus[0], True)
+# gpus = tf.config.experimental.list_physical_devices('GPU')
+# tf.config.experimental.set_memory_growth(gpus[0], True)
 
 
 def get_dl_model(network_type, load_param, is_pretrained, is_saved):
@@ -31,7 +31,7 @@ def get_dl_model(network_type, load_param, is_pretrained, is_saved):
     :param network_type: Deep Learning architecture: unet, deeplabv3, so on
     :param load_param: The parameters from the network specified. The parameters are pre-stablished in settings.py file
     :param is_pretrained: a boolean, if True, the model will be compiled with a pre-trained weights, also
-    stablished in settings.py file [output_checkpoints]
+    established in settings.py file [output_checkpoints]
     :param is_saved: a boolean, if True, the model after built, will be saved in a pre-stablished path,
     set in settings.py file [save_model_dir]
     :return: a compiled keras model
@@ -43,9 +43,7 @@ def get_dl_model(network_type, load_param, is_pretrained, is_saved):
 
     if network_type == 'unet':
         logging.info(">> UNET model selected...")
-
         input_size = (load_param['input_size_w'], load_param['input_size_h'], load_param['input_size_c'])
-
         model_obj = unet.UNet(input_size, is_pretrained, is_saved)
 
     # TODO: include deeplabv3 as alternative to the set of dl models
@@ -85,25 +83,28 @@ def main(network_type, is_training, is_predicting):
 
         tf.keras.backend.clear_session()
         dl_obj = get_dl_model(network_type, load_param, False, True)
-        dl_obj.get_model().summary()
 
         logging.info(">> Loading input datasets...")
 
         path_train_images = os.path.join(load_param['image_training_folder'], 'image')
         path_train_labels = os.path.join(load_param['image_training_folder'], 'label')
-        train_images = loader.Loader(path_train_images)
-        train_labels = loader.Loader(path_train_labels)
-        train_images = train_images.get_list_images()
-        train_labels = train_labels.get_list_images()
-        random.shuffle(train_images)
-        random.shuffle(train_labels)
+        train_images_paths = loader.Loader(path_train_images)
+        train_labels_paths = loader.Loader(path_train_labels)
+        train_images_paths = train_images_paths.get_list_images()
+        train_labels_paths = train_labels_paths.get_list_images()
 
-        percent_val = int(len(train_images) * settings.VALIDATION_SPLIT)
-        val_images = train_images[-percent_val:]
-        val_labels = train_labels[-percent_val:]
+        train_list = list(zip(train_images_paths, train_labels_paths))
+        random.shuffle(train_list)
+        train_images_paths, train_labels_paths = zip(*train_list)
 
-        train_generator_obj = helper.Helper(batch_size, img_size, train_images, train_labels)
-        val_generator_obj = helper.Helper(batch_size, img_size, val_images, val_labels)
+        percent_val = int(len(train_images_paths) * settings.VALIDATION_SPLIT)
+        train_input_images = train_images_paths[:-percent_val]
+        train_input_labels = train_labels_paths[:-percent_val]
+        val_input_images = train_images_paths[-percent_val:]
+        val_labels_images = train_labels_paths[-percent_val:]
+
+        train_generator_obj = helper.Helper(batch_size, img_size, train_input_images, train_input_labels)
+        val_generator_obj = helper.Helper(batch_size, img_size, val_input_images, val_labels_images)
 
         dl_obj.get_model().compile(optimizer=dl_obj.get_optimizer(), loss=dl_obj.get_loss(), metrics=['accuracy'])
 

@@ -3,14 +3,13 @@ import logging
 import settings
 
 from datetime import datetime
-from tensorflow.keras import Input
-from tensorflow.keras import Model
+from tensorflow import keras
 from tensorflow.keras import layers
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import SparseCategoricalCrossentropy
-from tensorflow.keras.callbacks import ModelCheckpoint
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.callbacks import TensorBoard
 
 
 class UNet:
@@ -29,26 +28,27 @@ class UNet:
         self.num_filters = load_unet_parameters['filters']
         self.kernel_size = load_unet_parameters['kernel_size']
         self.deconv_kernel_size = load_unet_parameters['deconv_kernel_size']
-        self.pooling_size = load_unet_parameters['pool_size']
+        self.pooling_size = load_unet_parameters['pooling_size']
         self.pooling_stride = load_unet_parameters['pooling_stride']
         self.dropout_rate = load_unet_parameters['dropout_rate']
         self.number_classes = len(load_unet_parameters['classes'])
         self.number_channels = load_unet_parameters['input_size_c']
 
-        self.inputs = Input(shape=input_size)
+        self.inputs = keras.Input(shape=input_size)
 
-        self.loss_fn = SparseCategoricalCrossentropy(from_logits=True)
+        self.loss_fn = SparseCategoricalCrossentropy()
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
         suffix = "model-input" + str(input_size[0]) + "-" + str(input_size[1]) + "-batch" + \
                  str(load_unet_parameters['batch_size']) + "-drop" + \
-                 str(load_unet_parameters['dropout_rate']).replace(".", "") + "-epoch" + "{epoch:02d}.h5"
+                 str(load_unet_parameters['dropout_rate']).replace(".", "") + "-epoch" + "{epoch:02d}.hdf5"
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], suffix)
 
         self.callbacks = [
-            EarlyStopping(mode='max', monitor='accuracy', patience=30),
-            ModelCheckpoint(filepath=filepath, save_best_only=True, save_weights_only='True'),
-            TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True),
+            EarlyStopping(mode='max', monitor='accuracy', patience=20),
+            ModelCheckpoint(filepath=filepath, monitor='accuracy', save_best_only=True,
+                            save_weights_only=True, mode='max', verbose=1),
+            TensorBoard(log_dir=load_unet_parameters['tensorboard_log_dir'], write_graph=True)
         ]
         self.model = self.build_model()
 
@@ -60,7 +60,7 @@ class UNet:
 
         if is_saved is True:
             timestamp = datetime.now().strftime("%d-%b-%Y-%H-%M")
-            model_path = os.path.join(load_unet_parameters['save_model_dir'], "unet-" + timestamp + ".hdf5")
+            model_path = os.path.join(load_unet_parameters['save_model_dir'], "unet-" + timestamp + ".h5")
 
             logging.info(">>>>>> Model built. Saving model in {}...".format(model_path))
             self.model.save(model_path)
@@ -105,7 +105,7 @@ class UNet:
         output_layer = layers.BatchNormalization()(output_layer)
         output_layer = layers.Activation('softmax')(output_layer)
 
-        model_obj = Model(self.inputs, output_layer, name='unet')
+        model_obj = keras.Model(self.inputs, output_layer, name='unet')
 
         logging.info(">>>> Done!")
 

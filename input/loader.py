@@ -25,7 +25,9 @@ class Loader:
             [
                 os.path.join(directory, fname)
                 for fname in os.listdir(directory)
-                if fname.endswith(settings.VALID_ENTRIES_EXTENSION) and not fname.startswith(".")
+                if (fname.endswith(settings.GEOGRAPHIC_ACCEPT_EXTENSION)
+                    or fname.endswith(settings.NON_GEOGRAPHIC_ACCEPT_EXTENSION))
+                   and not fname.startswith(".")
             ]
         )
 
