@@ -96,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-output.infer">Output inferences</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-output.poligonize">Output poligonization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-output.slicer">Output slicer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-utils.utils">Utils</a></li>
 </ul>
 </li>
 </ul>
@@ -188,7 +189,7 @@
 </ul>
 </dd>
 </dl>
-<p>stablished in settings.py file [output_checkpoints]
+<p>established in settings.py file [output_checkpoints]
 :param is_saved: a boolean, if True, the model after built, will be saved in a pre-stablished path,
 set in settings.py file [save_model_dir]
 :return: a compiled keras model</p>
@@ -234,6 +235,7 @@ to the model specified</p>
 <dl class="simple">
 <dt>Source:</dt><dd><ul class="simple">
 <li><p><a class="reference external" href="https://github.com/usnistgov/semantic-segmentation-unet/blob/master/UNet/model.py">https://github.com/usnistgov/semantic-segmentation-unet/blob/master/UNet/model.py</a></p></li>
+<li><p><a class="reference external" href="https://github.com/keras-team/keras-io/blob/master/examples/vision/oxford_pets_image_segmentation.py">https://github.com/keras-team/keras-io/blob/master/examples/vision/oxford_pets_image_segmentation.py</a></p></li>
 </ul>
 </dd>
 </dl>
@@ -384,14 +386,25 @@ set in settings.py</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="dl.model.unet.UNet.get_pooling_size">
+<code class="sig-name descname">get_pooling_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.get_pooling_size" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return pooling_size</dt>
+<dd class="field-odd"><p>the respective pooling size.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="dl.model.unet.UNet.pool">
-<code class="sig-name descname">pool</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="n">pool_size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.pool" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pool</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensor</span></em>, <em class="sig-param"><span class="n">pool_size</span></em>, <em class="sig-param"><span class="n">stride</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.pool" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pooling layer setup. Build pooling layer according to the tensor and pool_size</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>tensor</strong> – the input to the pooling</p></li>
 <li><p><strong>pool_size</strong> – the dimension of the pooling</p></li>
+<li><p><strong>stride</strong> – the stride</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return output</dt>
@@ -477,13 +490,13 @@ set in settings.py</p>
 <dd><p>Perform poligonization [raster to vector] operations, despite the utils methods for it</p>
 <dl class="py method">
 <dt id="output.poligonize.Poligonize.create_shapefile">
-<code class="sig-name descname">create_shapefile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">segmented</span></em>, <em class="sig-param"><span class="n">classes</span></em>, <em class="sig-param"><span class="n">original_image_path</span></em>, <em class="sig-param"><span class="n">output_vector_path</span></em>, <em class="sig-param"><span class="n">vector_type</span><span class="o">=</span><span class="default_value">'ESRI Shapefile'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.poligonize.Poligonize.create_shapefile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_shapefile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">segmented_image_path</span></em>, <em class="sig-param"><span class="n">classes</span></em>, <em class="sig-param"><span class="n">original_image_path</span></em>, <em class="sig-param"><span class="n">output_vector_path</span></em>, <em class="sig-param"><span class="n">vector_type</span><span class="o">=</span><span class="default_value">'ESRI Shapefile'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.poligonize.Poligonize.create_shapefile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform operations to read original image [remote sensing data], and from its metadata, create a new vector
 file according to the classes specified in settings.py file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>segmented</strong> – absolute path of the image segmentation/classification result. A raster
+<li><p><strong>segmented_image_path</strong> – absolute path of the image segmentation/classification result. A raster
 [JPG, PNG, TIFF, so on] version from the inference operation</p></li>
 <li><p><strong>classes</strong> – the list of classes and respectively colors</p></li>
 <li><p><strong>original_image_path</strong> – the original raster image path, where the geographic metadata is
@@ -529,20 +542,20 @@ returns a new image, with a filtered color classes</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a new image, with a filtered color classes</p>
+<dd class="field-even"><p>a new image, with a filtered color class</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="output.poligonize.Poligonize.polygonize">
-<code class="sig-name descname">polygonize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">segmented</span></em>, <em class="sig-param"><span class="n">classes</span></em>, <em class="sig-param"><span class="n">original_image_path</span></em>, <em class="sig-param"><span class="n">output_vector_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.poligonize.Poligonize.polygonize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">polygonize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">segmented_image_path</span></em>, <em class="sig-param"><span class="n">classes</span></em>, <em class="sig-param"><span class="n">original_image_path</span></em>, <em class="sig-param"><span class="n">output_vector_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.poligonize.Poligonize.polygonize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turn a JPG, PNG images in a geographic format, such as ESRI Shapefile or GeoJSON. The image must to be
 in the exact colors specified in settings.py - DL_PARAM[‘classes’]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>segmented</strong> – the segmented multiclass image path</p></li>
+<li><p><strong>segmented_image_path</strong> – the segmented multiclass image path</p></li>
 <li><p><strong>classes</strong> – the list of classes and respectively colors</p></li>
 <li><p><strong>original_image_path</strong> – the original raster image path, where the geographic metadata is read and transfer to the output</p></li>
 <li><p><strong>output_vector_path</strong> – the output path, where the new geographic format is saved</p></li>
@@ -560,19 +573,8 @@ in the exact colors specified in settings.py - DL_PARAM[‘classes’]</p>
 <dt id="output.slicer.Slicer">
 <em class="property">class </em><code class="sig-prename descclassname">output.slicer.</code><code class="sig-name descname">Slicer</code><a class="headerlink" href="#output.slicer.Slicer" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="output.slicer.Slicer.flush_tmps">
-<code class="sig-name descname">flush_tmps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">paths</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.slicer.Slicer.flush_tmps" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove all files in paths from the filesystem</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>paths</strong> – list of absolute paths to be removed from filesystem</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt id="output.slicer.Slicer.merge_images">
-<code class="sig-name descname">merge_images</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">paths</span></em>, <em class="sig-param"><span class="n">max_width</span></em>, <em class="sig-param"><span class="n">max_height</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.slicer.Slicer.merge_images" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">merge_images</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">paths</span></em>, <em class="sig-param"><span class="n">max_width</span></em>, <em class="sig-param"><span class="n">max_height</span></em>, <em class="sig-param"><span class="n">complete_path_to_merged_prediction</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.slicer.Slicer.merge_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge the result of each tile in a single image [reverse operation of slice method]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -580,17 +582,35 @@ in the exact colors specified in settings.py - DL_PARAM[‘classes’]</p>
 <li><p><strong>paths</strong> – list of absolute paths</p></li>
 <li><p><strong>max_width</strong> – the desired tile width</p></li>
 <li><p><strong>max_height</strong> – the desired tile height</p></li>
+<li><p><strong>complete_path_to_merged_prediction</strong> – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return new_im</dt>
-<dd class="field-even"><p>the merged image</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="output.slicer.Slicer.slice">
-<code class="sig-name descname">slice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">output_folder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.slicer.Slicer.slice" title="Permalink to this definition">¶</a></dt>
+<dt id="output.slicer.Slicer.slice_bitmap">
+<code class="sig-name descname">slice_bitmap</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">output_folder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.slicer.Slicer.slice_bitmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open the non-geographic image file, and crop it equally with dimensions of width x height, placing
+it in output_folder. The remaining borders is also cropped and saved in the folder</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> – absolute image path [oversized image]</p></li>
+<li><p><strong>width</strong> – the desired tile width</p></li>
+<li><p><strong>height</strong> – the desired tile height</p></li>
+<li><p><strong>output_folder</strong> – the destination folder of the tiles/slices</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return paths</dt>
+<dd class="field-even"><p>a list of absolute paths, regarding each tile cropped</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="output.slicer.Slicer.slice_geographic">
+<code class="sig-name descname">slice_geographic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">output_folder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output.slicer.Slicer.slice_geographic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Open the image file, and crop it equally with dimensions of width x height, placing it in output_folder.
 The remaining borders is also cropped and saved in the folder</p>
 <dl class="field-list simple">
@@ -606,6 +626,28 @@ The remaining borders is also cropped and saved in the folder</p>
 <dd class="field-even"><p>a list of absolute paths, regarding each tile cropped</p>
 </dd>
 </dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-utils.utils">
+<span id="utils"></span><h2>Utils<a class="headerlink" href="#module-utils.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="utils.utils.Utils">
+<em class="property">class </em><code class="sig-prename descclassname">utils.utils.</code><code class="sig-name descname">Utils</code><a class="headerlink" href="#utils.utils.Utils" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="utils.utils.Utils.flush_files">
+<code class="sig-name descname">flush_files</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.utils.Utils.flush_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all files inside paths
+:param folder_path: absolute path of a folder</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utils.utils.Utils.flush_list_of_paths">
+<code class="sig-name descname">flush_list_of_paths</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">paths</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.utils.Utils.flush_list_of_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all files from the paths in list
+:param paths: list of absolute paths to be removed from filesystem</p>
 </dd></dl>
 
 </dd></dl>

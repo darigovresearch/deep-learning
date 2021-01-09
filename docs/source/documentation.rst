@@ -46,3 +46,8 @@ Output slicer
 =====================
 .. automodule:: output.slicer
    :members:
+
+Utils
+=====================
+.. automodule:: utils.utils
+   :members:
