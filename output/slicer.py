@@ -38,13 +38,15 @@ class Slicer:
 
         cont = 0
         paths = []
-        for j in range(0, cols, height):
-            for i in range(0, rows, width):
+        buffer = settings.BUFFER_TO_INFERENCE
+        for j in range(0, cols, (height - buffer)):
+            for i in range(0, rows, (width - buffer)):
                 output_file = os.path.join(output_folder, name + "_" + "{:05d}".format(cont) + file_extension)
-                image.crop((i, j, i + width, j + height)).save(output_file)
+                if not ((i + width) > rows) and not ((j + height) > cols):
+                    image.crop((i, j, i + width, j + height)).save(output_file)
 
-                paths.append(output_file)
-                cont += 1
+                    paths.append(output_file)
+                    cont += 1
         return paths
 
     def slice_geographic(self, file, width, height, output_folder):
@@ -79,18 +81,20 @@ class Slicer:
 
         paths = []
         gdal.UseExceptions()
-        for j in range(0, cols, height):
-            for i in range(0, rows, width):
+        buffer = settings.BUFFER_TO_INFERENCE
+        for j in range(0, cols, (height - buffer)):
+            for i in range(0, rows, (width - buffer)):
+                output_file = os.path.join(output_folder, name + "_" + "{:05d}".format(cont) + file_extension)
                 try:
-                    output_file = os.path.join(output_folder, name + "_" + "{:05d}".format(cont) + file_extension)
-                    gdal.Translate(output_file, ds, format='GTIFF', srcWin=[i, j, width, height],
-                                   outputType=datatype, options=['-eco', '-epo',
-                                                                 '-b', settings.RASTER_TILES_COMPOSITION[0],
-                                                                 '-b', settings.RASTER_TILES_COMPOSITION[1],
-                                                                 '-b', settings.RASTER_TILES_COMPOSITION[2]])
+                    if not ((i + width) > rows) and not ((j + height) > cols):
+                        gdal.Translate(output_file, ds, format='GTIFF', srcWin=[i, j, width, height],
+                                       outputType=datatype, options=['-eco', '-epo',
+                                                                     '-b', settings.RASTER_TILES_COMPOSITION[0],
+                                                                     '-b', settings.RASTER_TILES_COMPOSITION[1],
+                                                                     '-b', settings.RASTER_TILES_COMPOSITION[2]])
 
-                    paths.append(output_file)
-                    cont += 1
+                        paths.append(output_file)
+                        cont += 1
                 except RuntimeError:
                     logging.warning(">>>>>> Something went wrong during image slicing...")
         return paths
