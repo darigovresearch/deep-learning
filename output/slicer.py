@@ -112,16 +112,18 @@ class Slicer:
 
         x = 0
         y = 0
+        buffer = settings.BUFFER_TO_INFERENCE
         for file in paths:
             img = Image.open(file)
             width, height = img.size
-            img.thumbnail((width, height), Image.ANTIALIAS)
-            new_im.paste(img, (x, y, x + width, y + height))
 
-            if (x+width) >= max_width:
-                x = 0
-                y += height
+            img.thumbnail((width, height), Image.ANTIALIAS)
+            if not ((x + width) > max_width) and not ((y + height) > max_height):
+                new_im.paste(img, (x, y, x + width, y + height))
             else:
-                x += width
+                x = 0
+                y += (height - buffer)
+                new_im.paste(img, (x, y, x + width, y + height))
+            x += (width - buffer)
 
         new_im.save(complete_path_to_merged_prediction)

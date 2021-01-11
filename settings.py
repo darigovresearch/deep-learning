@@ -22,7 +22,7 @@ DL_PARAM = {
         'output_history': os.path.join(DL_DATASET, 'predictions', '256', 'history'),
         'save_model_dir': os.path.join(DL_DATASET, 'predictions', '256', 'model'),
         'tensorboard_log_dir': os.path.join(DL_DATASET, 'predictions', '256', 'log'),
-        'pretrained_weights': 'model-input256-256-batch16-drop05-epoch67.hdf5',
+        'pretrained_weights': 'model-input256-256-batch16-drop05-epoch84.hdf5',
         'image_prediction_folder': os.path.join(DL_DATASET, 'test', 'big'),
         'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'inference'),
         'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', '256', 'shp'),

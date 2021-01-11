@@ -141,15 +141,15 @@ class Infer:
                 complete_path_to_merged_prediction = os.path.join(load_param['output_prediction'], name + ".png")
                 slicer.Slicer().merge_images(prediction_path_list, dims[0], dims[1], complete_path_to_merged_prediction)
 
-                if is_geographic_file is True:
-                    logging.info(">>>> Polygonizing segmented image...")
-                    self.poligonize(complete_path_to_merged_prediction,
-                                    load_param['classes'],
-                                    complete_path,
-                                    load_param['output_prediction_shp'])
-
-                    utils.Utils().flush_files(load_param['tmp_slices'])
-                    utils.Utils().flush_files(load_param['tmp_slices_predictions'])
+                # if is_geographic_file is True:
+                #     logging.info(">>>> Polygonizing segmented image...")
+                #     self.poligonize(complete_path_to_merged_prediction,
+                #                     load_param['classes'],
+                #                     complete_path,
+                #                     load_param['output_prediction_shp'])
+                #
+                #     utils.Utils().flush_files(load_param['tmp_slices'])
+                #     utils.Utils().flush_files(load_param['tmp_slices_predictions'])
             else:
                 image_to_predict = load_img(complete_path, target_size=(256, 256))
                 images_array = image.img_to_array(image_to_predict)
