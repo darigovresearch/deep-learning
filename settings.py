@@ -11,9 +11,8 @@ VALIDATION_SPLIT = 0.15
 RASTER_TILES_COMPOSITION = ['5', '3', '2']
 CLASSES_TO_CONVERT_RASTER_TO_GEOGRAPHIC_FORMAT = ['nut']
 BUFFER_TO_INFERENCE = 30
+INDEX_OF_BACKGROUND_COLOR = 0
 
-
-# TODO: remove paths from network dict
 DL_PARAM = {
     'unet': {
         'image_training_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE),

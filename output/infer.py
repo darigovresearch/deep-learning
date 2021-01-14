@@ -19,23 +19,32 @@ class Infer:
     def __init__(self):
         pass
 
-    def segment_image(self, image_path, prediction, classes, output_path):
+    def segment_image(self, image_path, prediction, network_params):
         """
         Create a new RGB image, drawing the predictions based on classes's colors
         :param image_path:
         :param prediction:
-        :param classes:
-        :param output_path:
+        :param network_params:
         :return prediction_path:
         """
-        output = np.argmax(prediction, axis=-1)
-        output = np.reshape(output, (256, 256))
+        classes = network_params['color_classes']
+        output_path = network_params['tmp_slices_predictions']
+        img_width = network_params['input_size_w']
+        img_height = network_params['input_size_h']
+        img_channels = network_params['input_size_c']
 
-        img_color = np.zeros((256, 256, 3), dtype='uint8')
-        for i in range(256):
-            for j in range(256):
+        output = np.argmax(prediction, axis=-1)
+        output = np.reshape(output, (img_width, img_height))
+
+        img_color = np.zeros((img_width, img_height, img_channels + 1), dtype='uint8')
+        img_color[:, :, img_channels] = 255
+        for i in range(img_width):
+            for j in range(img_height):
                 idx = output[i, j]
-                img_color[i, j] = classes[idx]
+                img_color[i, j, 0:img_channels] = classes[idx]
+
+        m_black = (img_color[:, :, 0:img_channels] == [0, 0, 0]).all(2)
+        img_color[m_black] = (0, 0, 0, 0)
 
         filename = os.path.basename(image_path)
         name, file_extension = os.path.splitext(filename)
@@ -128,37 +137,37 @@ class Infer:
 
                 prediction_path_list = []
                 for path in list_images:
-                    images_array = load_img(path, target_size=(256, 256))
+                    images_array = load_img(path, target_size=(load_param['input_size_w'], load_param['input_size_h']))
                     images_array = image.img_to_array(images_array)
                     images_array = np.expand_dims(images_array, axis=0)
 
                     prediction = model.get_model().predict(images_array)
-                    prediction_path_list.append(self.segment_image(path, prediction, load_param['color_classes'],
-                                                                   load_param['tmp_slices_predictions']))
+                    prediction_path_list.append(self.segment_image(path, prediction, load_param))
 
                 logging.info(">>>> Merging {} predictions in image with {} x {}...".format(len(prediction_path_list),
                                                                                            dims[0], dims[1]))
                 complete_path_to_merged_prediction = os.path.join(load_param['output_prediction'], name + ".png")
-                slicer.Slicer().merge_images(prediction_path_list, dims[0], dims[1], complete_path_to_merged_prediction)
+                slicer.Slicer().merge_images(prediction_path_list, dims[0], dims[1],
+                                             complete_path_to_merged_prediction)
 
-                # if is_geographic_file is True:
-                #     logging.info(">>>> Polygonizing segmented image...")
-                #     self.poligonize(complete_path_to_merged_prediction,
-                #                     load_param['classes'],
-                #                     complete_path,
-                #                     load_param['output_prediction_shp'])
-                #
-                #     utils.Utils().flush_files(load_param['tmp_slices'])
-                #     utils.Utils().flush_files(load_param['tmp_slices_predictions'])
+                if is_geographic_file is True:
+                    logging.info(">>>> Polygonizing segmented image...")
+                    self.poligonize(complete_path_to_merged_prediction,
+                                    load_param['classes'],
+                                    complete_path,
+                                    load_param['output_prediction_shp'])
+
+                    utils.Utils().flush_files(load_param['tmp_slices'])
+                    utils.Utils().flush_files(load_param['tmp_slices_predictions'])
             else:
-                image_to_predict = load_img(complete_path, target_size=(256, 256))
+                image_to_predict = load_img(complete_path, target_size=(load_param['input_size_w'],
+                                                                        load_param['input_size_h']))
                 images_array = image.img_to_array(image_to_predict)
                 images_array = np.expand_dims(images_array, axis=0)
 
                 prediction = model.get_model().predict(images_array)
 
-                prediction_path = self.segment_image(complete_path, prediction, load_param['color_classes'],
-                                                     load_param['tmp_slices_predictions'])
+                prediction_path = self.segment_image(complete_path, prediction, load_param)
 
                 if is_geographic_file is True:
                     logging.info(">>>> Polygonizing segmented image...")

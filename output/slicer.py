@@ -108,22 +108,22 @@ class Slicer:
         :param max_height: the desired tile height
         :param complete_path_to_merged_prediction:
         """
-        new_im = Image.new('RGB', (max_width, max_height))
+        new_im = Image.new('RGBA', (max_width, max_height), (0, 0, 0, 0))
 
         x = 0
         y = 0
         buffer = settings.BUFFER_TO_INFERENCE
         for file in paths:
-            img = Image.open(file)
+            img = Image.open(file).convert('RGBA')
             width, height = img.size
 
             img.thumbnail((width, height), Image.ANTIALIAS)
             if not ((x + width) > max_width) and not ((y + height) > max_height):
-                new_im.paste(img, (x, y, x + width, y + height))
+                new_im.paste(img, (x, y, x + width, y + height), mask=img)
             else:
                 x = 0
                 y += (height - buffer)
-                new_im.paste(img, (x, y, x + width, y + height))
+                new_im.paste(img, (x, y, x + width, y + height), mask=img)
             x += (width - buffer)
 
-        new_im.save(complete_path_to_merged_prediction)
+        new_im.convert("RGB").save(complete_path_to_merged_prediction, "PNG")
