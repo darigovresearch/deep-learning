@@ -85,6 +85,8 @@
               <p class="caption"><span class="caption-text">Project documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#deep-learning-architectures">Deep Learning architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#technique">Technique</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installing.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
 </ul>
@@ -214,6 +216,10 @@ Epoch <span class="m">1</span>/500
 </div>
 <div class="section" id="predicting-with-an-existent-weight">
 <h3>Predicting with an existent weight<a class="headerlink" href="#predicting-with-an-existent-weight" title="Permalink to this headline">¶</a></h3>
+<p>In order to predict with an existent weight, the weight path in <cite>settings.py</cite>’s <cite>pretrained_weights</cite> key should be given. Besides, the command line should be set as such:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python main.py -model unet -train False -predict True -verbose True
+</pre></div>
+</div>
 </div>
 </div>
 </div>

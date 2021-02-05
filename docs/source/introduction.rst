@@ -10,11 +10,11 @@ Deep Learning architectures
 ===========================
 
 Beyond the routines, this code was prepared to have a personal use or even ready for adaptation to be run in server-side. The ain is to incorporate some of the main Deep Learning models for any remote sensing image analysis and mapping. In this version, the following DL architectures were tested:
-- [UNet](https://lmb.informatik.uni-freiburg.de/Publications/2015/RFB15a/)
+- `UNet <https://lmb.informatik.uni-freiburg.de/Publications/2015/RFB15a/>`_
 
 UNet
 ---------------------------
-The UNet is convolutional network architecture for fast and precise segmentation of digital images [:ref:`https://arxiv.org/abs/1505.04597`]. Until now, the "U shaped" Deep Learning architecture has outperformed the prior best method (a sliding-window convolutional network) on the ISBI challenge for segmentation of neuronal structures in electron microscopic stacks.
+The UNet is convolutional network architecture for fast and precise segmentation of digital images (`UNet <https://arxiv.org/abs/1505.04597>`_). Until now, the "U shaped" Deep Learning architecture has outperformed the prior best method (a sliding-window convolutional network) on the ISBI challenge for segmentation of neuronal structures in electron microscopic stacks.
 
 UNet, evolved from the traditional convolutional neural network, was first designed and applied in 2015 to process biomedical images, as the paper cited before. As a general convolutional neural network focuses its task on image classification, where input is an image and output is one label, but in biomedical cases, it requires us not only to distinguish whether there is a disease, but also to identify the area.
 
