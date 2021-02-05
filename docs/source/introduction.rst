@@ -10,7 +10,8 @@ Deep Learning architectures
 ===========================
 
 Beyond the routines, this code was prepared to have a personal use or even ready for adaptation to be run in server-side. The ain is to incorporate some of the main Deep Learning models for any remote sensing image analysis and mapping. In this version, the following DL architectures were tested:
-- `UNet <https://arxiv.org/abs/1505.04597>`_
+
+    - `UNet <https://arxiv.org/abs/1505.04597>`_
 
 UNet
 ---------------------------
@@ -39,7 +40,7 @@ The U shape is its characteristic. The architecture is symmetric and consists of
 References
 ---------------------------
 To write this section, the following sources have been consultanted:
-    - .. _Toward Data Science: https://towardsdatascience.com/unet-line-by-line-explanation-9b191c76baf5
+    - .. _TowardDataScience: https://towardsdatascience.com/unet-line-by-line-explanation-9b191c76baf5
 
 Technique
 ===========================
