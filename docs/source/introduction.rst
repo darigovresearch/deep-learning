@@ -5,7 +5,6 @@ Introduction
 
 The deep-learning module incorporate essential procedures to prepare remote sensing images mostly for automatic classification methods, in this case specifically, using deep-learning approaches. The sections below are organized to explain the main procedures implemented in the Bioverse DL module.
 
-
 Deep Learning architectures
 ===========================
 
@@ -23,13 +22,13 @@ UNet is dedicated to solving this problem. The reason it is able to identify and
 
 .. code-block:: python
 
-    [[255, 230], [128, 12]]
+    [[121, 27], [7, 115]]
 
 where each number is a pixel. Thus, the output will have the same size of 2x2:
 
 .. code-block:: python
 
-    [[1, 0], [1, 1]]
+    [[0, 1], [0, 1]]
 
 where the outputs could be any number between 0 and 1. The UNet architecture has the following structure:
 
@@ -40,6 +39,7 @@ The U shape is its characteristic. The architecture is symmetric and consists of
 References
 ---------------------------
 To write this section, the following sources have been consultanted:
+
     - .. _TowardDataScience: https://towardsdatascience.com/unet-line-by-line-explanation-9b191c76baf5
 
 Technique
