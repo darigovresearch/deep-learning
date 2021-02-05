@@ -61,107 +61,94 @@ If you do not intent to use GPU, there is no need to install support to it. So, 
 pip install -r requirements.txt
 ```
 
+The extra requeriments not listed in `requirements.txt`, is GDAL library, which has to be installed according to the version installed globally in your computer. So, pip have to address the same version during installation. The procedures of its dependencies can be found in `INSTALL_GDAL` in the root folder. 
+
+In order to install GDAL, execute:
+```
+sudo apt install gcc g++ libxml2-dev libxslt1-dev zlib1g-dev
+```
+then,
+```
+sudo apt-get install gdal-bin libgdal-dev
+```
+
+With your virtual environment activated, run:
+```
+pip install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
+```
+
+It will automatically get your GDAL's version and it will pip install according to it. 
+
 ## The `settings.py` file:
 This file centralized all constants variable used in the code, in particular, the constants that handle all the DL model. Thus, the Python dictionary `DL_PARAM` splits all the values and parameters by model type. In this case, only the UNet architecture was implemented:
 ```
-import os
-
-from decouple import config
-
-DL_DATASET = config('DL_DATASET')
-
 DL_PARAM = {
     'unet': {
-        'image_training_folder': os.path.join(DL_DATASET, 'image'),
-        'annotation_training_folder': os.path.join(DL_DATASET, 'label'),
-        'output_prediction': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'inference'),
-        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '128', 'nut', 'weight'),
-        'pretrained_weights': '',
-        'input_size_w': 128,
-        'input_size_h': 128,
-        'input_size_c': 3,
-        'batch_size': 16,
-        'filters': 64,
-        'color_mode': 'grayscale',
-        'seed': 1,
-        'epochs': 500,
-        'classes': {
-                "nut": [102, 153, 0],
-                "palm": [153, 255, 153],
-                'other': [0, 0, 0]
-        }
-    },    
-    ...
-}
-```
-in this way, if a new model is introduced to the code, a new key is add to this dictionary with its respective name, then, it will automatically load all the parameters according to the type of mode the user choose in the `-model` command-line option. For instance, if a [PSPNet](https://arxiv.org/abs/1612.01105v2) is included:
-```
-DL_PARAM = {
-    'unet': {
-        'image_training_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training'),
-        'annotation_training_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training'),
-        'image_validation_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'validation'),
-        'annotation_validation_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'validation'),
-        'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'all', 'inference', 'png'),
-        'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', '256', 'inference', 'shp'),
+        'image_training_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE),
+        'annotation_training_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE),
         'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'weight'),
         'output_history': os.path.join(DL_DATASET, 'predictions', '256', 'history'),
-        'save_model_dir': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training', 'model'),
-        'tensorboard_log_dir': os.path.join(DL_DATASET, 'samples', LABEL_TYPE, 'training', 'log'),
-        'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
-        'image_prediction_tmp_slice_folder': os.path.join(DL_DATASET, 'tmp_slice'),
-        'pretrained_weights': 'model-input256-256-batch16-drop05-epoch98.hdf5',
+        'save_model_dir': os.path.join(DL_DATASET, 'predictions', '256', 'model'),
+        'tensorboard_log_dir': os.path.join(DL_DATASET, 'predictions', '256', 'log'),
+        'pretrained_weights': 'model-input256-256-batch8-drop05-best.hdf5',
+        'image_prediction_folder': os.path.join(DL_DATASET, 'test', 'big'),
+        'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'inference'),
+        'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', '256', 'shp'),
+        'tmp_slices': os.path.join(DL_DATASET, 'tmp', 'tmp_slice'),
+        'tmp_slices_predictions': os.path.join(DL_DATASET, 'tmp', 'tmp_slice_predictions'),
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,
-        'batch_size': 16,
-        'learning_rate': 0.001,
+        'batch_size': 8,
+        'learning_rate': 0.0001,
         'filters': 64,
         'kernel_size': 3,
         'deconv_kernel_size': 3,
+        'pooling_size': 2,
         'pooling_stride': 2,
         'dropout_rate': 0.5,
-        'color_mode': 'rgb',
-        'class_mode': None,
-        'seed': 1,
-        'epochs': 100,
+        'epochs': 500,
         'classes': {
                 "other": [0, 0, 0],
                 "nut": [102, 153, 0],
                 "palm": [153, 255, 153]
         },
         'color_classes': {0: [0, 0, 0], 1: [102, 153, 0], 2: [153, 255, 153]},
-        'width_slice': 1000,
-        'height_slice': 1000,
+        'width_slice': 256,
+        'height_slice': 256
     }
 }
 ```
+in this way, if a new model is introduced to the code, a new key is add to this dictionary with its respective name, then, it will automatically load all the parameters according to the type of mode the user choose in the `-model` command-line option. 
+
 
 ## The hierarchy of folders:
 It is very recommended to prepare the hierarchy of folders as described in this section. When the training samples are build, as described in [bioverse image-processing](https://github.com/Bioverse-Labs/image-processing), four main folders are created: one for raster, one for the annotation (i.e. ground-truth, label, reference images), one to save the predictions (i.e. inferences), and finally one to store the validation samples. Besides, in order to conduct multiple test, such as different dimensions and classes of training samples, subfolders are also created under each folder, such as:
+
 ```
 samples
 │   └── classid
 │      ├── training
 │      │   ├── image
-|      │   |    :: imagens in TIF extension
+|      │   |    :: images in TIF extension
 │      │   ├── label
 |      │   |    :: annotation in PNG extension
-│      │   ├── log
-│      │   └── model
 │      └── validation
-│          ├── image
-|            :: imagens in PNG extension
-│          └── label
-|            :: imagens in PNG extension
+│      │   ├── image
+|      │   |    :: images in PNG extension
+│      │   ├── label
+|      │   |    :: annotation in PNG extension
 ├── predictions
 │   └── 256
 │       ├── history
 │       ├── inference
 │       └── weight
+│       ├── model
+│       └── log
 ```
 
 This suggestion of folder hierarchy is not mandatory, just make sure the paths is correctly pointed in `settings.py` file.
+
 
 ## NVIDIA's driver and CUDA for Ubuntu 20.4
 For most of the processing and research approaching Deep Learning (DL) methodologies, a certain computational power is needed. Recently, the use of GPUs has expanded the horizon of heavy machine learning processing such as the DL demands. 
@@ -203,10 +190,11 @@ source ~/.bashrc
 
 If you followed all steps and have it installed properly, you are ready to train your model!
 
-**For more details, follow the issue reported [here](https://stackoverflow.com/questions/60208936/cannot-dlopen-some-gpu-libraries-skipping-registering-gpu-devices) and [here](https://askubuntu.com/questions/1145946/tensorflow-wont-import-with-sudo-python3).**
+> For more details, follow the issue reported [here](https://stackoverflow.com/questions/60208936/cannot-dlopen-some-gpu-libraries-skipping-registering-gpu-devices) and [here](https://askubuntu.com/questions/1145946/tensorflow-wont-import-with-sudo-python3).
 
 # Examples 
 ## Training the model:
+After to validate all paths and parameters in `settings.py`, the training could be performed with the following command line:
 ```
 python main.py -model unet -train True -predict False -verbose True
 ```
@@ -246,8 +234,28 @@ Epoch 1/500
 ...
 ```
 
+The model as well as the history of training (with accuracy, losses, and other metrics evolution), will be saved in the paths indicated in `settings.py`.
+
 ## Predicting with an existent weight:
 
+First of all, make sure the `.hdf5` weight file is correctly set in `pretrained_weights` network's parameter. After to validate all other paths in `settings.py`, the inferences/predictions could be performed with the following command line:
+```
+python main.py -model unet -train False -predict True -verbose True
+```
+
+The prediction procedure involve two types: (i) for images where the dimension is equal to the samples's dimensions used during training, and (ii) images where the dimension is larger. Besides, the inferences have two classes of images, the images without any geographic information, and images with geographic information. The difference is that for images with no geographic metadata, the poligonization (the process to convert PNG prediction in SHP shapefiles - geographic vectors), **will not** be performed.  
+
+> In this section, we focus specifically how the (ii) was implemented.   
+
+Considering a large geographic image as an example, in the figure below is shown how the inference is made. First (a), the large image is tilled in a way that each tile have the same dimension as it was trained. 
+
+<img src="pics/buffer-prediction.png">
+
+In order to prevent discontinuous predictions between each tile, a buffer is applied (see (a)). The buffer can be configured also in `settings.py`, with the `BUFFER_TO_INFERENCE` variable, where the integer value represents the number of pixels to apply the buffering. In this way, zero will perform the inferences without buffering. The maximum buffering value is the half of each tile's dimension.
+
+After to predict, each tile will have a correspondent segmentation (see (b)). After to predict every single tile that compose the image, the predictions are then merged (c). Due to the buffering, the discontinuity is minimized during merging. Finally, getting a more consistent map in the end (d).
+
+> The predictions in PNG will be placed in `output_prediction`. If it is a large image, then it will be place the tile's predictions first in `tmp_slices_predictions`, then, the merging procedure will select all tiles and place the merged predictions in `output_prediction`. When done, the poligonization is performed (only for geographic files). The final vector file is place in `output_prediction_shp`. 
 
 # TODO-list
 This source-code is being released for specific applications, and for those who probably has similar needs. For this reason, we still have a lot to do in terms of unit tests, python conventions, optimization issues, refactoring, so on! So, Feel free to use and any recommendation or PRs will be totally welcome!
@@ -255,13 +263,14 @@ This source-code is being released for specific applications, and for those who 
 ```
 -- ~~refactor docstring~~
 -- include alternative to the set of dl models:
+    --- ~~unet~~
     --- pspnet
     --- deeplabv3+
     --- segnet
--- finish inferece procedure:
-    --- single image
-    --- multiple images
-    --- dynamic resolution
+-- ~~finish inferece procedure~~:
+    --- ~~single image~~
+    --- ~~multiple images~~
+    --- ~~dynamic resolution~~
 -- unittest over basic methods: filesystem/IO, organization, params
 ```
 

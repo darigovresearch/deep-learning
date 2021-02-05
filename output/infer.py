@@ -22,10 +22,11 @@ class Infer:
     def segment_image(self, image_path, prediction, network_params):
         """
         Create a new RGB image, drawing the predictions based on classes's colors
-        :param image_path:
-        :param prediction:
-        :param network_params:
-        :return prediction_path:
+
+        :param image_path: absolute path to original image to be segmented
+        :param prediction: the array with the probabilities to each class representing each pixel
+        :param network_params: the deep learning architecture parameters
+        :return prediction_path: absolute path to the local prediction file
         """
         classes = network_params['color_classes']
         output_path = network_params['tmp_slices_predictions']
@@ -134,7 +135,6 @@ class Infer:
                                                                load_param['tmp_slices'])
 
                 logging.info(">>>> Loading slices and predicting...")
-
                 prediction_path_list = []
                 for path in list_images:
                     images_array = load_img(path, target_size=(load_param['input_size_w'], load_param['input_size_h']))
@@ -157,8 +157,8 @@ class Infer:
                                     complete_path,
                                     load_param['output_prediction_shp'])
 
-                    utils.Utils().flush_files(load_param['tmp_slices'])
-                    utils.Utils().flush_files(load_param['tmp_slices_predictions'])
+                utils.Utils().flush_files(load_param['tmp_slices'])
+                utils.Utils().flush_files(load_param['tmp_slices_predictions'])
             else:
                 image_to_predict = load_img(complete_path, target_size=(load_param['input_size_w'],
                                                                         load_param['input_size_h']))

@@ -4,15 +4,18 @@ import logging
 
 class Utils:
     """
+    Utils method for IO and image processing processing
     """
     def __init__(self):
         """
+        Constructor method
         """
         pass
 
     def flush_list_of_paths(self, paths):
         """
         Remove all files from the paths in list
+
         :param paths: list of absolute paths to be removed from filesystem
         """
         for item in paths:
@@ -22,6 +25,7 @@ class Utils:
     def flush_files(self, folder_path):
         """
         Remove all files inside paths
+
         :param folder_path: absolute path of a folder
         """
         if not os.path.isdir(folder_path):

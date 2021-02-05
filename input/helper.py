@@ -2,7 +2,6 @@ import numpy as np
 import settings
 
 from tensorflow.keras.utils import Sequence
-from keras.utils import to_categorical
 from tensorflow.keras.preprocessing.image import load_img
 
 

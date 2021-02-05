@@ -52,3 +52,8 @@ the runtime logging will print something like (note that all CUDA libraries must
 Predicting with an existent weight
 ----------------------------------
 
+In order to predict with an existent weight, the weight path in `settings.py`'s `pretrained_weights` key should be given. Besides, the command line should be set as such:
+
+.. code-block:: bash
+
+    python main.py -model unet -train False -predict True -verbose True
