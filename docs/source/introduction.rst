@@ -38,6 +38,7 @@ The U shape is its characteristic. The architecture is symmetric and consists of
 
 References
 ---------------------------
+
 To write this section, the following sources have been consultanted:
 
     - .. _TowardDataScience: https://towardsdatascience.com/unet-line-by-line-explanation-9b191c76baf5
