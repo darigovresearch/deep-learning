@@ -14,7 +14,6 @@ jobs:
       - image: circleci/python:3.6.2
     steps:
       - checkout
-      - run: echo "Initiating prepare-dependencies job"
 #      - python/install-packages
 #      - run: mkdir test-reports
       - run:
@@ -32,8 +31,8 @@ jobs:
           name: Install project's requirements
           command: |
             . .venv/bin/activate
-            pip install --upgrade pip
-            pip install -r requirements.txt
+            python3 -m pip install --upgrade pip
+            python3 -m pip install -r requirements.txt
       - save_cache:
           key: deps2-{{ checksum "requirements.txt" }}
           paths:
