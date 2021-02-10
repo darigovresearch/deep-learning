@@ -13,9 +13,9 @@ orbs:
   python: circleci/python@1.0.0
 
 jobs:
-  prepare-dependencies:
-    docker:
-      - image: circleci/python:3.8.5
+  linux-prepare-dependencies:
+    machine:
+      image: ubuntu-2004:202010-01
     steps:
       - checkout
 #      - python/install-packages
@@ -46,16 +46,14 @@ jobs:
           command: |
             . .venv/bin/activate
             pip install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
-#      - python/load-cache
-#      - python/save-cache
-  build:
-    docker:
-      - image: circleci/python:3.8.5
+  linux-build:
+    machine:
+      image: ubuntu-2004:202010-01
     steps:
       - checkout
-  test:
-    docker:
-      - image: circleci/python:3.8.5
+  linux-test:
+    machine:
+      image: ubuntu-2004:202010-01
     steps:
       - checkout
       - run: echo "Initiating test job"
@@ -66,8 +64,18 @@ jobs:
 workflows:
   main:
     jobs:
-      - prepare-dependencies
-#      - build
-#      - test:
+      - linux-prepare-dependencies
+#      - linux-build
+#      - linux-test:
 #          requires:
-#            - build
+#            - linux-build
+#      - macos-prepare-dependencies
+#      - macos-build
+#      - macos-test:
+#          requires:
+#            - macos-build
+#      - windows-prepare-dependencies
+#      - windows-build
+#      - windows-test:
+#          requires:
+#            - windows-build
