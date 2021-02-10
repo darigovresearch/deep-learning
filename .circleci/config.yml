@@ -1,7 +1,11 @@
 #
-# Source: https://github.com/CircleCI-Public/circleci-demo-python-flask/blob/master/.circleci/config.yml
+# Source:
+#   - https://github.com/CircleCI-Public/circleci-demo-python-flask/blob/master/.circleci/config.yml
+#   - https://github.com/CircleCI-Public/circleci-demo-python-django/blob/master/.circleci/config.yml
 #
 # Author: rodolfo.lotte
+# Organization: Bioverse Labs
+#
 
 version: 2.1
 
