@@ -23,8 +23,6 @@ imageio==2.5.0
 imagesize==1.2.0
 imgaug==0.2.9
 importlib-metadata==2.0.0
-ipython==7.19.0
-ipython-genutils==0.2.0
 jedi==0.18.0
 Jinja2==2.11.2
 joblib==1.0.0
