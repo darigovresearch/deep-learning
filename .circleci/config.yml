@@ -11,7 +11,7 @@ orbs:
 jobs:
   prepare-dependencies:
     docker:
-      - image: circleci/python:3.6.2
+      - image: circleci/python:3.8.5
     steps:
       - checkout
 #      - python/install-packages
@@ -46,12 +46,12 @@ jobs:
 #      - python/save-cache
   build:
     docker:
-      - image: circleci/python:3.6.2
+      - image: circleci/python:3.8.5
     steps:
       - checkout
   test:
     docker:
-      - image: circleci/python:3.6.2
+      - image: circleci/python:3.8.5
     steps:
       - checkout
       - run: echo "Initiating test job"
