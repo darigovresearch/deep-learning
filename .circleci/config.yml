@@ -20,8 +20,10 @@ jobs:
       - run:
           name: Download GDAL dependencies
           command: |
-            sudo apt install libxml2-dev libxslt1-dev zlib1g-dev g++ gcc
-            sudo apt-get install gdal-bin libgdal-dev
+            sudo apt -y update
+            sudo apt -y upgrade
+            sudo apt -y install libxml2-dev libxslt1-dev zlib1g-dev g++ gcc
+            sudo apt -y install gdal-bin libgdal-dev
       - run:
           name: Creating virtual environment
           command: |
