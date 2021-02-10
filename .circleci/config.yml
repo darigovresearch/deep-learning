@@ -14,9 +14,7 @@ jobs:
       - image: circleci/python:3.6.2
     steps:
       - checkout
-      - run:
-          command: |
-            echo "Initiating prepare-dependencies job"
+      - run: echo "Initiating prepare-dependencies job"
       - python/install-packages
 #      - run: mkdir test-reports
       - run:
@@ -42,15 +40,16 @@ jobs:
           command: |
             . .venv/bin/activate
             pip install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
-      - python/load-cache
-      - python/save-cache
+#      - python/load-cache
+#      - python/save-cache
   build:
     docker:
       - image: circleci/python:3.6.2
     steps:
       - checkout
   test:
-    executor: python/default
+    docker:
+      - image: circleci/python:3.6.2
     steps:
       - checkout
       - run: echo "Initiating test job"
