@@ -1,16 +1,59 @@
+#
+# Source: https://github.com/CircleCI-Public/circleci-demo-python-flask/blob/master/.circleci/config.yml
+#
+# Author: rodolfo.lotte
+
 version: 2.1
 
 orbs:
-  python: circleci/python@0.2.1
+  python: circleci/python@1.0.0
 
 jobs:
-  build-and-test:
+  prepare-dependencies:
+    docker:
+      - image: circleci/python:3.6.2
+    steps:
+      - checkout
+      - run:
+          command: |
+            echo "Initiating prepare-dependencies job"
+      - python/install-packages
+#      - run: mkdir test-reports
+      - run:
+          name: Download GDAL dependencies
+          command: |
+            sudo apt install libxml2-dev libxslt1-dev zlib1g-dev g++ gcc
+            sudo apt-get install gdal-bin libgdal-dev
+      - run:
+          name: Creating virtual environment
+          command: |
+            python3 -m venv .venv
+      - run:
+          name: Install project's requirements
+          command: |
+            . .venv/bin/activate
+            pip install -r requirements.txt
+          - save_cache:
+              key: deps2-{{ checksum "requirements.txt" }}
+              paths:
+                - '.venv'
+      - run:
+          name: Install pip GDAL requirement
+          command: |
+            . .venv/bin/activate
+            pip install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
+      - python/load-cache
+      - python/save-cache
+  build:
+    docker:
+      - image: circleci/python:3.6.2
+    steps:
+      - checkout
+  test:
     executor: python/default
     steps:
       - checkout
-      - python/load-cache
-      - python/install-deps
-      - python/save-cache
+      - run: echo "Initiating test job"
       - run:
           command: ./manage.py test
           name: Test
@@ -18,4 +61,8 @@ jobs:
 workflows:
   main:
     jobs:
-      - build-and-test
+      - prepare-dependencies
+#      - build
+#      - test:
+#          requires:
+#            - build
