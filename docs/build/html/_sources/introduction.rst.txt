@@ -41,7 +41,8 @@ References
 
 To write this section, the following sources have been used:
 
-    - .. _TowardDataScience: https://towardsdatascience.com/unet-line-by-line-explanation-9b191c76baf5
+    - `URL: Toward Data Science <https://towardsdatascience.com/unet-line-by-line-explanation-9b191c76baf5>`_
+    - `Article: U-Net: Convolutional Networks for Biomedical Image Segmentation <https://arxiv.org/abs/1505.04597>`_
 
 Technique
 ===========================
