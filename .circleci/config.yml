@@ -32,6 +32,7 @@ jobs:
           name: Install project's requirements
           command: |
             . .venv/bin/activate
+            pip install --upgrade pip
             pip install -r requirements.txt
       - save_cache:
           key: deps2-{{ checksum "requirements.txt" }}
