@@ -15,7 +15,7 @@ jobs:
     steps:
       - checkout
       - run: echo "Initiating prepare-dependencies job"
-      - python/install-packages
+#      - python/install-packages
 #      - run: mkdir test-reports
       - run:
           name: Download GDAL dependencies
