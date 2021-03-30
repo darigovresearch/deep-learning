@@ -11,8 +11,8 @@ class Loader:
         - https://keras.io/examples/vision/oxford_pets_image_segmentation/
     """
 
-    def __init__(self, dir):
-        self.list_image = self.list_entries(dir)
+    def __init__(self, directory):
+        self.list_image = self.list_entries(directory)
 
     def list_entries(self, directory):
         """

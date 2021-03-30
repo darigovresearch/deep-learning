@@ -172,7 +172,7 @@ class UNet:
         """
         :return pooling_size: the respective pooling size.
         """
-        return self.optimizer
+        return self.pooling_size
 
     def get_optimizer(self):
         """
@@ -184,7 +184,7 @@ class UNet:
         """
         :return learning_rate: the respective optimizer's learning rate. Previously defined in settings.py
         """
-        return self.optimizer.learning_rate
+        return self.learning_rate
 
     def get_batch_size(self):
         """

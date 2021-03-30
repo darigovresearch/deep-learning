@@ -131,7 +131,7 @@ class Poligonize:
         :param original_image_path: the original raster image path, where the geographic metadata is
                                     read and transfer to the output
         :param output_vector_path: the output path, where the new geographic format is saved
-        :param vector_type: default value is ESRI Shapefile (most commom), but GeoJSON is accepted
+        :param vector_type: default value is ESRI Shapefile (most common), but GeoJSON is accepted
         """
         logging.info(">>>>>> Creating vector file...")
 
@@ -164,6 +164,11 @@ class Poligonize:
             geometries = self._create_geometry(corners, hierarchy, image)
 
             classes_and_geometries[gt_classes[k]] = geometries
+
+        if bool(classes_and_geometries):
+            logging.info(">>>>>> There is no geometry for file {}. Vector creation skipped!".
+                         format(segmented_image_path))
+            return
 
         layer = ds.CreateLayer(name, srs, ogr.wkbPolygon)
         layer.CreateField(_area)

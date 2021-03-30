@@ -23,10 +23,20 @@ Beyond the routines, this code was prepared to have a personal use or even ready
 
 **All modules available here are under construction. Therefore, many errors and malfunctions can occur for your specific needs.**
 
-1. [Setting up your environment](#1-Setting-up-your-environment)
-2. [Prepare your virtual environment](#2-Prepare-your-virtual-environment)
-3. [Examples ](#3-Examples)
-4. [TODO-list](#4-TODO-list)
+## Summary
+* [Setting up your environment](#setting-up-your-python-environment)
+* [Python version and OS](#python-version-and-os)
+* [Prepare your virtual environment](#prepare-your-virtual-environment)
+* [Preparing your `.env` file](#preparing-your-env-file)
+* [Installing `requirements.txt`](#installing-requirementstxt)  
+* [The `settings.py` file](#the-settingspy-file)
+* [The hierarchy of folders](#the-hierarchy-of-folders)
+* [NVIDIA's driver and CUDA for Ubuntu 20.4](#nvidias-driver-and-cuda-for-ubuntu-204)
+* [Examples ](#examples)
+* [Training the model](#training-the-model)
+* [Predicting with an existent weight](#predicting-with-an-existent-weight)
+* [TODO-list](#todo-list)
+
 
 # Setting up your Python environment
 This command-line solution was mainly used for training and prediction of remote sensing images, which have a more dynamic use of image bandsLICENSE and wider radiometric values (normally, 16 bits), and was created to be permissive and easily extended on very similar purposes (remote sensing). Most of the methods and libraries presented, were used to solve these particular events, and certainly have a lot of other alternatives out there. Please, feel free to share and contribute. 
@@ -79,7 +89,7 @@ pip install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
 
 It will automatically get your GDAL's version and it will pip install according to it. 
 
-## The `settings.py` file:
+## The `settings.py` file
 This file centralized all constants variable used in the code, in particular, the constants that handle all the DL model. Thus, the Python dictionary `DL_PARAM` splits all the values and parameters by model type. In this case, only the UNet architecture was implemented:
 ```
 DL_PARAM = {
@@ -122,7 +132,7 @@ DL_PARAM = {
 in this way, if a new model is introduced to the code, a new key is add to this dictionary with its respective name, then, it will automatically load all the parameters according to the type of mode the user choose in the `-model` command-line option. 
 
 
-## The hierarchy of folders:
+## The hierarchy of folders
 It is very recommended to prepare the hierarchy of folders as described in this section. When the training samples are build, as described in [bioverse image-processing](https://github.com/Bioverse-Labs/image-processing), four main folders are created: one for raster, one for the annotation (i.e. ground-truth, label, reference images), one to save the predictions (i.e. inferences), and finally one to store the validation samples. Besides, in order to conduct multiple test, such as different dimensions and classes of training samples, subfolders are also created under each folder, such as:
 
 ```
@@ -193,7 +203,7 @@ If you followed all steps and have it installed properly, you are ready to train
 > For more details, follow the issue reported [here](https://stackoverflow.com/questions/60208936/cannot-dlopen-some-gpu-libraries-skipping-registering-gpu-devices) and [here](https://askubuntu.com/questions/1145946/tensorflow-wont-import-with-sudo-python3).
 
 # Examples 
-## Training the model:
+## Training the model
 After to validate all paths and parameters in `settings.py`, the training could be performed with the following command line:
 ```
 python main.py -model unet -train True -predict False -verbose True
@@ -236,7 +246,7 @@ Epoch 1/500
 
 The model as well as the history of training (with accuracy, losses, and other metrics evolution), will be saved in the paths indicated in `settings.py`.
 
-## Predicting with an existent weight:
+## Predicting with an existent weight
 
 First of all, make sure the `.hdf5` weight file is correctly set in `pretrained_weights` network's parameter. After to validate all other paths in `settings.py`, the inferences/predictions could be performed with the following command line:
 ```

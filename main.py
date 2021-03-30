@@ -6,6 +6,7 @@ import random
 import argparse
 import settings
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 from datetime import datetime
 from output import infer
@@ -103,8 +104,8 @@ def main(network_type, is_training, is_predicting):
         val_input_images = train_images_paths[-percent_val:]
         val_labels_images = train_labels_paths[-percent_val:]
 
-        train_generator_obj = helper.Helper(batch_size, img_size, train_input_images, train_input_labels)
-        val_generator_obj = helper.Helper(batch_size, img_size, val_input_images, val_labels_images)
+        train_generator_obj = helper.Helper(batch_size, img_size, train_input_images, train_input_labels, augment=True, shuffle=True)
+        val_generator_obj = helper.Helper(batch_size, img_size, val_input_images, val_labels_images, augment=False, shuffle=False)
 
         dl_obj.get_model().compile(optimizer=dl_obj.get_optimizer(), loss=dl_obj.get_loss(), metrics=['accuracy'])
 
@@ -119,6 +120,17 @@ def main(network_type, is_training, is_predicting):
         history_file = os.path.join(load_param['output_history'], "history-" + str(timestamp) + ".json")
         with open(history_file, 'w') as f:
             json.dump(history.history, f)
+
+        if settings.PLOT_TRAINING:
+            fig, ax = plt.subplots(2, 1, figsize=(6, 6))
+            ax[0].plot(history.history['loss'], label="TrainLoss")
+            ax[0].plot(history.history['val_loss'], label="ValLoss")
+            ax[0].legend(loc='best', shadow=True)
+
+            ax[1].plot(history.history['acc'], label="TrainAcc")
+            ax[1].plot(history.history['val_acc'], label="ValAcc")
+            ax[1].legend(loc='best', shadow=True)
+            plt.show()
 
     if eval(is_predicting):
         dl_obj = get_dl_model(network_type, load_param, True, False)

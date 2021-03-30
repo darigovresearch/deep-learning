@@ -7,6 +7,7 @@ GEOGRAPHIC_ACCEPT_EXTENSION = ('.TIFF', '.tiff', '.TIF', '.tif', '.GEOTIFF', '.g
 NON_GEOGRAPHIC_ACCEPT_EXTENSION = (".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG")
 
 LABEL_TYPE = 'classid'
+PLOT_TRAINING = False
 VALIDATION_SPLIT = 0.15
 RASTER_TILES_COMPOSITION = ['5', '3', '2']
 CLASSES_TO_CONVERT_RASTER_TO_GEOGRAPHIC_FORMAT = ['nut']
@@ -15,16 +16,28 @@ INDEX_OF_BACKGROUND_COLOR = 0
 
 DL_PARAM = {
     'unet': {
+        # 'image_training_folder': os.path.join(DL_DATASET, 'training'),
+        # 'annotation_training_folder': os.path.join(DL_DATASET, 'training'),
+        # 'output_checkpoints': os.path.join(DL_DATASET, 'predictions', 'weight'),
+        # 'output_history': os.path.join(DL_DATASET, 'predictions', 'history'),
+        # 'save_model_dir': os.path.join(DL_DATASET, 'predictions', 'model'),
+        # 'tensorboard_log_dir': os.path.join(DL_DATASET, 'predictions', 'log'),
+        # 'pretrained_weights': 'model-input256-256-batch8-drop05-epoch01.hdf5',
+        # 'image_prediction_folder': os.path.join(DL_DATASET, 'teste'),
+        # 'output_prediction': os.path.join(DL_DATASET, 'predictions', 'inference'),
+        # 'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', 'shp'),
+        # 'tmp_slices': os.path.join(DL_DATASET, 'tmp_slice'),
+        # 'tmp_slices_predictions': os.path.join(DL_DATASET, 'tmp_slice_predictions'),
         'image_training_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE),
         'annotation_training_folder': os.path.join(DL_DATASET, 'samples', LABEL_TYPE),
-        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', '256', 'weight'),
-        'output_history': os.path.join(DL_DATASET, 'predictions', '256', 'history'),
-        'save_model_dir': os.path.join(DL_DATASET, 'predictions', '256', 'model'),
-        'tensorboard_log_dir': os.path.join(DL_DATASET, 'predictions', '256', 'log'),
-        'pretrained_weights': 'model-input256-256-batch8-drop05-best.hdf5',
-        'image_prediction_folder': os.path.join(DL_DATASET, 'test', 'big'),
-        'output_prediction': os.path.join(DL_DATASET, 'predictions', '256', 'inference'),
-        'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', '256', 'shp'),
+        'output_checkpoints': os.path.join(DL_DATASET, 'predictions', 'weight'),
+        'output_history': os.path.join(DL_DATASET, 'predictions', 'history'),
+        'save_model_dir': os.path.join(DL_DATASET, 'predictions', 'model'),
+        'tensorboard_log_dir': os.path.join(DL_DATASET, 'predictions', 'log'),
+        'pretrained_weights': 'model-input256-256-batch8-drop05-epoch26.hdf5',
+        'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
+        'output_prediction': os.path.join(DL_DATASET, 'predictions', 'inference'),
+        'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', 'shp'),
         'tmp_slices': os.path.join(DL_DATASET, 'tmp', 'tmp_slice'),
         'tmp_slices_predictions': os.path.join(DL_DATASET, 'tmp', 'tmp_slice_predictions'),
         'input_size_w': 256,
@@ -38,7 +51,7 @@ DL_PARAM = {
         'pooling_size': 2,
         'pooling_stride': 2,
         'dropout_rate': 0.5,
-        'epochs': 500,
+        'epochs': 200,
         'classes': {
                 "other": [0, 0, 0],
                 "nut": [102, 153, 0],
