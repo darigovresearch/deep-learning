@@ -12,6 +12,7 @@ decorator==4.4.2
 docutils==0.16
 flatbuffers==1.12
 gast==0.3.3
+GDAL==3.0.0
 google-auth==1.21.2
 google-auth-oauthlib==0.4.1
 google-pasta==0.2.0
