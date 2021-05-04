@@ -134,18 +134,19 @@ class Infer:
                                                                load_param['height_slice'],
                                                                load_param['tmp_slices'])
 
-                logging.info(">>>> Loading slices and predicting...")
+                logging.info(">>>> Predicting each of {} slices and predicting...".format(len(list_images)))
                 prediction_path_list = []
                 for path in list_images:
                     images_array = load_img(path, target_size=(load_param['input_size_w'], load_param['input_size_h']))
                     images_array = image.img_to_array(images_array)
                     images_array = np.expand_dims(images_array, axis=0)
+                    images_array = cv2.normalize(images_array, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_32F)
 
                     prediction = model.get_model().predict(images_array)
                     prediction_path_list.append(self.segment_image(path, prediction, load_param))
 
-                logging.info(">>>> Merging {} predictions in image with {} x {}...".format(len(prediction_path_list),
-                                                                                           dims[0], dims[1]))
+                logging.info(">>>> Merging the {} predictions in image with {} x {}...".
+                             format(len(prediction_path_list), dims[0], dims[1]))
                 complete_path_to_merged_prediction = os.path.join(load_param['output_prediction'], name + ".png")
                 slicer.Slicer().merge_images(prediction_path_list, dims[0], dims[1],
                                              complete_path_to_merged_prediction)
@@ -156,22 +157,26 @@ class Infer:
                                     load_param['classes'],
                                     complete_path,
                                     load_param['output_prediction_shp'])
-
-                utils.Utils().flush_files(load_param['tmp_slices'])
-                utils.Utils().flush_files(load_param['tmp_slices_predictions'])
             else:
                 image_to_predict = load_img(complete_path, target_size=(load_param['input_size_w'],
                                                                         load_param['input_size_h']))
                 images_array = image.img_to_array(image_to_predict)
+                images_array = cv2.normalize(images_array, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_32F)
                 images_array = np.expand_dims(images_array, axis=0)
 
                 prediction = model.get_model().predict(images_array)
 
                 prediction_path = self.segment_image(complete_path, prediction, load_param)
 
+                complete_path_to_prediction = os.path.join(load_param['output_prediction'], name + ".png")
+                os.replace(prediction_path, complete_path_to_prediction)
+
                 if is_geographic_file is True:
                     logging.info(">>>> Polygonizing segmented image...")
-                    self.poligonize(prediction_path,
+                    self.poligonize(complete_path_to_prediction,
                                     load_param['classes'],
                                     complete_path,
                                     load_param['output_prediction_shp'])
+
+            utils.Utils().flush_files(load_param['tmp_slices'])
+            utils.Utils().flush_files(load_param['tmp_slices_predictions'])

@@ -24,7 +24,6 @@ class UNet:
         load_unet_parameters = settings.DL_PARAM['unet']
 
         self.learning_rate = load_unet_parameters['learning_rate']
-        self.batch_size = load_unet_parameters['batch_size']
         self.num_filters = load_unet_parameters['filters']
         self.kernel_size = load_unet_parameters['kernel_size']
         self.deconv_kernel_size = load_unet_parameters['deconv_kernel_size']
@@ -39,9 +38,9 @@ class UNet:
         self.loss_fn = SparseCategoricalCrossentropy()
         self.optimizer = Adam(learning_rate=self.learning_rate)
 
-        suffix = "model-input" + str(input_size[0]) + "-" + str(input_size[1]) + "-batch" + \
-                 str(load_unet_parameters['batch_size']) + "-drop" + \
-                 str(load_unet_parameters['dropout_rate']).replace(".", "") + "-epoch" + "{epoch:02d}.hdf5"
+        suffix = "model-input" + str(input_size[0]) + "-" + str(input_size[1]) + "-drop" + \
+                 str(self.dropout_rate).replace(".", "") + \
+                 "-epoch" + "{epoch:02d}.hdf5"
         filepath = os.path.join(load_unet_parameters['output_checkpoints'], suffix)
 
         self.callbacks = [
@@ -185,12 +184,6 @@ class UNet:
         :return learning_rate: the respective optimizer's learning rate. Previously defined in settings.py
         """
         return self.learning_rate
-
-    def get_batch_size(self):
-        """
-        :return batch_size: the respective model's batch_size. Previously defined in settings.py
-        """
-        return self.batch_size
 
     def get_num_channels(self):
         """

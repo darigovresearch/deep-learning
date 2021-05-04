@@ -163,30 +163,35 @@ class Poligonize:
             corners, hierarchy = cv2.findContours(image_segmented_ingray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
             geometries = self._create_geometry(corners, hierarchy, image)
 
-            classes_and_geometries[gt_classes[k]] = geometries
+            if len(geometries) != 0:
+                classes_and_geometries[gt_classes[k]] = geometries
 
-        if bool(classes_and_geometries):
+        if not bool(classes_and_geometries):
             logging.info(">>>>>> There is no geometry for file {}. Vector creation skipped!".
                          format(segmented_image_path))
             return
 
         layer = ds.CreateLayer(name, srs, ogr.wkbPolygon)
-        layer.CreateField(_area)
-        layer.CreateField(_class)
 
-        for key, value in classes_and_geometries.items():
-            for g in range(len(value)):
-                feature_defn = layer.GetLayerDefn()
-                feature = ogr.Feature(feature_defn)
+        if layer is not None:
+            layer.CreateField(_area)
+            layer.CreateField(_class)
 
-                area = value[g].GetArea()
-                feature.SetGeometry(value[g])
-                feature.SetField('area', area)
-                feature.SetField('class', key)
+            for key, value in classes_and_geometries.items():
+                for g in range(len(value)):
+                    feature_defn = layer.GetLayerDefn()
+                    feature = ogr.Feature(feature_defn)
 
-                layer.CreateFeature(feature)
+                    area = value[g].GetArea()
+                    feature.SetGeometry(value[g])
+                    feature.SetField('area', area)
+                    feature.SetField('class', key)
 
-        logging.info(">>>>>> Vector file of image {} created!".format(filename))
+                    layer.CreateFeature(feature)
+
+            logging.info(">>>>>> Vector file of image {} created!".format(filename))
+        else:
+            logging.info(">>>>>> Name {} was not recognized. Layer None!".format(name))
 
     def polygonize(self, segmented_image_path, classes, original_image_path, output_vector_path):
         """
@@ -205,3 +210,4 @@ class Poligonize:
             return
 
         self.create_shapefile(segmented_image_path, classes, original_image_path, output_vector_path, 'ESRI Shapefile')
+

@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from datetime import datetime
 from output import infer
-from input import loader, helper
+from input import loader, helper, augment
 from dl.model import unet
 from coloredlogs import ColoredFormatter
 
@@ -59,11 +59,12 @@ def get_dl_model(network_type, load_param, is_pretrained, is_saved):
     return model_obj
 
 
-def main(network_type, is_training, is_predicting):
+def main(network_type, augment_data, is_training, is_predicting):
     """
     Initiate the processing: execute training and predictions according to is_training and is_predicting variables
 
     :param network_type: Deep Learning architecture: unet, deeplabv3, so on
+    :param augment_data: a boolean, if True, the input samples are then augmented
     :param is_training: a boolean, if True, the input samples are then loaded, the specified model is compiled and
     the training is performed
     :param is_predicting: a boolean, if True, the deep learning inferences is performed according
@@ -77,6 +78,21 @@ def main(network_type, is_training, is_predicting):
     logging.info("Starting process...")
 
     load_param = settings.DL_PARAM[network_type]
+
+    if eval(augment_data):
+        path_train_images = os.path.join(load_param['image_training_folder'], 'image')
+        path_train_labels = os.path.join(load_param['image_training_folder'], 'label')
+        img_size = (load_param['input_size_w'], load_param['input_size_h'])
+
+        train_images_paths = loader.Loader(path_train_images)
+        train_labels_paths = loader.Loader(path_train_labels)
+        train_images_paths = train_images_paths.get_list_images()
+        train_labels_paths = train_labels_paths.get_list_images()
+
+        logging.info(">> Augmenting entries...")
+
+        augmentor = augment.Augment(img_size, train_images_paths, train_labels_paths)
+        augmentor.augment()
 
     if eval(is_training):
         batch_size = load_param['batch_size']
@@ -104,8 +120,10 @@ def main(network_type, is_training, is_predicting):
         val_input_images = train_images_paths[-percent_val:]
         val_labels_images = train_labels_paths[-percent_val:]
 
-        train_generator_obj = helper.Helper(batch_size, img_size, train_input_images, train_input_labels, augment=True, shuffle=True)
-        val_generator_obj = helper.Helper(batch_size, img_size, val_input_images, val_labels_images, augment=False, shuffle=False)
+        train_generator_obj = helper.Helper(batch_size, img_size, train_input_images,
+                                            train_input_labels, augment=False, shuffle=False)
+        val_generator_obj = helper.Helper(batch_size, img_size, val_input_images,
+                                          val_labels_images, augment=False, shuffle=False)
 
         dl_obj.get_model().compile(optimizer=dl_obj.get_optimizer(), loss=dl_obj.get_loss(), metrics=['accuracy'])
 
@@ -146,13 +164,14 @@ if __name__ == '__main__':
         > python main.py -model MODEL -train BOOLEAN -predict BOOLEAN -verbose BOOLEAN
                 
     Usage:
-        > python main.py -model unet -train True -predict False -verbose True
-        > python main.py -model unet -train False -predict True -verbose True
-        > python main.py -model unet -train True -predict True -verbose True
+        > python main.py -model unet -augment False -train True -predict False -verbose True
+        > python main.py -model unet -augment False -train False -predict True -verbose True
+        > python main.py -model unet -augment False -train True -predict True -verbose True
     """
     parser = argparse.ArgumentParser(description='Integrate some of the main Deep Learning models for remote sensing '
                                                  'image analysis and mapping')
     parser.add_argument('-model', action="store", dest='model', help='Deep Learning model name: unet, deeplabv3')
+    parser.add_argument('-augment', action="store", dest='augment', help='If True, augment training data')
     parser.add_argument('-train', action="store", dest='train', help='Perform neural network training?')
     parser.add_argument('-predict', action="store", dest='predict', help='Perform neural network prediction?')
     parser.add_argument('-verbose', action="store", dest='verbose', help='Print log of processing')
@@ -178,7 +197,7 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s")
 
-    main(args.model, args.train, args.predict)
+    main(args.model, args.augment, args.train, args.predict)
 
 
 
