@@ -1,5 +1,4 @@
 import os
-import cv2
 import logging
 import imgaug as ia
 import numpy as np
@@ -19,6 +18,14 @@ class Augment:
 
     def get_augment_seq(self, aug_type):
         """
+        Prepare augmentation and return the respective aug_type object
+
+        :param aug_type: string describing the augmentation type
+        :return: imgaug object
+
+        Source:
+            - https://www.programcreek.com/python/example/115046/imgaug.HooksImages
+            - https://www.programcreek.com/python/?code=JohnleeHIT%2FBrats2019%2FBrats2019-master%2Fsrc%2Futils.py#
         """
         sometimes = lambda aug: iaa.Sometimes(0.5, aug)
 
@@ -70,6 +77,11 @@ class Augment:
 
     def image_aug_filename(self, path, aug_type):
         """
+        Setup filename to the augmented image
+
+        :param path: absolute path to original file
+        :param aug_type: type of augment effect
+        :return: the new augmented image filename
         """
         dirname = os.path.dirname(path)
         filename = os.path.basename(path)
@@ -80,6 +92,7 @@ class Augment:
 
     def augment(self):
         """
+        Get all images entries and apply augmentation according to types variable
         """
         types = ['all', 'rotation', 'distortion', 'blured', 'noise']
 

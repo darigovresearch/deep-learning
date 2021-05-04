@@ -22,14 +22,19 @@ DL model [utils]
 .. automodule:: dl.model.utils
    :members:
 
-Input helper
+Input Augmentation
 =====================
-.. automodule:: input.helper
+.. automodule:: input.augment
    :members:
 
 Input loader
 =====================
 .. automodule:: input.loader
+   :members:
+
+Input helper
+=====================
+.. automodule:: input.helper
    :members:
 
 Output inferences

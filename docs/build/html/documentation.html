@@ -93,8 +93,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-dl.model.unet">DL models [UNet]</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#dl-model-deeplabv3">DL model [DeepLabv3+]</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-dl.model.utils">DL model [utils]</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-input.helper">Input helper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-input.augment">Input Augmentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-input.loader">Input loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-input.helper">Input helper</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-output.infer">Output inferences</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-output.poligonize">Output poligonization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-output.slicer">Output slicer</a></li>
@@ -205,12 +206,13 @@ set in settings.py file [save_model_dir]
 
 <dl class="py function">
 <dt id="main.main">
-<code class="sig-prename descclassname">main.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">network_type</span></em>, <em class="sig-param"><span class="n">is_training</span></em>, <em class="sig-param"><span class="n">is_predicting</span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">main.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">network_type</span></em>, <em class="sig-param"><span class="n">augment_data</span></em>, <em class="sig-param"><span class="n">is_training</span></em>, <em class="sig-param"><span class="n">is_predicting</span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.main" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initiate the processing: execute training and predictions according to is_training and is_predicting variables</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>network_type</strong> – Deep Learning architecture: unet, deeplabv3, so on</p></li>
+<li><p><strong>augment_data</strong> – a boolean, if True, the input samples are then augmented</p></li>
 <li><p><strong>is_training</strong> – a boolean, if True, the input samples are then loaded, the specified model is compiled and</p></li>
 </ul>
 </dd>
@@ -293,16 +295,6 @@ set in settings.py</p>
 </dd>
 <dt class="field-even">Return deconv</dt>
 <dd class="field-even"><p>the resultant tensor after deconvolution (transposition) operation</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="dl.model.unet.UNet.get_batch_size">
-<code class="sig-name descname">get_batch_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dl.model.unet.UNet.get_batch_size" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return batch_size</dt>
-<dd class="field-odd"><p>the respective model’s batch_size. Previously defined in settings.py</p>
 </dd>
 </dl>
 </dd></dl>
@@ -424,29 +416,14 @@ set in settings.py</p>
 <div class="section" id="module-dl.model.utils">
 <span id="dl-model-utils"></span><h2>DL model [utils]<a class="headerlink" href="#module-dl.model.utils" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-input.helper">
-<span id="input-helper"></span><h2>Input helper<a class="headerlink" href="#module-input.helper" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="input.helper.Helper">
-<em class="property">class </em><code class="sig-prename descclassname">input.helper.</code><code class="sig-name descname">Helper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em>, <em class="sig-param"><span class="n">img_size</span></em>, <em class="sig-param"><span class="n">input_img_paths</span></em>, <em class="sig-param"><span class="n">target_img_paths</span></em><span class="sig-paren">)</span><a class="headerlink" href="#input.helper.Helper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper to iterate over the data (as Numpy arrays)</p>
-<dl class="simple">
-<dt>Sources:</dt><dd><ul class="simple">
-<li><p><a class="reference external" href="https://keras.io/examples/vision/oxford_pets_image_segmentation/">https://keras.io/examples/vision/oxford_pets_image_segmentation/</a></p></li>
-<li><p><a class="reference external" href="https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly">https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly</a></p></li>
-<li><p><a class="reference external" href="https://stackoverflow.com/questions/43884463/how-to-convert-rgb-image-to-one-hot-encoded-3d-array-based-on-color-using-numpy">https://stackoverflow.com/questions/43884463/how-to-convert-rgb-image-to-one-hot-encoded-3d-array-based-on-color-using-numpy</a></p></li>
-<li><p><a class="reference external" href="https://stackoverflow.com/questions/54011487/typeerror-unsupported-operand-types-for-image-and-int">https://stackoverflow.com/questions/54011487/typeerror-unsupported-operand-types-for-image-and-int</a></p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
+<div class="section" id="module-input.augment">
+<span id="input-augmentation"></span><h2>Input Augmentation<a class="headerlink" href="#module-input.augment" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-input.loader">
 <span id="input-loader"></span><h2>Input loader<a class="headerlink" href="#module-input.loader" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="input.loader.Loader">
-<em class="property">class </em><code class="sig-prename descclassname">input.loader.</code><code class="sig-name descname">Loader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dir</span></em><span class="sig-paren">)</span><a class="headerlink" href="#input.loader.Loader" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">input.loader.</code><code class="sig-name descname">Loader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em><span class="sig-paren">)</span><a class="headerlink" href="#input.loader.Loader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Image training and validation loader</p>
 <dl class="simple">
 <dt>Source:</dt><dd><ul class="simple">
@@ -481,6 +458,36 @@ set in settings.py</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-input.helper">
+<span id="input-helper"></span><h2>Input helper<a class="headerlink" href="#module-input.helper" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="input.helper.Helper">
+<em class="property">class </em><code class="sig-prename descclassname">input.helper.</code><code class="sig-name descname">Helper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em>, <em class="sig-param"><span class="n">img_size</span></em>, <em class="sig-param"><span class="n">input_img_paths</span></em>, <em class="sig-param"><span class="n">target_img_paths</span></em>, <em class="sig-param"><span class="n">shuffle</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">augment</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#input.helper.Helper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper to iterate over the data (as Numpy arrays)</p>
+<dl class="simple">
+<dt>Sources:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="https://keras.io/examples/vision/oxford_pets_image_segmentation/">https://keras.io/examples/vision/oxford_pets_image_segmentation/</a></p></li>
+<li><p><a class="reference external" href="https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly">https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly</a></p></li>
+<li><p><a class="reference external" href="https://stackoverflow.com/questions/43884463/how-to-convert-rgb-image-to-one-hot-encoded-3d-array-based-on-color-using-numpy">https://stackoverflow.com/questions/43884463/how-to-convert-rgb-image-to-one-hot-encoded-3d-array-based-on-color-using-numpy</a></p></li>
+<li><p><a class="reference external" href="https://stackoverflow.com/questions/54011487/typeerror-unsupported-operand-types-for-image-and-int">https://stackoverflow.com/questions/54011487/typeerror-unsupported-operand-types-for-image-and-int</a></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="input.helper.Helper.on_epoch_end">
+<code class="sig-name descname">on_epoch_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#input.helper.Helper.on_epoch_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates indexes after each epoch</p>
+<dl class="simple">
+<dt>Source:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="https://www.kaggle.com/mpalermo/keras-pipeline-custom-generator-imgaug">https://www.kaggle.com/mpalermo/keras-pipeline-custom-generator-imgaug</a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-output.infer">
 <span id="output-inferences"></span><h2>Output inferences<a class="headerlink" href="#module-output.infer" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -504,7 +511,7 @@ file according to the classes specified in settings.py file</p>
 <li><p><strong>original_image_path</strong> – the original raster image path, where the geographic metadata is
 read and transfer to the output</p></li>
 <li><p><strong>output_vector_path</strong> – the output path, where the new geographic format is saved</p></li>
-<li><p><strong>vector_type</strong> – default value is ESRI Shapefile (most commom), but GeoJSON is accepted</p></li>
+<li><p><strong>vector_type</strong> – default value is ESRI Shapefile (most common), but GeoJSON is accepted</p></li>
 </ul>
 </dd>
 </dl>
