@@ -17,13 +17,12 @@ class Helper(Sequence):
         - https://stackoverflow.com/questions/54011487/typeerror-unsupported-operand-types-for-image-and-int
     """
 
-    def __init__(self, batch_size, img_size, input_img_paths, target_img_paths, shuffle=False, augment=False):
+    def __init__(self, batch_size, img_size, input_img_paths, target_img_paths, shuffle=False):
         self.batch_size = batch_size
         self.img_size = img_size
         self.input_img_paths = input_img_paths
         self.target_img_paths = target_img_paths
         self.shuffle = shuffle
-        self.augment = augment
         self.indexes = np.arange(len(self.input_img_paths))
         # self.on_epoch_end()
 
@@ -70,10 +69,4 @@ class Helper(Sequence):
             for j, path in enumerate(batch_target_img_paths):
                 img = load_img(path, target_size=self.img_size, color_mode="grayscale")
                 y[j] = np.expand_dims(img, 2)
-
-        # if self.augment is True:
-        #     x = x.astype(np.uint8)
-        #     x, y = self.augmentor_3(x, y)
-        #     x = x.astype(np.float32)
-
         return x, y

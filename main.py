@@ -121,9 +121,9 @@ def main(network_type, augment_data, is_training, is_predicting):
         val_labels_images = train_labels_paths[-percent_val:]
 
         train_generator_obj = helper.Helper(batch_size, img_size, train_input_images,
-                                            train_input_labels, augment=False, shuffle=False)
+                                            train_input_labels, shuffle=False)
         val_generator_obj = helper.Helper(batch_size, img_size, val_input_images,
-                                          val_labels_images, augment=False, shuffle=False)
+                                          val_labels_images, shuffle=False)
 
         dl_obj.get_model().compile(optimizer=dl_obj.get_optimizer(), loss=dl_obj.get_loss(), metrics=['accuracy'])
 
@@ -145,7 +145,7 @@ def main(network_type, augment_data, is_training, is_predicting):
             ax[0].plot(history.history['val_loss'], label="ValLoss")
             ax[0].legend(loc='best', shadow=True)
 
-            ax[1].plot(history.history['acc'], label="TrainAcc")
+            ax[1].plot(history.history['accuracy'], label="TrainAcc")
             ax[1].plot(history.history['val_acc'], label="ValAcc")
             ax[1].legend(loc='best', shadow=True)
             plt.show()

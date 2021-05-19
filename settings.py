@@ -7,7 +7,7 @@ GEOGRAPHIC_ACCEPT_EXTENSION = ('.TIFF', '.tiff', '.TIF', '.tif', '.GEOTIFF', '.g
 NON_GEOGRAPHIC_ACCEPT_EXTENSION = (".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG")
 
 LABEL_TYPE = 'classid'
-PLOT_TRAINING = False
+PLOT_TRAINING = True
 VALIDATION_SPLIT = 0.15
 RASTER_TILES_COMPOSITION = ['5', '3', '2']
 CLASSES_TO_CONVERT_RASTER_TO_GEOGRAPHIC_FORMAT = ['nut']
@@ -22,18 +22,18 @@ DL_PARAM = {
         'output_history': os.path.join(DL_DATASET, 'predictions', 'history'),
         'save_model_dir': os.path.join(DL_DATASET, 'predictions', 'model'),
         'tensorboard_log_dir': os.path.join(DL_DATASET, 'predictions', 'log'),
-        'pretrained_weights': 'best-north/model-input256-256-drop05-epoch51.hdf5',
-        'image_prediction_folder': os.path.join(DL_DATASET, 'test', 'small'),
-        'output_prediction': os.path.join(DL_DATASET, 'predictions', 'inference', 'small'),
-        'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', 'shp', 'small'),
+        'pretrained_weights': 'model-input256-256-drop05-epoch24.hdf5',
+        'image_prediction_folder': os.path.join(DL_DATASET, 'test'),
+        'output_prediction': os.path.join(DL_DATASET, 'predictions', 'inference', 'png'),
+        'output_prediction_shp': os.path.join(DL_DATASET, 'predictions', 'inference', 'shp'),
         'tmp_slices': os.path.join(DL_DATASET, 'tmp', 'tmp_slice'),
         'tmp_slices_predictions': os.path.join(DL_DATASET, 'tmp', 'tmp_slice_predictions'),
         'input_size_w': 256,
         'input_size_h': 256,
         'input_size_c': 3,
-        'batch_size': 8,
+        'batch_size': 16,
         'learning_rate': 0.0001,
-        'filters': 64,
+        'filters': 32,
         'kernel_size': 3,
         'deconv_kernel_size': 3,
         'pooling_size': 2,
