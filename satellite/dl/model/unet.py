@@ -1,6 +1,6 @@
 import os
 import logging
-import settings
+from satellite import settings
 
 from datetime import datetime
 from tensorflow import keras

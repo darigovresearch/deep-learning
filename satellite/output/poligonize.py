@@ -4,7 +4,7 @@ import logging
 import cv2
 import ogr as ogr
 import osr as osr
-import settings
+from satellite import settings
 
 from os.path import basename
 

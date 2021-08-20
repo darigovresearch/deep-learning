@@ -7,7 +7,7 @@ import numpy as np
 import satellite.input.loader as loader
 import satellite.output.slicer as slicer
 import satellite.output.poligonize as poligonizer
-import settings
+from satellite import settings
 
 from utils import utils
 from tensorflow.keras.preprocessing import image

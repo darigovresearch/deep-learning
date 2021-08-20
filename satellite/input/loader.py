@@ -1,5 +1,5 @@
 import os
-import settings
+from satellite import settings
 import logging
 
 

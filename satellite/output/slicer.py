@@ -1,7 +1,7 @@
 import logging
 import os
 import gdal
-import settings
+from satellite import settings
 
 from os.path import basename
 from PIL import Image

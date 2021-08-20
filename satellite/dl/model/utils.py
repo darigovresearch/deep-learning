@@ -1,4 +1,4 @@
-import settings
+from satellite import settings
 
 from keras.preprocessing.image import ImageDataGenerator
 

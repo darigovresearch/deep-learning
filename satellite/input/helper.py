@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import settings
+from satellite import settings
 
 from tensorflow.keras.utils import Sequence
 from tensorflow.keras.preprocessing.image import load_img

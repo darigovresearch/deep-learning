@@ -1,8 +1,7 @@
 import os
 import logging
-import imgaug as ia
 import numpy as np
-import settings
+from satellite import settings
 
 from PIL import Image
 from imgaug import augmenters as iaa
