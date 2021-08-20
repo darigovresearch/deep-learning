@@ -3,11 +3,10 @@ import logging
 import imageio
 import cv2
 import gdal
-import shutil
 import numpy as np
-import input.loader as loader
-import output.slicer as slicer
-import output.poligonize as poligonizer
+import satellite.input.loader as loader
+import satellite.output.slicer as slicer
+import satellite.output.poligonize as poligonizer
 import settings
 
 from utils import utils
