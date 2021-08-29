@@ -6,7 +6,7 @@ DL_DATASET = config('DL_DATASET')
 GEOGRAPHIC_ACCEPT_EXTENSION = ('.TIFF', '.tiff', '.TIF', '.tif', '.GEOTIFF', '.geotiff')
 NON_GEOGRAPHIC_ACCEPT_EXTENSION = (".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG")
 
-LABEL_TYPE = 'classid'
+LABEL_TYPE = 'classid-aug-all-bands'
 PLOT_TRAINING = True
 VALIDATION_SPLIT = 0.15
 RASTER_TILES_COMPOSITION = ['5', '3', '2']

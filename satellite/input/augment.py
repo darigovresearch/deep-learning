@@ -1,6 +1,10 @@
 import os
 import logging
+
+import gdal
 import numpy as np
+import tifffile
+
 from satellite import settings
 
 from PIL import Image
@@ -32,7 +36,7 @@ class Augment:
                 iaa.Flipud(1.0),  # vertically flip 20% of all images
                 iaa.Dropout([0.05, 0.2]),  # drop 5% or 20% of all pixels
                 iaa.Affine(scale=(0.5, 0.8)),
-                iaa.GaussianBlur((0, 3.0), name="GaussianBlur"),
+                # iaa.GaussianBlur((0, 3.0), name="GaussianBlur"),
                 iaa.Affine(rotate=(-45, 45)),  # rotate by -45 to 45 degrees (affects segmaps)
             ], random_order=True)
         elif aug_type == 'rotation':
@@ -79,6 +83,8 @@ class Augment:
     def augment(self):
         """
         Get all images entries and apply augmentation according to types variable
+        Source:
+            - https://www.programcreek.com/python/example/127234/tifffile.imsave
         """
         types = ['all', 'rotation', 'blured', 'noise', 'resize']
 
@@ -89,9 +95,18 @@ class Augment:
             logging.info(">>>> Augmenting with {} effects...".format(t))
 
             for j in range(0, len(self.train_image_paths)):
-                x = np.zeros(self.img_size + (3,), dtype="float32")
-                x = load_img(self.train_image_paths[j], target_size=self.img_size)
-                x = np.asarray(x)
+                # Reading with 3-channels only
+                # x = np.zeros(self.img_size + (x_ds.RasterCount,), dtype="float32")
+                # x = load_img(self.train_image_paths[j], target_size=self.img_size)
+                # x = np.asarray(x)
+
+                # Reading with N-channels - GDAL solution
+                x_ds = gdal.Open(self.train_image_paths[j], gdal.GA_ReadOnly)
+                x = x_ds.ReadAsArray()
+                x = np.moveaxis(x, 0, -1)
+
+                # Reading with N-channels - tifffile solution
+                # x = tifffile.imread(self.train_image_paths[j])
 
                 if settings.LABEL_TYPE == 'rgb':
                     y = np.zeros(self.img_size + (3,), dtype="uint8")
@@ -100,15 +115,24 @@ class Augment:
                     y = load_img(self.train_labels_paths[j], target_size=self.img_size, color_mode="grayscale")
                     y = np.expand_dims(y, 2)
 
+                # If x if more than 3-channels image, the augmentation will fail for color-like augments
                 x = det.augment_image(x)
                 y = det.augment_image(y)
 
                 image_aug_filename = self.image_aug_filename(self.train_image_paths[j], t)
                 label_aug_filename = self.image_aug_filename(self.train_labels_paths[j], t)
 
-                im_x = Image.fromarray(x)
+                # If x is 3-channels or lower, Pillow would save it, otherwise, it will fail
+                # im_x = Image.fromarray(x)
+                # im_x.save(image_aug_filename, "TIFF")
+
+                a = Image.fromarray(x[:, :, 0])
+                a.save(image_aug_filename, save_all=True,
+                       append_images=[Image.fromarray(x[:, :, c]) for c in range(1, x.shape[2])])
+
+                # If x is 3-channels or lower, Pillow would save it, otherwise, it will fail
+                # tifffile.imwrite(image_aug_filename, x)
+
                 y = np.squeeze(y, axis=2)
                 im_y = Image.fromarray(y)
-
-                im_x.save(image_aug_filename, "TIFF")
                 im_y.save(label_aug_filename)
