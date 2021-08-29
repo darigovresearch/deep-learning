@@ -85,6 +85,7 @@ class Augment:
         Get all images entries and apply augmentation according to types variable
         Source:
             - https://www.programcreek.com/python/example/127234/tifffile.imsave
+            - https://stackoverflow.com/questions/53776506/how-to-save-an-array-representing-an-image-with-40-band-to-a-tif-file
         """
         types = ['all', 'rotation', 'blured', 'noise', 'resize']
 
