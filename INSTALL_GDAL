@@ -9,6 +9,8 @@ sudo apt-get install gdal-bin libgdal-dev
 then, in virtual environment, run:
 
 pip install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
+or
+pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
 
 If any problems rise, please, check links like:
     - https://stackoverflow.com/questions/39455741/gcc-error-trying-to-exec-cc1plus-execvp-no-such-file-or-directory
