@@ -97,14 +97,16 @@ class Augment:
 
             for j in range(0, len(self.train_image_paths)):
                 # Reading with 3-channels only
-                # x = np.zeros(self.img_size + (x_ds.RasterCount,), dtype="float32")
-                # x = load_img(self.train_image_paths[j], target_size=self.img_size)
-                # x = np.asarray(x)
+                # x = np.zeros(self.img_size + (3,), dtype="float32")
+                x = load_img(self.train_image_paths[j], target_size=self.img_size)
+                x = np.asarray(x)
+
+                # x = tifffile.imread(self.train_image_paths[j])
 
                 # Reading with N-channels - GDAL solution
-                x_ds = gdal.Open(self.train_image_paths[j], gdal.GA_ReadOnly)
-                x = x_ds.ReadAsArray()
-                x = np.moveaxis(x, 0, -1)
+                # x_ds = gdal.Open(self.train_image_paths[j], gdal.GA_ReadOnly)
+                # x = x_ds.ReadAsArray()
+                # x = np.moveaxis(x, 0, -1)
 
                 # Reading with N-channels - tifffile solution
                 # x = tifffile.imread(self.train_image_paths[j])
@@ -123,17 +125,19 @@ class Augment:
                 image_aug_filename = self.image_aug_filename(self.train_image_paths[j], t)
                 label_aug_filename = self.image_aug_filename(self.train_labels_paths[j], t)
 
-                # If x is 3-channels or lower, Pillow would save it, otherwise, it will fail
-                # im_x = Image.fromarray(x)
-                # im_x.save(image_aug_filename, "TIFF")
-
-                a = Image.fromarray(x[:, :, 0])
-                a.save(image_aug_filename, save_all=True,
-                       append_images=[Image.fromarray(x[:, :, c]) for c in range(1, x.shape[2])])
+                # solutions for x with n-channels
+                # a = Image.fromarray(x[:, :, 0])
+                # a.save(image_aug_filename, save_all=True,
+                #        append_images=[Image.fromarray(x[:, :, c]) for c in range(1, x.shape[2])])
 
                 # If x is 3-channels or lower, Pillow would save it, otherwise, it will fail
                 # tifffile.imwrite(image_aug_filename, x)
 
+                # If x is 3-channels or lower, Pillow would save it, otherwise, it will fail
+                im_x = Image.fromarray(x)
                 y = np.squeeze(y, axis=2)
                 im_y = Image.fromarray(y)
+
+                im_x.save(image_aug_filename, "TIFF")
                 im_y.save(label_aug_filename)
+
