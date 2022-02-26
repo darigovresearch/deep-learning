@@ -1,11 +1,11 @@
 import os
+import cv2
 import gdal
 import logging
-import cv2
 import ogr as ogr
 import osr as osr
-from satellite import settings
 
+from satellite import settings
 from os.path import basename
 
 
@@ -13,10 +13,8 @@ class Poligonize:
     """
     Perform poligonization [raster to vector] operations, despite the utils methods for it
     """
-    def __init__(self):
-        pass
 
-    def _create_geometry(self, corners, hierarchy, image):
+    def create_geometry(self, corners, hierarchy, image):
         """
         Interpret the corners and its hierarchy from findContours openCV method, and convert it in a geographic
         geometry, according to the image metadata
@@ -47,7 +45,6 @@ class Poligonize:
                     flag = False
                     initial_x = x_geo
                     initial_y = y_geo
-
             ring.AddPoint(initial_x, initial_y)
             poly.AddGeometry(ring)
 
@@ -61,7 +58,6 @@ class Poligonize:
             else:
                 geom.append(ogr.CreateGeometryFromWkt(poly.ExportToWkt()))
                 poly = ogr.Geometry(ogr.wkbPolygon)
-
         return geom
 
     def get_classes_gt(self, segmented, classes):
@@ -101,7 +97,7 @@ class Poligonize:
         :param key: the string class name
         :return: a new image, with a filtered color class
         """
-        logging.info(">>>>>> Spliting images by classes...")
+        logging.info(">>>>>> Splitting images by classes...")
 
         image_segmented = cv2.imread(segmented)
         image_segmented = cv2.cvtColor(image_segmented, cv2.COLOR_BGR2RGB)
@@ -161,7 +157,7 @@ class Poligonize:
             image_segmented_ingray = cv2.cvtColor(image_segmented, cv2.COLOR_RGB2GRAY)
 
             corners, hierarchy = cv2.findContours(image_segmented_ingray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            geometries = self._create_geometry(corners, hierarchy, image)
+            geometries = self.create_geometry(corners, hierarchy, image)
 
             if len(geometries) != 0:
                 classes_and_geometries[gt_classes[k]] = geometries
@@ -200,7 +196,8 @@ class Poligonize:
 
         :param segmented_image_path: the segmented multiclass image path
         :param classes: the list of classes and respectively colors
-        :param original_image_path: the original raster image path, where the geographic metadata is read and transfer to the output
+        :param original_image_path: the original raster image path, where the geographic metadata is read and transfer
+                                    to the output
         :param output_vector_path: the output path, where the new geographic format is saved
         """
         logging.info(">>>> Initiating polygonization of the raster result...")
