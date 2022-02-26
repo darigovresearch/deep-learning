@@ -60,22 +60,3 @@ jobs:
       - run:
           command: ./manage.py test
           name: Test
-
-workflows:
-  main:
-    jobs:
-      - linux-prepare-dependencies
-#      - linux-build
-#      - linux-test:
-#          requires:
-#            - linux-build
-#      - macos-prepare-dependencies
-#      - macos-build
-#      - macos-test:
-#          requires:
-#            - macos-build
-#      - windows-prepare-dependencies
-#      - windows-build
-#      - windows-test:
-#          requires:
-#            - windows-build
