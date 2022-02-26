@@ -1,0 +1,43 @@
+#
+# Source:
+#   - https://github.com/CircleCI-Public/circleci-demo-python-flask/blob/master/.circleci/config.yml
+#   - https://github.com/CircleCI-Public/circleci-demo-python-django/blob/master/.circleci/config.yml
+#
+# Author: rodolfo.lotte
+# Organization: Bioverse Labs
+#
+
+version: 2.1
+
+orbs:
+  python: circleci/windows@2.2.0
+
+jobs:
+  windows-prepare-dependencies:
+    executor:
+      name: win/default
+      shell: powershell.exe
+      steps:
+        - checkout
+        - run:
+            name: "Install Python"
+            command: choco install python --version=3.7.9
+        - run:
+            name: Download GDAL dependencies
+#            command: |
+#              sudo apt -y update
+#              sudo apt -y upgrade
+#              sudo apt -y install libxml2-dev libxslt1-dev zlib1g-dev g++ gcc
+#              sudo apt -y install gdal-bin libgdal-dev
+#        - run:
+#            name: Creating virtual environment
+#            command: |
+#              python3 -m venv .venv
+        - run:
+            name: Install project's requirements
+            command: pip install --user -r requirements.txt
+#        - run:
+#            name: Install pip GDAL requirement
+#            command: |
+#              . .venv/bin/activate
+#              pip install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
