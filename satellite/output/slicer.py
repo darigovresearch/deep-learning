@@ -1,18 +1,17 @@
 import logging
 import os
 import gdal
-from satellite import settings
 
+from satellite import settings
 from os.path import basename
 from PIL import Image
 
 
 class Slicer:
     """
+    When infering, images with bigger dimensions than the ones used for training should be handled before predictions.
+    This class provide the utilities for that, with cropping/slicing procedures
     """
-    def __init__(self):
-        pass
-
     def slice_bitmap(self, file, width, height, output_folder):
         """
         Open the non-geographic image file, and crop it equally with dimensions of width x height, placing
@@ -92,7 +91,6 @@ class Slicer:
                                                                      '-b', settings.RASTER_TILES_COMPOSITION[0],
                                                                      '-b', settings.RASTER_TILES_COMPOSITION[1],
                                                                      '-b', settings.RASTER_TILES_COMPOSITION[2]])
-
                         paths.append(output_file)
                         cont += 1
                 except RuntimeError:
@@ -106,7 +104,7 @@ class Slicer:
         :param paths: list of absolute paths
         :param max_width: the desired tile width
         :param max_height: the desired tile height
-        :param complete_path_to_merged_prediction:
+        :param complete_path_to_merged_prediction: absolute path to the merged final prediction
         """
         new_im = Image.new('RGBA', (max_width, max_height), (0, 0, 0, 0))
 
@@ -125,5 +123,4 @@ class Slicer:
                 y += (height - buffer)
                 new_im.paste(img, (x, y, x + width, y + height), mask=img)
             x += (width - buffer)
-
         new_im.convert("RGB").save(complete_path_to_merged_prediction, "PNG")
